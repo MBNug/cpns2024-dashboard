@@ -52,46 +52,9 @@ def classify_instansi(nama_instansi: str) -> str:
 
 
 def get_tukin_info(nama_instansi: str, kategori: str) -> Tuple[int, int, str]:
-    """Provide authentic regulatory and baseline tukin/TPP data."""
-    if "Kementerian Keuangan" in nama_instansi:
-        return 2575000, 46950000, "Perpres No. 156 Tahun 2014"
-    if "Kementerian Luar Negeri" in nama_instansi:
-        return 2530000, 33240000, "Perpres No. 124 Tahun 2018"
-    if "Kementerian Kesehatan" in nama_instansi:
-        return 2531250, 26320000, "Perpres No. 109 Tahun 2016"
-    if "Kementerian Hukum dan Hak Asasi Manusia" in nama_instansi:
-        return 2531250, 27577500, "Perpres No. 130 Tahun 2017"
-    if "Kementerian Komunikasi dan Informatika" in nama_instansi:
-        return 2531250, 33240000, "Perpres No. 3 Tahun 2020"
-    if "Kejaksaan Agung" in nama_instansi:
-        return 2531250, 29085000, "Perpres No. 29 Tahun 2020"
-    if "Mahkamah Agung" in nama_instansi:
-        return 2531250, 37560000, "Perpres No. 8 Tahun 2020"
-    if "Badan Riset dan Inovasi Nasional" in nama_instansi:
-        return 2531250, 33240000, "Perpres No. 104 Tahun 2022"
-    if "Otorita Ibu Kota Nusantara" in nama_instansi:
-        return 3200000, 45000000, "Perpres No. 44 Tahun 2023"
-    if "Badan Pengawasan Keuangan dan Pembangunan" in nama_instansi:
-        return 2531250, 33240000, "Perpres No. 128 Tahun 2017"
-    if "Badan Pusat Statistik" in nama_instansi:
-        return 2531250, 26320000, "Perpres No. 111 Tahun 2016"
-    if "Badan Siber dan Sandi Negara" in nama_instansi:
-        return 2531250, 33240000, "Perpres No. 88 Tahun 2020"
-    if "Badan Pemeriksa Keuangan" in nama_instansi:
-        return 2531250, 33240000, "Perpres No. 188 Tahun 2014"
-    if "DKI Jakarta" in nama_instansi:
-        return 4860000, 29000000, "Pergub DKI Jakarta No. 19 Tahun 2020 (TPP Daerah)"
-    if "Jawa Barat" in nama_instansi or "Bandung" in nama_instansi:
-        return 2200000, 15500000, "Pergub Jabar No. 123 Tahun 2021 (TPP Daerah)"
-    if "Jawa Timur" in nama_instansi or "Surabaya" in nama_instansi:
-        return 2100000, 14000000, "Pergub Jatim No. 11 Tahun 2022 (TPP Daerah)"
-
-    if kategori == "Pusat":
-        return 2531250, 24930000, "Perpres Standar KemenPAN-RB (Kelas Jabatan 1-17)"
-    elif kategori == "Provinsi":
-        return 2000000, 12500000, "Peraturan Gubernur tentang TPP ASN Daerah"
-    else:
-        return 1800000, 10000000, "Peraturan Bupati/Walikota tentang TPP ASN Daerah"
+    """Provide authentic regulatory and baseline tukin/TPP data using verified rules or estimated regional ranges."""
+    from scripts.enrich_tukin import enrich_agency
+    return enrich_agency(nama_instansi, kategori)
 
 
 def extract_jenjang(nama_jurusan: str) -> str:

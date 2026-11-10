@@ -778,6 +778,22 @@
 
       </div>
 
+      <!-- Comprehensive Disclaimer Callout Box -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-amber-950/25 border border-amber-500/30 text-xs space-y-2.5">
+        <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>Pernyataan Penyangkalan (Disclaimer) Resmi Data</span>
+        </div>
+        <ul class="space-y-1.5 text-slate-300 text-[11px] leading-relaxed list-disc list-inside">
+          <li><strong>Data Pelamar (jumlah_ms):</strong> Diambil dari snapshot publik verifikasi administrasi BKN per akhir masa pendaftaran CPNS 2024. Data mencerminkan pelamar yang Memenuhi Syarat (MS) pada tahapan administrasi.</li>
+          <li><strong>Tunjangan Kinerja (Tukin) & TPP Daerah:</strong> Hanya instansi Pusat dan Pemprov bertanda <em>(Resmi Terverifikasi)</em> yang memiliki rujukan Perpres/Pergub resmi. Untuk 509 instansi daerah lainnya di mana Perda/Perbup/Perwal belum terpublikasi secara terbuka, nilai yang disajikan adalah <strong>ESTIMASI KISARAN STANDAR REGIONAL (BUKAN NILAI PASTI KARENA DATA RESMI TIDAK DITEMUKAN)</strong>. Nilai riil di lapangan ditetapkan oleh SK Kepala Daerah berdasarkan kelas jabatan, kinerja bulanan (SKP), absensi, dan kapasitas fiskal APBD.</li>
+          <li><strong>Estimasi Take-Home Pay:</strong> Merupakan simulasi nilai bruto (Gaji Pokok PP 5/2024 + Tukin/TPP) sebelum potongan pajak PPh 21, iuran BPJS Kesehatan (1%), dan iuran pensiun Taspen (8%).</li>
+          <li><strong>Peluang Kelulusan:</strong> Rasio kompetisi dan persentase peluang merupakan kalkulasi matematis objektif (<code class="text-cyan-300 font-mono">Kuota / Pelamar</code>) untuk referensi strategis, <strong>bukan jaminan atau garansi kelulusan seleksi</strong>.</li>
+        </ul>
+      </div>
+
     </section>
 
   </main>
@@ -1564,7 +1580,18 @@
         const tukinMinStr = d.tukin_min ? formatRp(d.tukin_min) : 'Sesuai Regulasi';
         const tukinMaxStr = d.tukin_max ? formatRp(d.tukin_max) : '';
         document.getElementById('modal-tukin-range').textContent = tukinMaxStr ? `${tukinMinStr} - ${tukinMaxStr}` : tukinMinStr;
-        document.getElementById('modal-tukin-regulasi').textContent = d.regulasi_tukin || 'Peraturan Pemerintah / KemenPAN-RB';
+
+        const reg = d.regulasi_tukin || 'Peraturan Pemerintah / KemenPAN-RB';
+        const isVerified = reg.includes('Resmi Terverifikasi');
+        const badgeTag = isVerified
+          ? '<span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">✅ Regulasi Resmi Terverifikasi</span>'
+          : '<span class="inline-block px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">⚠️ Estimasi Kisaran (Bukan Nilai Pasti)</span>';
+
+        document.getElementById('modal-tukin-regulasi').innerHTML = `
+          <div class="font-medium text-slate-200">${reg}</div>
+          <div class="mt-1">${badgeTag}</div>
+          ${!isVerified ? '<p class="text-[10px] text-amber-300/80 mt-1 italic leading-tight">* Catatan: Data Perbup/Perwal/Perda resmi instansi belum terpublikasi terbuka. Nilai tukin/TPP di atas adalah estimasi kisaran standar regional, bukan kepastian mutlak.</p>' : ''}
+        `;
 
         // Populate majors list
         const majorsContainer = document.getElementById('modal-majors-list');
