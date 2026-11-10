@@ -101,6 +101,13 @@
           <span class="text-slate-400">Regulasi Gaji:</span>
           <span class="text-sky-300 font-semibold">PP No. 5/2024 (80% CPNS)</span>
         </div>
+        <!-- Kontribusi TPP Button -->
+        <button onclick="openCrowdsourceModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5 font-semibold active:scale-95 shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Kontribusi TPP</span>
+        </button>
         <!-- Sumber Data Page Link with Smooth Scroll -->
         <a href="#section-sumber-data" onclick="document.getElementById('section-sumber-data').scrollIntoView({behavior: 'smooth'}); return false;" class="px-3.5 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 transition flex items-center gap-1.5 font-semibold active:scale-95">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -897,6 +904,19 @@
               <p id="modal-tukin-regulasi" class="font-medium text-slate-300 mt-0.5">---</p>
             </div>
           </div>
+          <!-- Tombol Laporkan / Koreksi TPP Daerah Ini -->
+          <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400">Punya data / SK TPP resmi instansi ini?</span>
+            <button
+              id="btn-lapor-tukin"
+              type="button"
+              onclick="openCrowdsourceModalFromDetail()"
+              class="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              <span>Koreksi / Laporkan TPP</span>
+            </button>
+          </div>
         </div>
 
         <!-- Daftar Lengkap Jurusan yang Memenuhi Syarat -->
@@ -930,6 +950,134 @@
           class="px-4 py-1.5 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
         >
           Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL KONTRIBUSI / KOREKSI TPP DAERAH (CROWDSOURCING) -->
+  <!-- ========================================================================= -->
+  <div
+    id="modal-crowdsource"
+    class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4"
+  >
+    <div class="relative w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden transition-all duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-start justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            Komunitas & Keterbukaan Data
+          </span>
+          <h3 class="text-base sm:text-lg font-bold text-white tracking-tight mt-1">
+            Laporkan / Koreksi TPP Daerah
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Bantu sesama pelamar CPNS dengan melampirkan dasar regulasi resmi Perbup/Perwal/Pergub.
+          </p>
+        </div>
+        <button
+          onclick="closeCrowdsourceModal()"
+          class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition active:scale-95"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
+        
+        <!-- Security notice -->
+        <div class="p-3.5 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-slate-300 space-y-1">
+          <div class="flex items-center gap-1.5 text-cyan-400 font-bold text-xs">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Panduan Aman Kontribusi</span>
+          </div>
+          <p class="text-[11px] leading-relaxed">
+            Untuk menjaga keamanan data bersama, disarankan melampirkan <strong>link resmi dokumen JDIH Pemda (.go.id)</strong>. Jika memiliki file PDF/foto SK, gunakan opsi Google Form di bawah agar dokumen tersimpan aman di cloud Google.
+          </p>
+        </div>
+
+        <!-- Form Fields -->
+        <div class="space-y-3">
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Nama Instansi Daerah:</label>
+            <input
+              id="crowd-instansi"
+              type="text"
+              placeholder="Contoh: Pemerintah Kabupaten Sleman"
+              class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs"
+            />
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Nomor Regulasi / Perbup / Perwal (Jika Tahu):</label>
+            <input
+              id="crowd-regulasi"
+              type="text"
+              placeholder="Contoh: Perbup Sleman No. 12 Tahun 2024 tentang TPP ASN"
+              class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs"
+            />
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Tautan Link JDIH Resmi Pemda (.go.id):</label>
+            <input
+              id="crowd-link"
+              type="url"
+              placeholder="https://jdih.namadaerah.go.id/peraturan/..."
+              class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs font-mono"
+            />
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Besaran / Catatan Tambahan (Opsional):</label>
+            <textarea
+              id="crowd-notes"
+              rows="3"
+              placeholder="Contoh: Pelaksana Kelas 7 sekitar Rp 2,8 Jt, CPNS menerima 80%..."
+              class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs resize-none"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="space-y-2 pt-2">
+          <!-- Button 1: Copy formatted report -->
+          <button
+            type="button"
+            onclick="copyCrowdReport()"
+            class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-semibold flex items-center justify-center gap-2 transition active:scale-95"
+          >
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            <span id="btn-copy-label">Salin Format Laporan ke Clipboard</span>
+          </button>
+
+          <!-- Button 2: Open Google Form / Cloud submission -->
+          <a
+            id="link-google-form"
+            href="https://docs.google.com/forms"
+            target="_blank"
+            class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center justify-center gap-2 transition active:scale-95 shadow-md shadow-emerald-900/40"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Kirim via Formulir Google (Bisa Upload PDF/Foto)</span>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/70 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500">Data akan ditinjau dan divalidasi ke JDIH sebelum masuk ke database.</span>
+        <button
+          type="button"
+          onclick="closeCrowdsourceModal()"
+          class="px-4 py-1.5 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+        >
+          Selesai
         </button>
       </div>
 
@@ -1561,6 +1709,9 @@
         if (!resp.ok) throw new Error(`Detail fetch failed (${resp.status})`);
         const d = await resp.json();
 
+        currentDetailInstansi = d.nama_instansi || '';
+        currentDetailRegulasi = d.regulasi_tukin || '';
+
         document.getElementById('modal-formasi-id').textContent = d.formasi_id;
         document.getElementById('modal-jenis-formasi').textContent = d.jenis_formasi || 'UMUM';
         document.getElementById('modal-jabatan-nm').textContent = d.jabatan_nm;
@@ -1627,6 +1778,56 @@
       const modal = document.getElementById('modal-detail');
       modal.classList.add('hidden');
       document.body.classList.remove('overflow-hidden');
+    }
+
+    let currentDetailInstansi = '';
+    let currentDetailRegulasi = '';
+
+    function openCrowdsourceModal(namaInstansi = '', regulasi = '') {
+      const modal = document.getElementById('modal-crowdsource');
+      const inputInstansi = document.getElementById('crowd-instansi');
+      const inputRegulasi = document.getElementById('crowd-regulasi');
+
+      if (namaInstansi) {
+        inputInstansi.value = namaInstansi;
+      }
+      if (regulasi && !regulasi.includes('Estimasi Kisaran')) {
+        inputRegulasi.value = regulasi;
+      }
+
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function openCrowdsourceModalFromDetail() {
+      openCrowdsourceModal(currentDetailInstansi, currentDetailRegulasi);
+    }
+
+    function closeCrowdsourceModal() {
+      const modal = document.getElementById('modal-crowdsource');
+      modal.classList.add('hidden');
+      const detailModal = document.getElementById('modal-detail');
+      if (detailModal && detailModal.classList.contains('hidden')) {
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    function copyCrowdReport() {
+      const instansi = document.getElementById('crowd-instansi').value.trim() || '-';
+      const regulasi = document.getElementById('crowd-regulasi').value.trim() || '-';
+      const link = document.getElementById('crowd-link').value.trim() || '-';
+      const notes = document.getElementById('crowd-notes').value.trim() || '-';
+
+      const text = `LAPORAN DATA TPP DAERAH CPNS 2024:\n- Instansi: ${instansi}\n- Regulasi: ${regulasi}\n- Link JDIH: ${link}\n- Catatan: ${notes}`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btn-copy-label');
+        const orig = btn.textContent;
+        btn.textContent = '✅ Format Berhasil Disalin!';
+        setTimeout(() => { btn.textContent = orig; }, 2500);
+      }).catch(err => {
+        alert('Gagal menyalin otomatis, silakan salin manual teks berikut:\n\n' + text);
+      });
     }
 
     function applyMajorFilterFromModal(majorName, majorId) {
