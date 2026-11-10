@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sumber Data & Metodologi | Portal Data Formasi CPNS 2024</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .glow-cyan { box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25); }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- ========================================================================= -->
+  <!-- HEADER & NAVIGATION -->
+  <!-- ========================================================================= -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 ring-1 ring-white/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-white">
+              SUMBER DATA & METODOLOGI
+            </h1>
+            <span class="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+              Dokumentasi Resmi
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Transparansi Sumber Data, Regulasi Hukum, Skema Relasional 3NF & Formula Keketatan
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex items-center gap-2.5 text-xs">
+        <a href="/" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-2 active:scale-95">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <span class="font-semibold">Dashboard Utama</span>
+        </a>
+
+        <a href="/docs" target="_blank" class="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 transition flex items-center gap-1.5 active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          <span class="font-medium">Swagger API</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTENT CONTAINER -->
+  <!-- ========================================================================= -->
+  <main class="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Credit & Research Banner -->
+    <section class="rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/30 p-5 shadow-xl">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-[10px] font-bold tracking-widest uppercase text-cyan-400 font-mono">CREDIT & RESEARCH: Eurekaa</span>
+          <h2 class="text-base sm:text-lg font-bold text-white mt-0.5">
+            Ekstraksi Langsung Basis Data Portal SSCASN BKN 2024 & Kerangka Regulasi Pemerintah
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Seluruh data formasi, kualifikasi jurusan, pagu kuota, dan angka pelamar diverifikasi secara deterministik menggunakan pipeline normalisasi 3NF SQLite dan standar hukum perundang-undangan Republik Indonesia.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <a href="/api/download/raw-csv" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition flex items-center gap-1.5 active:scale-95">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Unduh Raw CSV (111.921 Formasi)</span>
+          </a>
+          <a href="/api/download/sqlite-db" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5 active:scale-95">
+            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7M4 7c0-2 1.5-3 3.5-3h9c2 0 3.5 1 3.5 3M4 7h16m-8 4v6m-4-3h8" />
+            </svg>
+            <span>Unduh Database SQLite</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grid: Data Sources & Regulatory Framework -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- ===================================================================== -->
+      <!-- CARD 1: SUMBER DATA RESMI & MIRROR OPEN DATA -->
+      <!-- ===================================================================== -->
+      <section class="rounded-2xl bg-slate-900/90 border border-slate-800 p-6 shadow-xl space-y-4">
+        <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+          <div class="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold">
+            1
+          </div>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-white">
+              Sumber Data Formasi & Pelamar
+            </h3>
+            <p class="text-xs text-slate-400">Portal SSCASN Badan Kepegawaian Negara (BKN)</p>
+          </div>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <!-- BKN SPF API -->
+          <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white text-xs">Portal Resmi SSCASN BKN 2024</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/30">Periode Selesai</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+              Endpoint utama pencarian formasi BKN: <code class="font-mono text-cyan-400 bg-slate-900 px-1 py-0.5 rounded">https://api-sscasn.bkn.go.id/2024/portal/spf</code> dan detail <code class="font-mono text-cyan-400 bg-slate-900 px-1 py-0.5 rounded">/portal/spf/{formasi_id}</code>. Endpoint ini menyajikan kuota kursi, rentang gaji, dan kualifikasi pendidikan saat seleksi dibuka.
+            </p>
+          </div>
+
+          <!-- Open Data Mirror -->
+          <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white text-xs">Mirror Open Data SSCASN (nubisub)</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">Live Active</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+              Repositori publik & mirror API: <code class="font-mono text-cyan-400 bg-slate-900 px-1 py-0.5 rounded">https://api-sscasn.vercel.app/api/formasi</code> (GitHub: <a href="https://github.com/nubisub/sscasn" target="_blank" class="text-indigo-400 underline">nubisub/sscasn</a>).
+              Menyimpan snapshot komprehensif <strong>111.921 record formasi</strong> hasil scraping langsung dari BKN pada November 2024.
+            </p>
+            <div class="pt-1 flex items-center gap-2 text-[11px] text-slate-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Menyediakan field <strong class="text-emerald-300 font-mono">jumlah_ms</strong> (Jumlah Pelamar Memenuhi Syarat Administrasi riil).</span>
+            </div>
+          </div>
+
+          <!-- Field Dictionary -->
+          <div class="p-4 rounded-xl bg-slate-950/40 border border-slate-800/60 space-y-2">
+            <span class="font-semibold text-slate-200 block text-xs">Kamus Field Mentah (BKN Standard):</span>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-mono text-[11px] text-slate-400">
+              <li><span class="text-cyan-400 font-bold">formasi_id</span>: UUID identitas unik formasi</li>
+              <li><span class="text-cyan-400 font-bold">ins_nm</span>: Nama instansi pembuka</li>
+              <li><span class="text-cyan-400 font-bold">jabatan_nm</span>: Nama jabatan ASN</li>
+              <li><span class="text-cyan-400 font-bold">lokasi_nm</span>: Unit lokasi penempatan kerja</li>
+              <li><span class="text-cyan-400 font-bold">jumlah_formasi</span>: Kuota penerimaan kursi</li>
+              <li><span class="text-cyan-400 font-bold">jumlah_ms</span>: Pelamar lolos verifikasi BKN</li>
+              <li><span class="text-cyan-400 font-bold">gaji_min</span>: Estimasi take-home pay minimal</li>
+              <li><span class="text-cyan-400 font-bold">gaji_max</span>: Estimasi take-home pay maksimal</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- CARD 2: STANDAR GAJI PP NO. 5 TAHUN 2024 -->
+      <!-- ===================================================================== -->
+      <section class="rounded-2xl bg-slate-900/90 border border-slate-800 p-6 shadow-xl space-y-4">
+        <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+            2
+          </div>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-white">
+              Standar Gaji Pokok CPNS (PP 5/2024)
+            </h3>
+            <p class="text-xs text-slate-400">Peraturan Pemerintah Republik Indonesia Nomor 5 Tahun 2024</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <p class="text-slate-300 leading-relaxed">
+            Sesuai regulasi kepegawaian negara, Calon Pegawai Negeri Sipil (CPNS) menerima <strong>80% dari gaji pokok penuh PNS</strong> selama masa pra-jabatan (1 tahun) sebelum diangkat 100% menjadi PNS tetap:
+          </p>
+
+          <!-- Table of PP 5/2024 -->
+          <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80">
+            <table class="w-full text-left text-xs divide-y divide-slate-800">
+              <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-semibold">
+                <tr>
+                  <th class="py-2.5 px-3">Jenjang Pendidikan</th>
+                  <th class="py-2.5 px-3 text-center">Golongan</th>
+                  <th class="py-2.5 px-3">Gaji 100% PNS</th>
+                  <th class="py-2.5 px-3 text-emerald-400">Gaji 80% CPNS</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/80 font-mono text-[11px] text-slate-300">
+                <tr class="hover:bg-slate-800/30">
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">SMA / SMK / Sederajat</td>
+                  <td class="py-2 px-3 text-center"><span class="px-1.5 py-0.5 rounded bg-slate-800 text-sky-300">II/a</span></td>
+                  <td class="py-2 px-3">Rp 2.184.000</td>
+                  <td class="py-2 px-3 text-emerald-400 font-bold">Rp 1.747.200</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Diploma III (D-III)</td>
+                  <td class="py-2 px-3 text-center"><span class="px-1.5 py-0.5 rounded bg-slate-800 text-sky-300">II/c</span></td>
+                  <td class="py-2 px-3">Rp 2.485.900</td>
+                  <td class="py-2 px-3 text-emerald-400 font-bold">Rp 1.988.720</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Diploma IV (D-IV) & Sarjana (S-1)</td>
+                  <td class="py-2 px-3 text-center"><span class="px-1.5 py-0.5 rounded bg-slate-800 text-sky-300">III/a</span></td>
+                  <td class="py-2 px-3">Rp 2.785.700</td>
+                  <td class="py-2 px-3 text-emerald-400 font-bold">Rp 2.228.560</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Magister (S-2) & Profesi (Dokter/Apoteker)</td>
+                  <td class="py-2 px-3 text-center"><span class="px-1.5 py-0.5 rounded bg-slate-800 text-sky-300">III/b</span></td>
+                  <td class="py-2 px-3">Rp 2.903.600</td>
+                  <td class="py-2 px-3 text-emerald-400 font-bold">Rp 2.322.880</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="py-2 px-3 font-sans font-medium text-slate-200">Doktor (S-3) & Dokter Spesialis</td>
+                  <td class="py-2 px-3 text-center"><span class="px-1.5 py-0.5 rounded bg-slate-800 text-sky-300">III/c</span></td>
+                  <td class="py-2 px-3">Rp 3.026.400</td>
+                  <td class="py-2 px-3 text-emerald-400 font-bold">Rp 2.421.120</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+            <span class="font-semibold text-slate-300">Catatan Take-Home Pay (Penghasilan Total):</span>
+            <p>
+              Penghasilan total yang ditampilkan pada dashboard mencakup <strong>Gaji Pokok + Tunjangan Kinerja (Tukin) / Tambahan Penghasilan Pegawai (TPP) Daerah</strong>, belum dipotong iuran BPJS Kesehatan dan Taspen.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- CARD 3: REGULASI TUNJANGAN KINERJA (TUKIN / TPP) -->
+      <!-- ===================================================================== -->
+      <section class="rounded-2xl bg-slate-900/90 border border-slate-800 p-6 shadow-xl space-y-4">
+        <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+            3
+          </div>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-white">
+              Dasar Hukum Tunjangan Kinerja (Tukin) & TPP
+            </h3>
+            <p class="text-xs text-slate-400">Peraturan Presiden & Peraturan Kepala Daerah</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <p class="text-slate-300 leading-relaxed">
+            Besaran tunjangan kinerja ASN diatur oleh peraturan perundang-undangan khusus per kementerian/lembaga atau peraturan kepala daerah untuk Pemda:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">Kementerian Keuangan</span>
+              <span class="text-slate-400">Perpres No. 156 Tahun 2014</span>
+              <p class="text-amber-300 font-mono mt-0.5">Tukin: Rp 2,57 Jt - Rp 46,95 Jt</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">Otorita Ibu Kota Nusantara (IKN)</span>
+              <span class="text-slate-400">Perpres No. 44 Tahun 2023</span>
+              <p class="text-amber-300 font-mono mt-0.5">Tukin: Rp 3,20 Jt - Rp 45,00 Jt</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">Mahkamah Agung RI</span>
+              <span class="text-slate-400">Perpres No. 8 Tahun 2020</span>
+              <p class="text-amber-300 font-mono mt-0.5">Tukin: Rp 2,53 Jt - Rp 37,56 Jt</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">Kejaksaan Agung RI</span>
+              <span class="text-slate-400">Perpres No. 29 Tahun 2020</span>
+              <p class="text-amber-300 font-mono mt-0.5">Tukin: Rp 2,53 Jt - Rp 29,08 Jt</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">Kementerian Luar Negeri</span>
+              <span class="text-slate-400">Perpres No. 124 Tahun 2018</span>
+              <p class="text-amber-300 font-mono mt-0.5">Tukin: Rp 2,53 Jt - Rp 33,24 Jt</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">BRIN (Riset & Inovasi)</span>
+              <span class="text-slate-400">Perpres No. 104 Tahun 2022</span>
+              <p class="text-amber-300 font-mono mt-0.5">Tukin: Rp 2,53 Jt - Rp 33,24 Jt</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">Pemerintah Provinsi DKI Jakarta</span>
+              <span class="text-slate-400">Pergub DKI No. 19 Tahun 2020 (TPP)</span>
+              <p class="text-emerald-300 font-mono mt-0.5">TPP: Rp 4,86 Jt - Rp 29,00 Jt</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+              <span class="font-bold text-white block">Pemerintah Provinsi Jawa Barat</span>
+              <span class="text-slate-400">Pergub Jabar No. 123 Tahun 2021 (TPP)</span>
+              <p class="text-emerald-300 font-mono mt-0.5">TPP: Rp 2,20 Jt - Rp 15,50 Jt</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- CARD 4: FORMULA & METODOLOGI KOMPETISI -->
+      <!-- ===================================================================== -->
+      <section class="rounded-2xl bg-slate-900/90 border border-slate-800 p-6 shadow-xl space-y-4">
+        <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+            4
+          </div>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-white">
+              Formula Metrik Persaingan & Peluang Lolos
+            </h3>
+            <p class="text-xs text-slate-400">Standar Komputasi Rasio Keketatan Formasi</p>
+          </div>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <!-- Rumus Rasio -->
+          <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5">
+            <span class="font-bold text-white block text-xs">1. Rasio Kompetisi Pelamar:</span>
+            <div class="p-2 rounded bg-slate-900 border border-slate-800 font-mono text-cyan-300 text-xs">
+              Rasio Keketatan = Jumlah Pelamar (MS) / Jumlah Formasi (Kuota)
+            </div>
+            <p class="text-[11px] text-slate-400">Contoh: 150 pelamar pada 10 kuota kursi = Rasio 1 : 15.0.</p>
+          </div>
+
+          <!-- Rumus Peluang -->
+          <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5">
+            <span class="font-bold text-white block text-xs">2. Persentase Peluang Lolos:</span>
+            <div class="p-2 rounded bg-slate-900 border border-slate-800 font-mono text-emerald-300 text-xs">
+              Peluang (%) = min((Kuota / Jumlah Pelamar) * 100%, 100%)
+            </div>
+            <p class="text-[11px] text-slate-400">Jika pelamar = 0 (belum ada yang daftar), peluang lolos dihitung otomatis 100%.</p>
+          </div>
+
+          <!-- Klasifikasi Status -->
+          <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+            <span class="font-bold text-white block text-xs">3. Standar Klasifikasi Status Keketatan:</span>
+            <div class="grid grid-cols-2 gap-2 text-[11px]">
+              <div class="p-2 rounded bg-emerald-950/40 border border-emerald-500/30">
+                <strong class="text-emerald-300 block">⚡ Tanpa Pelamar</strong>
+                <span class="text-slate-400">0 Pelamar • Peluang Emas 100%</span>
+              </div>
+              <div class="p-2 rounded bg-emerald-950/20 border border-emerald-500/20">
+                <strong class="text-emerald-400 block">Sangat Longgar</strong>
+                <span class="text-slate-400">Rasio ≤ 1.0 (Pelamar ≤ Kuota)</span>
+              </div>
+              <div class="p-2 rounded bg-amber-950/30 border border-amber-500/30">
+                <strong class="text-amber-300 block">Moderat</strong>
+                <span class="text-slate-400">Rasio 1.1 - 15.0 pelamar/kursi</span>
+              </div>
+              <div class="p-2 rounded bg-rose-950/30 border border-rose-500/30">
+                <strong class="text-rose-400 block">Sangat Ketat</strong>
+                <span class="text-slate-400">Rasio &gt; 15.0 (Kompetisi tinggi)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 5: ARSITEKTUR 3NF DATABASE SCHEMA -->
+    <!-- ======================================================================= -->
+    <section class="rounded-2xl bg-slate-900/90 border border-slate-800 p-6 shadow-xl space-y-4">
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+        <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">
+          5
+        </div>
+        <div>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-white">
+            Arsitektur Normalisasi Data Relasional 3NF (SQLite WAL)
+          </h3>
+          <p class="text-xs text-slate-400">Skema 4 Tabel Relasional dengan Relasi Many-to-Many</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+        
+        <!-- Table instansi -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="font-bold text-cyan-400 font-sans">tabel instansi</span>
+            <span class="text-[10px] text-slate-500">Master K/L</span>
+          </div>
+          <ul class="space-y-1 text-slate-300 text-[11px]">
+            <li><span class="text-amber-400">PK</span> instansi_id (INT)</li>
+            <li>kode_instansi (VARCHAR)</li>
+            <li>nama_instansi (TEXT)</li>
+            <li>kategori_instansi (ENUM)</li>
+            <li>tukin_min (BIGINT)</li>
+            <li>tukin_max (BIGINT)</li>
+            <li>regulasi_tukin (TEXT)</li>
+          </ul>
+        </div>
+
+        <!-- Table jurusan -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="font-bold text-indigo-400 font-sans">tabel jurusan</span>
+            <span class="text-[10px] text-slate-500">Master Prodi</span>
+          </div>
+          <ul class="space-y-1 text-slate-300 text-[11px]">
+            <li><span class="text-amber-400">PK</span> jurusan_id (INT)</li>
+            <li>jenjang (VARCHAR)</li>
+            <li>nama_jurusan (TEXT UNIQUE)</li>
+          </ul>
+        </div>
+
+        <!-- Table formasi -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="font-bold text-emerald-400 font-sans">tabel formasi</span>
+            <span class="text-[10px] text-slate-500">Lowongan</span>
+          </div>
+          <ul class="space-y-1 text-slate-300 text-[11px]">
+            <li><span class="text-amber-400">PK</span> formasi_id (VARCHAR)</li>
+            <li><span class="text-sky-400">FK</span> instansi_id (INT)</li>
+            <li>jabatan_nm (TEXT)</li>
+            <li>lokasi_nm (TEXT)</li>
+            <li>jenis_formasi (VARCHAR)</li>
+            <li>jumlah_formasi (INT)</li>
+            <li>jumlah_pelamar (INT)</li>
+            <li>rasio_kompetisi (REAL)</li>
+            <li>peluang_lolos_pct (REAL)</li>
+            <li>status_keketatan (VARCHAR)</li>
+            <li>gaji_min (BIGINT)</li>
+            <li>gaji_max (BIGINT)</li>
+            <li>golongan_awal (VARCHAR)</li>
+          </ul>
+        </div>
+
+        <!-- Table formasi_jurusan -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="font-bold text-rose-400 font-sans">tabel formasi_jurusan</span>
+            <span class="text-[10px] text-slate-500">Junction M:N</span>
+          </div>
+          <ul class="space-y-1 text-slate-300 text-[11px]">
+            <li><span class="text-amber-400">PK/FK</span> formasi_id (VARCHAR)</li>
+            <li><span class="text-amber-400">PK/FK</span> jurusan_id (INT)</li>
+          </ul>
+          <p class="text-[10px] font-sans text-slate-400 pt-2 border-t border-slate-800/80">
+            Mengatasi multivalued delimiter string menjadi hubungan 3NF yang dapat diindeks secara cepat.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-slate-800 bg-slate-900/60 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-[1720px] mx-auto px-4 space-y-1">
+      <p class="text-slate-400">
+        PORTAL DATA FORMASI CPNS 2024 • SSCASN BKN DATABASE & ANALYTICS
+      </p>
+      <p class="text-[11px]">
+        Credit & Research: Eurekaa • Berdasarkan Dataset Terverifikasi SSCASN BKN 2024 & Kerangka Regulasi PP No. 5 Tahun 2024
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

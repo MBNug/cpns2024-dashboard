@@ -1,0 +1,22 @@
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.cpython-*.pyc
+
+# Local SQLite uncompressed runtime DB & WAL files (tracked via cpns2024.db.gz / raw_cpns_2024.csv)
+data/cpns2024.db
+data/cpns2024.db-wal
+data/cpns2024.db-shm
+
+# OS & Editor temporary files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
