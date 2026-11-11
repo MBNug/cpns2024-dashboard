@@ -63,7 +63,7 @@
   <!-- ========================================================================= -->
   <!-- TOP NAVIGATION / HEADER -->
   <!-- ========================================================================= -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+  <header id="main-header" class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 transition-transform duration-300 ease-in-out">
     <div class="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
       
       <!-- Logo & Title -->
@@ -585,6 +585,15 @@
             <option value="100">100 Baris</option>
           </select>
         </div>
+      </div>
+
+      <!-- Mobile Scroll Guidance Notice -->
+      <div class="sm:hidden px-4 py-2.5 bg-gradient-to-r from-cyan-950/60 via-slate-900 to-cyan-950/60 border-b border-cyan-800/40 flex items-center justify-between text-[11px] text-cyan-300">
+        <div class="flex items-center gap-1.5 animate-pulse">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          <span class="font-medium">Geser tabel ke samping untuk info gaji, kuota & peluang lolos 👉</span>
+        </div>
+        <span class="text-[10px] text-cyan-200 font-mono bg-cyan-900/60 px-2 py-0.5 rounded-full border border-cyan-700/50 shrink-0 ml-2">7 Kolom</span>
       </div>
 
       <!-- Responsive Table Container -->
@@ -1719,6 +1728,21 @@
                   ${jenisBadge}
                   <span class="text-[9px] font-mono text-slate-500 bg-slate-950 px-1 py-0.2 rounded border border-slate-800">${item.formasi_id}</span>
                 </div>
+                <!-- Mobile Compact Summary Card -->
+                <div class="sm:hidden mt-2 p-2 rounded-lg bg-slate-950/90 border border-slate-800 space-y-1">
+                  <div class="flex items-center justify-between text-[10px]">
+                    <span class="text-slate-400">Kuota & Pelamar:</span>
+                    <span class="font-bold text-white font-mono">${item.jumlah_formasi} Kursi <span class="text-slate-400">/ ${Number(item.jumlah_pelamar || 0).toLocaleString('id-ID')}</span></span>
+                  </div>
+                  <div class="flex items-center justify-between text-[10px]">
+                    <span class="text-slate-400">Peluang Lolos:</span>
+                    <span class="font-bold text-emerald-400 font-mono">${(item.peluang_lolos_pct || 0).toFixed(2)}% <span class="text-[9px] text-slate-500">(1 : ${item.rasio_kompetisi})</span></span>
+                  </div>
+                  <div class="flex items-center justify-between text-[10px] pt-1 border-t border-slate-800/60">
+                    <span class="text-slate-400">Gaji BKN:</span>
+                    <span class="font-bold text-amber-300 font-mono text-[10px]">${formatJuta(item.gaji_min)} - ${formatJuta(item.gaji_max)}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </td>
@@ -2436,6 +2460,34 @@
       loadFilterOptions();
       loadFormasiTable();
       setupEventListeners();
+
+      // Smart Auto-Hide / Show Header on Scroll (Mobile & Desktop)
+      let lastScrollY = window.scrollY;
+      let ticking = false;
+      const header = document.getElementById('main-header');
+
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const currentScrollY = window.scrollY;
+            if (header) {
+              if (currentScrollY <= 60) {
+                // At the top: always visible
+                header.classList.remove('-translate-y-full');
+              } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down: hide smoothly
+                header.classList.add('-translate-y-full');
+              } else if (currentScrollY < lastScrollY) {
+                // Scrolling up: reveal smoothly
+                header.classList.remove('-translate-y-full');
+              }
+            }
+            lastScrollY = currentScrollY;
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
     });
   </script>
 

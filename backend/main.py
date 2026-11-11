@@ -720,6 +720,34 @@ def get_top_jurusan(
     conn = get_db_connection()
     cur = conn.cursor()
 
+    # Fast path: use precomputed summary table when no instansi/salary filter is active
+    if not (kategori_instansi or instansi_id or gaji_min or gaji_max):
+        conditions = []
+        p = []
+        if q:
+            conditions.append("nama_jurusan LIKE ?")
+            p.append(f"%{q.strip().upper()}%")
+        if jenjang:
+            conditions.append("jenjang = ?")
+            p.append(jenjang.strip())
+
+        w_str = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        p.append(limit)
+        cur.execute(f"SELECT * FROM top_jurusan_precomputed {w_str} ORDER BY total_kuota DESC, total_formasi DESC LIMIT ?", p)
+        results = [
+            {
+                "jurusan_id": r["jurusan_id"],
+                "nama_jurusan": r["nama_jurusan"],
+                "jenjang": r["jenjang"],
+                "total_formasi": r["total_formasi"],
+                "total_kuota": r["total_kuota"],
+                "avg_gaji_max": int(r["avg_gaji_max"] or 0)
+            }
+            for r in cur.fetchall()
+        ]
+        conn.close()
+        return results
+
     where_clause, params, _ = build_filter_clause(
         q=q,
         jenjang=jenjang,
@@ -781,6 +809,35 @@ def get_top_instansi(
     """
     conn = get_db_connection()
     cur = conn.cursor()
+
+    # Fast path: use precomputed summary table when no major/salary filter is active
+    if not (jurusan or jurusan_id or jenjang or gaji_min or gaji_max):
+        conditions = []
+        p = []
+        if q:
+            conditions.append("nama_instansi LIKE ?")
+            p.append(f"%{q.strip().upper()}%")
+        if kategori_instansi:
+            conditions.append("kategori_instansi = ?")
+            p.append(kategori_instansi.strip())
+
+        w_str = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        p.append(limit)
+        cur.execute(f"SELECT * FROM top_instansi_precomputed {w_str} ORDER BY total_kuota DESC, total_formasi DESC LIMIT ?", p)
+        results = [
+            {
+                "instansi_id": r["instansi_id"],
+                "nama_instansi": r["nama_instansi"],
+                "kategori_instansi": r["kategori_instansi"],
+                "total_formasi": r["total_formasi"],
+                "total_kuota": r["total_kuota"],
+                "avg_gaji_min": int(r["avg_gaji_min"] or 0),
+                "avg_gaji_max": int(r["avg_gaji_max"] or 0)
+            }
+            for r in cur.fetchall()
+        ]
+        conn.close()
+        return results
 
     where_clause, params, needs_jurusan = build_filter_clause(
         q=q,
