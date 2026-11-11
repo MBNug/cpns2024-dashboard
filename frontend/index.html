@@ -10,8 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -495,64 +493,7 @@
     </section>
 
     <!-- ======================================================================= -->
-    <!-- 3. VISUALISASI ANALITIK DINAMIS (CHART.JS) -->
-    <!-- ======================================================================= -->
-    <section id="section-analytics" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      
-      <!-- Chart 1: Top 10 Jurusan Paling Dibutuhkan -->
-      <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 shadow-xl flex flex-col justify-between">
-        <div class="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-              <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
-                Top 10 Jurusan Paling Dibutuhkan
-              </h3>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">
-              Alokasi Total Kuota Kursi Penerimaan (Berdasarkan Filter Aktif)
-            </p>
-          </div>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-semibold shrink-0">
-            Kuota Terbanyak
-          </span>
-        </div>
-
-        <!-- Canvas Container -->
-        <div class="relative w-full h-72 sm:h-80 pt-3">
-          <canvas id="chart-top-jurusan"></canvas>
-        </div>
-      </div>
-
-      <!-- Chart 2: Top 10 Instansi Formasi Terbesar -->
-      <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 shadow-xl flex flex-col justify-between">
-        <div class="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
-                Top 10 Instansi Formasi Terbesar
-              </h3>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">
-              Alokasi Kuota & Estimasi Penghasilan Maksimal ASN
-            </p>
-          </div>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold shrink-0">
-            Instansi Populer
-          </span>
-        </div>
-
-        <!-- Canvas Container -->
-        <div class="relative w-full h-72 sm:h-80 pt-3">
-          <canvas id="chart-top-instansi"></canvas>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ======================================================================= -->
-    <!-- 4. DATA TABLE SECTION (Server-Side Paginated) -->
+    <!-- 3. DATA TABLE SECTION (Server-Side Paginated) -->
     <!-- ======================================================================= -->
     <section id="section-table" class="rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl overflow-hidden space-y-0">
       
@@ -1419,192 +1360,6 @@
       }
     }
 
-    // Chart.js Instances
-    let chartJurusanInstance = null;
-    let chartInstansiInstance = null;
-
-    // Load & Render Analytics Charts
-    async function loadAnalyticsCharts() {
-      const params = new URLSearchParams();
-      if (state.q) params.set('q', state.q);
-      if (state.jurusan_id) {
-        params.set('jurusan_id', state.jurusan_id);
-      } else if (state.jurusan) {
-        params.set('jurusan', state.jurusan);
-      }
-      if (state.jenjang !== 'ALL') params.set('jenjang', state.jenjang);
-      if (state.kategori_instansi !== 'ALL') params.set('kategori_instansi', state.kategori_instansi);
-      if (state.instansi_id !== 'ALL') params.set('instansi_id', state.instansi_id);
-      if (state.gaji_min > 0) params.set('gaji_min', state.gaji_min);
-
-      // 1. Fetch Top Jurusan
-      try {
-        const rJ = await fetch(`${API_BASE}/api/analytics/top-jurusan?limit=10&${params.toString()}`);
-        if (rJ.ok) {
-          const dataJ = await rJ.json();
-          renderChartJurusan(dataJ);
-        }
-      } catch (err) {
-        console.error('Error fetching top jurusan analytics:', err);
-      }
-
-      // 2. Fetch Top Instansi
-      try {
-        const rI = await fetch(`${API_BASE}/api/analytics/top-instansi?limit=10&${params.toString()}`);
-        if (rI.ok) {
-          const dataI = await rI.json();
-          renderChartInstansi(dataI);
-        }
-      } catch (err) {
-        console.error('Error fetching top instansi analytics:', err);
-      }
-    }
-
-    // Render Chart 1: Top Jurusan
-    function renderChartJurusan(items) {
-      const ctx = document.getElementById('chart-top-jurusan');
-      if (!ctx || typeof Chart === 'undefined') return;
-
-      if (chartJurusanInstance) {
-        chartJurusanInstance.destroy();
-      }
-
-      if (!items || items.length === 0) {
-        return;
-      }
-
-      const labels = items.map(it => {
-        const name = it.nama_jurusan.length > 24 ? it.nama_jurusan.substring(0, 24) + '...' : it.nama_jurusan;
-        return `${name} (${it.jenjang})`;
-      });
-      const kuota = items.map(it => it.total_kuota);
-
-      chartJurusanInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Total Kuota Kursi',
-            data: kuota,
-            backgroundColor: 'rgba(6, 182, 212, 0.75)',
-            hoverBackgroundColor: 'rgba(6, 182, 212, 0.95)',
-            borderColor: 'rgb(6, 182, 212)',
-            borderWidth: 1,
-            borderRadius: 6,
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#0f172a',
-              borderColor: '#334155',
-              borderWidth: 1,
-              titleColor: '#f8fafc',
-              bodyColor: '#38bdf8',
-              padding: 10,
-              callbacks: {
-                title: (chartItems) => {
-                  const idx = chartItems[0]?.dataIndex;
-                  return items[idx] ? `${items[idx].nama_jurusan} (${items[idx].jenjang})` : '';
-                },
-                label: (ctxChart) => ` Alokasi Kuota: ${Number(ctxChart.raw).toLocaleString('id-ID')} Kursi`,
-                afterLabel: (ctxChart) => {
-                  const it = items[ctxChart.dataIndex];
-                  return ` Formasi Terbuka: ${it.total_formasi} Jabatan | Avg Max Gaji: ${formatJuta(it.avg_gaji_max)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { color: '#1e293b' },
-              ticks: { color: '#94a3b8', font: { family: 'Inter', size: 10 } }
-            },
-            y: {
-              grid: { display: false },
-              ticks: { color: '#cbd5e1', font: { family: 'Inter', size: 10 } }
-            }
-          }
-        }
-      });
-    }
-
-    // Render Chart 2: Top Instansi
-    function renderChartInstansi(items) {
-      const ctx = document.getElementById('chart-top-instansi');
-      if (!ctx || typeof Chart === 'undefined') return;
-
-      if (chartInstansiInstance) {
-        chartInstansiInstance.destroy();
-      }
-
-      if (!items || items.length === 0) {
-        return;
-      }
-
-      const labels = items.map(it => {
-        return it.nama_instansi.length > 25 ? it.nama_instansi.substring(0, 25) + '...' : it.nama_instansi;
-      });
-      const kuota = items.map(it => it.total_kuota);
-
-      chartInstansiInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Total Kuota Kursi',
-            data: kuota,
-            backgroundColor: 'rgba(16, 185, 129, 0.75)',
-            hoverBackgroundColor: 'rgba(16, 185, 129, 0.95)',
-            borderColor: 'rgb(16, 185, 129)',
-            borderWidth: 1,
-            borderRadius: 6,
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#0f172a',
-              borderColor: '#334155',
-              borderWidth: 1,
-              titleColor: '#f8fafc',
-              bodyColor: '#34d399',
-              padding: 10,
-              callbacks: {
-                title: (chartItems) => {
-                  const idx = chartItems[0]?.dataIndex;
-                  return items[idx] ? `${items[idx].nama_instansi} (${items[idx].kategori_instansi})` : '';
-                },
-                label: (ctxChart) => ` Alokasi Kuota: ${Number(ctxChart.raw).toLocaleString('id-ID')} Kursi`,
-                afterLabel: (ctxChart) => {
-                  const it = items[ctxChart.dataIndex];
-                  return ` Formasi: ${it.total_formasi} | Avg Min-Max: ${formatJuta(it.avg_gaji_min)} - ${formatJuta(it.avg_gaji_max)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { color: '#1e293b' },
-              ticks: { color: '#94a3b8', font: { family: 'Inter', size: 10 } }
-            },
-            y: {
-              grid: { display: false },
-              ticks: { color: '#cbd5e1', font: { family: 'Inter', size: 10 } }
-            }
-          }
-        }
-      });
-    }
-
     // 3. Update Filter Count Indicator & Load Table
     async function loadFormasiTable() {
       const spinner = document.getElementById('table-loading-spinner');
@@ -1644,16 +1399,12 @@
           tableBody.innerHTML = '';
           emptyState.classList.remove('hidden');
           renderPagination(0, 1, state.limit, 1);
-          loadAnalyticsCharts();
           return;
         }
 
         emptyState.classList.add('hidden');
         renderTableRows(data.items, (data.page - 1) * data.limit + 1);
         renderPagination(data.total, data.page, data.limit, data.total_pages);
-
-        // Update analytics charts
-        loadAnalyticsCharts();
 
       } catch (err) {
         console.error('Error loading formasi table:', err);
