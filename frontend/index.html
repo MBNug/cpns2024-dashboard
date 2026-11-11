@@ -1794,6 +1794,20 @@
     let currentDetailInstansi = '';
     let currentDetailRegulasi = '';
 
+    function updateGoogleFormLink() {
+      const instansi = encodeURIComponent(document.getElementById('crowd-instansi').value.trim() || '');
+      const regulasi = encodeURIComponent(document.getElementById('crowd-regulasi').value.trim() || '');
+      const linkJdih = encodeURIComponent(document.getElementById('crowd-link').value.trim() || '');
+
+      const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfMM_mEoLRfZCrfdwgosMHSg24dnmDLgPzQnA2cP50OHnQxsw/viewform?usp=pp_url';
+      const formUrl = `${baseUrl}&entry.1057785259=${instansi}&entry.621332457=${regulasi}&entry.595628026=${linkJdih}`;
+
+      const gBtn = document.getElementById('link-google-form');
+      if (gBtn) {
+        gBtn.href = formUrl;
+      }
+    }
+
     function openCrowdsourceModal(namaInstansi = '', regulasi = '') {
       const modal = document.getElementById('modal-crowdsource');
       const inputInstansi = document.getElementById('crowd-instansi');
@@ -1804,7 +1818,11 @@
       }
       if (regulasi && !regulasi.includes('Estimasi Kisaran')) {
         inputRegulasi.value = regulasi;
+      } else if (regulasi.includes('Estimasi Kisaran')) {
+        inputRegulasi.value = '';
       }
+
+      updateGoogleFormLink();
 
       modal.classList.remove('hidden');
       document.body.classList.add('overflow-hidden');
@@ -2175,6 +2193,12 @@
 
         const exportUrl = `${API_BASE}/api/export?${params.toString()}`;
         window.location.href = exportUrl;
+      });
+
+      // Crowdsource form live link sync
+      ['crowd-instansi', 'crowd-regulasi', 'crowd-link'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateGoogleFormLink);
       });
     }
 
