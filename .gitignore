@@ -15,6 +15,9 @@ data/cpns2024.db
 data/cpns2024.db-wal
 data/cpns2024.db-shm
 
+# Downloaded official regulation PDFs (uploaded separately to Google Drive)
+data/regulasi_pdf/
+
 # OS & Editor temporary files
 .DS_Store
 Thumbs.db
