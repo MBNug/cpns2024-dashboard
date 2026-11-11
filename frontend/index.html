@@ -799,22 +799,26 @@
           </svg>
           <span>Pernyataan Penyangkalan (Disclaimer) Resmi Data</span>
         </div>
-        <ul class="space-y-1.5 text-slate-300 text-[11px] leading-relaxed list-disc list-inside">
+        <ul class="space-y-2 text-slate-300 text-[11px] leading-relaxed list-disc list-inside">
           <li><strong>Data Pelamar (jumlah_ms):</strong> Diambil dari snapshot publik verifikasi administrasi BKN per akhir masa pendaftaran CPNS 2024. Data mencerminkan pelamar yang Memenuhi Syarat (MS) pada tahapan administrasi.</li>
-          <li><strong>Tunjangan Kinerja (Tukin) & TPP Daerah:</strong> Sebanyak <strong>543 dari 544 instansi (99.8%)</strong> telah diaudit dan diverifikasi nomor regulasi perundang-undangan resminya (Perpres, Pergub, Perbup, dan Perwali) via portal JDIHN & BPK RI. Hanya 1 instansi daerah (Kab. Lanny Jaya) yang Perbup-nya belum terpublikasi secara terbuka dan menggunakan estimasi baseline regional 3T. Nilai riil di lapangan ditetapkan oleh SK Kepala Daerah berdasarkan kelas jabatan, kinerja bulanan (SKP), absensi, dan kapasitas fiskal APBD.</li>
+          <li><strong>Tunjangan Kinerja (Tukin) & TPP Daerah:</strong>
+            <ul class="ml-4 mt-1 space-y-1 list-disc text-slate-300">
+              <li><strong class="text-white">Instansi Pusat (69 Kementerian & Lembaga):</strong> Mengacu pada Peraturan Presiden (Perpres) resmi yang memuat tabel nominal tunjangan kinerja baku berdasarkan 17 kelas jabatan (Grade 1 s.d. Grade 17).</li>
+              <li><strong class="text-white">Pemerintah Daerah (475 Provinsi, Kabupaten & Kota):</strong> Bersifat <strong class="text-amber-300">Estimasi Standar Regional Berdasarkan Kapasitas APBD</strong>. Hal ini karena nominal riil TPP daerah diatur secara internal melalui SK/Keputusan Kepala Daerah di masing-masing dinas (OPD) dan tidak dipublikasikan ke publik. Jika Anda memiliki salinan SK TPP resmi instansi terkait, silakan berkontribusi melalui tombol <strong>Kontribusi TPP</strong> di atas.</li>
+            </ul>
+          </li>
           <li><strong>Estimasi Take-Home Pay:</strong> Merupakan simulasi nilai bruto (Gaji Pokok PP 5/2024 + Tukin/TPP) sebelum potongan pajak PPh 21, iuran BPJS Kesehatan (1%), dan iuran pensiun Taspen (8%).</li>
           <li><strong>Peluang Kelulusan:</strong> Rasio kompetisi dan persentase peluang merupakan kalkulasi matematis objektif (<code class="text-cyan-300 font-mono">Kuota / Pelamar</code>) untuk referensi strategis, <strong>bukan jaminan atau garansi kelulusan seleksi</strong>.</li>
         </ul>
         <div class="pt-2 border-t border-amber-500/20 flex flex-wrap items-center justify-between gap-2">
-          <span class="text-[11px] text-amber-300/80">Ingin melihat daftar regulasi resmi seluruh 544 instansi?</span>
-          <a
-            href="/api/download/audit-report"
-            target="_blank"
-            class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-semibold flex items-center gap-1.5 transition active:scale-95"
+          <span class="text-[11px] text-amber-300/80">Punya dokumen SK TPP resmi daerahmu? Bantu perbarui data untuk sesama pelamar:</span>
+          <button
+            onclick="openCrowdsourceModal()"
+            class="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-semibold flex items-center gap-1.5 transition active:scale-95"
           >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>Unduh Laporan Audit Regulasi Tukin (.md)</span>
-          </a>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Kirim SK TPP Daerah via Form</span>
+          </button>
         </div>
       </div>
 
@@ -1960,23 +1964,40 @@
         const tukinMaxStr = d.tukin_max ? formatRp(d.tukin_max) : '';
         document.getElementById('modal-tukin-range').textContent = tukinMaxStr ? `${tukinMinStr} - ${tukinMaxStr}` : tukinMinStr;
 
-        const reg = d.regulasi_tukin || 'Peraturan Pemerintah / KemenPAN-RB';
-        const isVerified = reg.includes('Resmi Terverifikasi');
-        const badgeTag = isVerified
-          ? '<span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">✅ Regulasi Resmi Terverifikasi</span>'
-          : '<span class="inline-block px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">⚠️ Estimasi Kisaran (Bukan Nilai Pasti)</span>';
+        const reg = d.regulasi_tukin || 'Estimasi Standar Regional';
+        const isPusat = (d.kategori_instansi === 'Pusat');
+        const badgeTag = isPusat
+          ? '<span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">✅ Perpres Resmi K/L (Grade 1-17)</span>'
+          : '<span class="inline-block px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">⚠️ Estimasi Regional APBD (Bukan Nilai Pasti)</span>';
 
-        const regLink = d.link_regulasi || `https://peraturan.bpk.go.id/Search?keywords=${encodeURIComponent(reg)}`;
+        let actionButton = '';
+        if (isPusat && d.link_regulasi) {
+          actionButton = `
+            <a href="${d.link_regulasi}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 hover:text-white border border-indigo-500/30 text-[10px] font-semibold transition active:scale-95 shadow-sm">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              <span>Dokumen Perpres Resmi (BPK RI)</span>
+            </a>
+          `;
+        } else {
+          actionButton = `
+            <button type="button" onclick="openCrowdsourceModal()" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-semibold transition active:scale-95 shadow-sm">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>Kirim SK TPP Daerah via Form</span>
+            </button>
+          `;
+        }
+
+        const disclaimerNote = isPusat
+          ? ''
+          : '<p class="text-[10px] text-amber-300/90 mt-1 italic leading-tight">* Catatan: Nominal TPP pemerintah daerah diatur secara internal oleh SK/Keputusan Kepala Daerah di masing-masing dinas (OPD) dan tidak dipublikasikan ke publik. Nilai di atas adalah estimasi kisaran standar fiskal regional.</p>';
+
         document.getElementById('modal-tukin-regulasi').innerHTML = `
           <div class="font-medium text-slate-200">${reg}</div>
           <div class="mt-1.5 flex flex-wrap items-center gap-2">
             ${badgeTag}
-            <a href="${regLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 hover:text-white border border-indigo-500/30 text-[10px] font-semibold transition active:scale-95 shadow-sm">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-              <span>Cek Dokumen Resmi (BPK RI)</span>
-            </a>
+            ${actionButton}
           </div>
-          ${!isVerified ? '<p class="text-[10px] text-amber-300/80 mt-1 italic leading-tight">* Catatan: Data Perbup/Perwal/Perda resmi instansi belum terpublikasi terbuka. Nilai tukin/TPP di atas adalah estimasi kisaran standar regional, bukan kepastian mutlak.</p>' : ''}
+          ${disclaimerNote}
         `;
 
         // Kalkulasi Rincian Simulasi Take-Home Pay (THP)
