@@ -1998,8 +1998,15 @@
         const uangMakanPerHari = gol.startsWith('IV') ? 41000 : (gol.startsWith('III') ? 37000 : 35000);
         const uangMakanBulan = uangMakanPerHari * 22; // Rata-rata 22 hari kerja
 
-        // Estimasi Tukin awal (prioritaskan tukin_min instansi atau selisih positif)
-        const tukinEst = d.tukin_min || (d.gaji_min > cpns80 ? d.gaji_min - cpns80 : 2500000);
+        // Kalkulasi Komponen Tukin/Tunjangan yang Selaras dengan Data BKN
+        let tukinEst = 0;
+        if (d.gaji_min && d.gaji_min > (cpns80 * 1.35)) {
+          // Jika publikasi BKN sudah mencakup Tukin/Tunjangan Khusus (K/L Pusat, Dokter, Jaksa, dll)
+          tukinEst = d.gaji_min - cpns80;
+        } else {
+          // Jika publikasi BKN hanya mencantumkan Gaji Pokok murni (mayoritas Pemda): gunakan baseline regional
+          tukinEst = d.tukin_min || 2100000;
+        }
         const totalBruto = cpns80 + tukinEst + uangMakanBulan;
 
         const potonganBpjs = Math.round(cpns80 * 0.01); // 1% BPJS
