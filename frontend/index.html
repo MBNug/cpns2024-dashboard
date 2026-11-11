@@ -89,13 +89,8 @@
         </div>
       </div>
 
-      <!-- System Status Badges -->
+      <!-- Header Actions & Navigation -->
       <div class="flex flex-wrap items-center gap-2.5 text-xs">
-        <!-- DB WAL Status -->
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-slate-300">SQLite: <strong class="text-emerald-400 font-mono">WAL Active</strong></span>
-        </div>
         <!-- Standard Gaji -->
         <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60">
           <span class="text-slate-400">Regulasi Gaji:</span>
@@ -115,12 +110,14 @@
           </svg>
           <span>Sumber Data</span>
         </a>
-        <!-- API Docs link -->
-        <a href="/docs" target="_blank" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
-          <span>Swagger API</span>
+        <!-- Support Me Button with Smooth Scroll -->
+        <a
+          href="#section-support-creator"
+          onclick="document.getElementById('section-support-creator').scrollIntoView({behavior: 'smooth'}); return false;"
+          class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 transition flex items-center gap-1.5 font-bold active:scale-95 shadow-sm shadow-amber-950/40"
+        >
+          <span>☕</span>
+          <span>Support Me</span>
         </a>
       </div>
 
@@ -817,7 +814,7 @@
     <!-- ======================================================================= -->
     <!-- SECTION: SUPPORT CREATOR -->
     <!-- ======================================================================= -->
-    <section class="rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+    <section id="section-support-creator" class="rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
       <!-- Glow background decorative elements -->
       <div class="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -918,13 +915,29 @@
   <!-- FOOTER -->
   <!-- ========================================================================= -->
   <footer class="border-t border-slate-800 bg-slate-900/60 py-6 text-center text-xs text-slate-500">
-    <div class="max-w-[1720px] mx-auto px-4 space-y-1">
-      <p class="text-slate-400">
+    <div class="max-w-[1720px] mx-auto px-4 space-y-2">
+      <p class="text-slate-400 font-medium">
         PORTAL DATA FORMASI CPNS 2024 • SSCASN BKN DATABASE & ANALYTICS
       </p>
       <p class="text-[11px]">
         Credit & Research: Eurekaa • Berdasarkan Dataset Terverifikasi SSCASN BKN 2024 & Kerangka Regulasi PP No. 5 Tahun 2024
       </p>
+      <!-- Technical / Dev Links -->
+      <div class="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-500 pt-2 border-t border-slate-800/60">
+        <div class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>SQLite Engine (WAL Active)</span>
+        </div>
+        <span>•</span>
+        <a href="/docs" target="_blank" class="text-slate-400 hover:text-indigo-400 transition underline underline-offset-2 flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+          <span>Swagger REST API (/docs)</span>
+        </a>
+        <span>•</span>
+        <a href="/sumber-data" class="text-slate-400 hover:text-cyan-400 transition underline underline-offset-2">
+          <span>Metodologi Hukum & Sumber Data</span>
+        </a>
+      </div>
     </div>
   </footer>
 
