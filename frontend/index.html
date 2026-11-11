@@ -608,7 +608,7 @@
               <th scope="col" class="py-3 px-3.5 min-w-[190px]">Kualifikasi Jurusan</th>
               <th scope="col" class="py-3 px-3 text-center min-w-[100px]">Kuota & Pelamar</th>
               <th scope="col" class="py-3 px-3 min-w-[160px]">Kompetisi & Peluang</th>
-              <th scope="col" class="py-3 px-3.5 min-w-[170px]">Estimasi Penghasilan</th>
+              <th scope="col" class="py-3 px-3.5 min-w-[170px]">Gaji Publikasi BKN</th>
               <th scope="col" class="py-3 px-3 text-center w-20">Aksi</th>
             </tr>
           </thead>
@@ -1018,7 +1018,7 @@
 
           <!-- Total Take Home Pay -->
           <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-            <span class="text-[10px] text-slate-500 uppercase font-semibold">Estimasi Bersih (THP Netto)</span>
+            <span class="text-[10px] text-slate-500 uppercase font-semibold">Simulasi Take-Home Pay (Netto)</span>
             <div id="modal-thp" class="text-lg font-bold text-amber-300 font-mono mt-1">---</div>
             <div id="modal-thp-sscasn" class="text-[10px] text-slate-400 mt-0.5 font-mono">BKN: ---</div>
           </div>
@@ -1031,7 +1031,7 @@
             <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <span>Informasi Unit Kerja & Regulasi Tukin</span>
+            <span>Informasi Unit Kerja & Komponen Penghasilan</span>
           </h4>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
@@ -1043,11 +1043,11 @@
               <p id="modal-kategori-instansi" class="font-medium text-slate-200 mt-0.5">---</p>
             </div>
             <div>
-              <span class="text-slate-500">Estimasi Tukin / TPP:</span>
+              <span class="text-slate-500">Estimasi Kisaran Tukin / TPP:</span>
               <p id="modal-tukin-range" class="font-medium text-emerald-400 font-mono mt-0.5">---</p>
             </div>
             <div>
-              <span class="text-slate-500">Dasar Regulasi Tukin:</span>
+              <span class="text-slate-500">Status Data Tukin / TPP:</span>
               <p id="modal-tukin-regulasi" class="font-medium text-slate-300 mt-0.5">---</p>
             </div>
           </div>
@@ -1790,13 +1790,13 @@
             </div>
           </td>
 
-          <!-- Estimasi Penghasilan & Golongan -->
+          <!-- Gaji Publikasi BKN & Golongan -->
           <td class="py-3 px-3.5 font-mono">
             <div class="font-bold text-amber-300 text-xs">
               ${formatJuta(item.gaji_min)} - ${formatJuta(item.gaji_max)}
             </div>
             <div class="text-[10px] text-slate-400 mt-0.5">
-              <span class="text-sky-300 font-semibold">Gol. ${item.golongan_awal || '-'}</span> (80%: ${formatJuta(item.gaji_pokok_cpns_80)})
+              <span class="text-sky-300 font-semibold">Gol. ${item.golongan_awal || '-'}</span> (Gaji Pokok 80%: ${formatJuta(item.gaji_pokok_cpns_80)})
             </div>
           </td>
 
@@ -1983,7 +1983,8 @@
         // Kalkulasi Rincian Simulasi Take-Home Pay (THP)
         const cpns80 = d.gaji_pokok_cpns_80 || 2228560;
         const gol = d.golongan_awal || 'III/a';
-        const uangMakanPerHari = (gol.startsWith('I') && !gol.startsWith('IV')) ? 35000 : (gol.startsWith('IV') ? 41000 : 37000);
+        // Hierarki Standar Biaya Masukan PMK 49/2023: Gol IV = 41k, Gol III = 37k, Gol I/II = 35k
+        const uangMakanPerHari = gol.startsWith('IV') ? 41000 : (gol.startsWith('III') ? 37000 : 35000);
         const uangMakanBulan = uangMakanPerHari * 22; // Rata-rata 22 hari kerja
 
         // Estimasi Tukin awal (prioritaskan tukin_min instansi atau selisih positif)
@@ -2005,8 +2006,8 @@
         document.getElementById('slip-total-netto').textContent = `~ ${formatRp(totalNetto)} / bln`;
 
         // Sinkronisasi Card Kanan Atas dengan Netto THP
-        document.getElementById('modal-thp').textContent = `~ ${formatJuta(totalNetto)} / bln`;
-        document.getElementById('modal-thp-sscasn').textContent = `Publikasi BKN: ${formatJuta(d.gaji_min)} - ${formatJuta(d.gaji_max)}`;
+        document.getElementById('modal-thp').textContent = `~ ${formatRp(totalNetto)} / bln`;
+        document.getElementById('modal-thp-sscasn').textContent = `Publikasi Resmi BKN: ${formatRp(d.gaji_min)} - ${formatRp(d.gaji_max)}`;
 
         // Populate majors list
         const majorsContainer = document.getElementById('modal-majors-list');

@@ -40,7 +40,7 @@ Aplikasi visualisasi, eksplorasi, dan analitik kompetisi formasi CPNS 2024 bersk
 - **Tabel Data Terpaginasi Lengkap:**
   - Paginasi server-side (`LIMIT` dan `OFFSET` SQLite) cepat (~0.1 detik).
   - Rincian gaji PP 5/2024 (CPNS 80% vs 100% PNS).
-  - Modal detail komprehensif menampilkan nomor regulasi hukum tunjangan kinerja (tukin/TPP).
+  - Modal detail komprehensif menampilkan simulasi estimasi Take-Home Pay (Gaji Pokok 80% PP 5/2024 + Estimasi Tukin/TPP + Uang Makan PMK 49/2023 - Potongan BPJS & Taspen).
   - Unduh hasil filter query langsung ke format **CSV**.
 - **Akses & Unduh Dataset Mentah:**
   - File mentah `raw_cpns_2024.csv` (44 MB) dan database SQLite `cpns2024.db` dapat diunduh langsung dari web.
