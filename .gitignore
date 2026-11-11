@@ -18,6 +18,11 @@ data/cpns2024.db-shm
 # Downloaded official regulation PDFs (uploaded separately to Google Drive)
 data/regulasi_pdf/
 
+# Private & Internal documentation (never upload to GitHub)
+PRIVATE_GUIDE.md
+*.private.md
+README_INTERNAL.md
+
 # OS & Editor temporary files
 .DS_Store
 Thumbs.db

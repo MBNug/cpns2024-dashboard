@@ -1,184 +1,105 @@
 # Portal Data Formasi CPNS 2024 & Analytics Dashboard
 
-> **Database Relasional 3NF & Analisis Terbuka Seleksi Calon Pegawai Negeri Sipil (BKN 2024)**  
-> *Research & Engineering by Eurekaa*
-
-Aplikasi visualisasi, eksplorasi, dan analitik kompetisi formasi CPNS 2024 berskala penuh. Mengintegrasikan **111.921 data formasi resmi SSCASN BKN**, normalisasi relasi many-to-many program studi, pemetaan gaji pokok CPNS 80% (PP No. 5 Tahun 2024), serta perhitungan rasio kompetisi dan peluang kelulusan secara real-time.
+> **Platform Eksplorasi Data Terbuka & Analitik Kompetisi Seleksi Calon Pegawai Negeri Sipil (BKN 2024)**  
+> *Dikembangkan secara independen untuk transparansi data dan kemudahan pencarian formasi bagi calon pelamar ASN di Indonesia.*
 
 ---
 
-## 📊 Ringkasan Data Resmi
+## 📌 Ringkasan Dataset Resmi
+
+Aplikasi ini mengolah seluruh dataset publik seleksi CPNS 2024 dari portal resmi SSCASN BKN ke dalam skema basis data relasional ternormalisasi (3NF):
 
 | Indikator | Nilai | Keterangan |
 | :--- | :---: | :--- |
-| **Total Formasi Jabatan** | **111.921** | 100% data resmi SSCASN BKN 2024 |
-| **Total Alokasi Kuota (Kursi)** | **247.202** | Total kapasitas penerimaan nasional |
+| **Total Formasi Jabatan** | **111.921** | 100% data publikasi resmi SSCASN BKN 2024 |
+| **Total Alokasi Kuota Kursi** | **247.202** | Total kapasitas penerimaan CPNS nasional |
 | **Total Pelamar Riil (MS)** | **3.026.576** | Pelamar lolos verifikasi administrasi BKN |
-| **Formasi Tanpa Pelamar (0 Pelamar)** | **25.007** | **Peluang Emas** (Peluang lolos 100%) |
-| **Rata-rata Rasio Kompetisi** | **1 : 9.18** | Rata-rata persaingan pelamar per kursi |
-| **Cakupan Instansi** | **544** | Seluruh K/L, Pemprov, Pemkab & Pemkot |
-| **Program Studi / Jurusan Unik** | **5.289** | Dinormalisasi 3NF dari multivalued raw |
-| **Relasi Formasi - Jurusan** | **670.994** | Junction table many-to-many |
+| **Formasi Tanpa Pelamar (0 Pelamar)** | **25.007** | Peluang kelulusan tinggi (0 saingan di tahap administrasi) |
+| **Rata-rata Rasio Kompetisi** | **1 : 9.18** | Rata-rata pelamar per 1 kursi formasi |
+| **Cakupan Instansi** | **544** | Seluruh K/L Pusat, Pemerintah Provinsi, Kabupaten & Kota |
+| **Kualifikasi Program Studi** | **5.289** | Dinormalisasi dari string multivalued menjadi entitas terpisah |
+| **Relasi Formasi - Jurusan** | **670.994** | Junction table relasi *many-to-many* |
 
 ---
 
-## ⚡ Fitur Utama
+## ✨ Fitur Utama
 
-- **Filter & Pencarian Real-Time (Server-Side):**
-  - Pencarian debounced jabatan, instansi, lokasi, dan ID formasi.
-  - Autocomplete pencarian program studi / jurusan.
+- **Pencarian Cepat & Filter Multidimensi:**
+  - Pencarian instan (*debounced*) untuk nama jabatan, instansi, lokasi penempatan, dan ID formasi.
+  - Autocomplete interaktif untuk ribuan program studi / jurusan pendidikan.
   - Filter jenjang pendidikan (`SMA/SMK`, `D-III`, `D-IV`, `S-1`, `S-2`, `Profesi`, `S-3/Spesialis`).
-  - Filter lingkup wilayah (`Pusat`, `Provinsi`, `Kabupaten/Kota`) dan 544 instansi spesifik.
-  - Tombol 1-klik: **`⚡ Formasi 0 Pelamar (Peluang Emas)`**.
-  - Filter tingkat keketatan: *Tanpa Pelamar, Sangat Longgar, Moderat, Sangat Ketat*.
-  - Slider batas penghasilan minimal (Take-Home Pay).
-  - Pengurutan dinamis: Peluang lolos tertinggi, persaingan terketat, kuota terbanyak, dan gaji tertinggi.
-- **Visualisasi Dinamis (Chart.js):**
-  - Bar chart *Top 10 Jurusan Paling Dibutuhkan*.
-  - Bar chart *Top 10 Instansi dengan Kuota & Kompensasi Terbesar*.
-  - Grafik otomatis bereaksi dan ter-update saat filter diubah.
-- **Tabel Data Terpaginasi Lengkap:**
-  - Paginasi server-side (`LIMIT` dan `OFFSET` SQLite) cepat (~0.1 detik).
-  - Rincian gaji PP 5/2024 (CPNS 80% vs 100% PNS).
-  - Modal detail komprehensif menampilkan simulasi estimasi Take-Home Pay (Gaji Pokok 80% PP 5/2024 + Estimasi Tukin/TPP + Uang Makan PMK 49/2023 - Potongan BPJS & Taspen).
-  - Unduh hasil filter query langsung ke format **CSV**.
-- **Akses & Unduh Dataset Mentah:**
-  - File mentah `raw_cpns_2024.csv` (44 MB) dan database SQLite `cpns2024.db` dapat diunduh langsung dari web.
+  - Filter lingkup instansi (`Pusat`, `Provinsi`, `Kabupaten/Kota`) dan pilihan instansi spesifik.
+  - Filter cepat 1-klik: **`Formasi 0 Pelamar`**.
+  - Filter rentang gaji publikasi BKN dan tingkat keketatan kompetisi.
+- **Tabel Responsif & Ramah Pengguna Mobile:**
+  - Paginasi server-side super cepat menggunakan SQLite (`LIMIT` dan `OFFSET`).
+  - Navigasi pintar di perangkat seluler dengan petunjuk geser tabel dan *auto-hide header* saat menggulir.
+  - Ringkasan angka penting (kuota, pelamar, dan peluang) tampil langsung di kartu pertama pada layar HP.
+- **Simulasi Slip Penghasilan Bulanan (Take-Home Pay):**
+  - Rincian gaji pokok CPNS tahun pertama (80% sesuai Lampiran II PP No. 5 Tahun 2024).
+  - Simulasi uang makan ASN per golongan (PMK No. 49 Tahun 2023) dan estimasi tunjangan.
+  - Perhitungan estimasi potongan wajib (BPJS Kesehatan 1% dan Iuran Pensiun Taspen 8%).
+- **Ekspor & Unduh Data:**
+  - Unduh hasil pencarian dan filter aktif ke format **CSV**.
+  - Akses unduh dataset mentah untuk keperluan riset akademis dan analisis open-data.
 
 ---
 
-## 🚀 Cara Menjalankan Secara Lokal
+## 🛠️ Tech Stack
 
-### Di Windows (One-Click Launcher)
-1. Double-click file **`start_dashboard.bat`** di folder project.
-2. Server otomatis berjalan dan membuka browser di `http://localhost:8000`.
-3. Untuk menghentikan, double-click **`stop_dashboard.bat`**.
+- **Backend:** Python 3, FastAPI, Uvicorn
+- **Database:** SQLite3 (3NF Normalized, WAL Mode)
+- **Frontend:** HTML5, Tailwind CSS, Vanilla JavaScript (Zero heavy external dependencies)
+- **Design:** Modern Dark Mode, Glassmorphism, Fully Responsive Mobile-First
 
-### Manual via Terminal / Command Prompt
+---
+
+## 🚀 Menjalankan Secara Lokal
+
+### Prasyarat:
+- Python 3.10 atau versi yang lebih baru
+- Git
+
+### Langkah Instalasi:
+
 ```bash
 # 1. Clone repository
-git clone https://github.com/username/cpns2024-dashboard.git
+git clone https://github.com/MBNug/cpns2024-dashboard.git
 cd cpns2024-dashboard
 
-# 2. Buat virtual environment & aktifkan
+# 2. Buat virtual environment
 python -m venv .venv
-# Windows:
+
+# 3. Aktifkan virtual environment
+# Di Windows:
 .venv\Scripts\activate
-# Linux/Mac:
+# Di Linux / macOS:
 source .venv/bin/activate
 
-# 3. Install dependensi
+# 4. Install dependensi
 pip install -r requirements.txt
 
-# 4. Jalankan FastAPI server
+# 5. Jalankan aplikasi
 uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
-Buka browser di **http://localhost:8000** (dan Swagger Docs di `http://localhost:8000/docs`).
 
-> **Catatan Database:** Jika file `data/cpns2024.db` belum diekstrak, backend otomatis mengekstrak `data/cpns2024.db.gz` atau membangun database dari `data/raw_cpns_2024.csv` saat aplikasi pertama kali dijalankan.
+Buka peramban (browser) di alamat: **`http://localhost:8000`**
 
----
-
-## 🌐 Menjadikan Aplikasi Ini Online (Deployment Guide)
-
-### ❓ Apakah Aman / Bisa Pakai GitHub Pages Saja?
-**GitHub Pages TIDAK BISA** menjalankan aplikasi ini secara langsung, karena:
-1. **GitHub Pages hanya mendukung file statis (HTML/CSS/JS murni).**
-2. Aplikasi ini memiliki backend Python (FastAPI) dan basis data SQLite berukuran 166 MB dengan 670.000 relasi yang memerlukan pemrosesan query SQL server-side (`LIMIT`/`OFFSET`, aggregasi, filter multi-tabel).
+*(Di sistem operasi Windows, Anda juga dapat menjalankan aplikasi secara instan dengan mendua-klik file `start_dashboard.bat`).*
 
 ---
 
-### ✅ Cara Paling Gampang & Gratis (Recommended)
+## ⚖️ Pernyataan Penyangkalan (Disclaimer) Resmi
 
-#### Pilihan 1: Render.com (Gratis & Sangat Mudah)
-1. Buka [github.com/new](https://github.com/new) dan buat repo baru, lalu push repo ini.
-2. Buka [Render.com](https://render.com) dan buat akun (gratis).
-3. Klik **New +** $\rightarrow$ pilih **Web Service** $\rightarrow$ hubungkan dengan repository GitHub kamu.
-4. Isi konfigurasi berikut:
-   - **Environment:** `Python 3`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-5. Klik **Create Web Service**. Dalam 2–3 menit web kamu sudah live dengan URL publik gratis seperti `https://cpns-dashboard.onrender.com`.
-
-##### ⏱️ Trik Gratis Server Anti-Sleep (Tetap Aktif 24 Jam Tanpa Loading Lama)
-Di Render Free Tier, server akan masuk mode *sleep* jika tidak ada pengunjung selama 15 menit, yang membuat pengunjung berikutnya menunggu *cold start* ~30-50 detik. Agar server selalu *standby* dan responsif 24/7:
-1. Buka [UptimeRobot.com](https://uptimerobot.com) (gratis untuk 50 monitor).
-2. Klik **Add New Monitor**:
-   - **Monitor Type:** `HTTP(s)`
-   - **Friendly Name:** `CPNS Dashboard Ping`
-   - **URL (or IP):** `https://nama-web-kamu.onrender.com/health`
-   - **Monitoring Interval:** Setiap `10 minutes` (atau 14 menit).
-3. Bot UptimeRobot akan mengirim ping ringan setiap 10 menit ke endpoint `/health`, sehingga server Render tetap terjaga dan aktif nonstop sebulan penuh (masuk dalam kuota 750 jam gratis per bulan).
-
-#### Pilihan 2: Railway.app (Gratis Trial / Performa Cepat)
-1. Buka [Railway.app](https://railway.app), login dengan GitHub.
-2. Klik **New Project** $\rightarrow$ **Deploy from GitHub repo**.
-3. Railway akan otomatis mendeteksi FastAPI dan langsung menjalankan aplikasi.
-
-#### Pilihan 3: Hugging Face Spaces (Gratis & Tanpa Sleep/Tidur)
-1. Buka [Hugging Face Spaces](https://huggingface.co/spaces) $\rightarrow$ Create new Space.
-2. Pilih SDK **Docker** atau **Gradio/FastAPI**.
-3. Push kode ini ke Space kamu. Web akan aktif online 24/7 tanpa batas kuota tidur.
+1. **Independensi & Sumber Data:**  
+   Website ini adalah proyek independen untuk memudahkan pencarian & analisis data formasi CPNS 2024 dan **TIDAK berafiliasi dengan Badan Kepegawaian Negara (BKN) atau instansi pemerintah mana pun**. Sumber data mengacu pada publikasi terbuka portal resmi SSCASN BKN.
+2. **Karakteristik Data Tukin / TPP:**  
+   Nominal Tukin/TPP dan simulasi take-home pay merupakan estimasi indikatif pemodelan standar kelas jabatan dan kapasitas fiskal APBD, bukan angka mutlak. Nilai riil di lapangan diatur oleh peraturan perundang-undangan dan keputusan internal di masing-masing instansi.
+3. **Peluang Kelulusan:**  
+   Rasio kompetisi dan persentase peluang merupakan perhitungan matematis objektif untuk referensi strategis, bukan merupakan jaminan atau garansi kelulusan seleksi.
 
 ---
 
-## 📈 Bagaimana Jika Pengunjung Tiba-tiba Banyak (High Traffic)?
+## 📄 Lisensi
 
-Jika dibagikan di media sosial (TikTok / X / Telegram) dan diakses ribuan hingga puluhan ribu pelamar sekaligus:
-
-### 1. Pasang Cloudflare (Gratis 100%)
-- Hubungkan domain kamu ke **Cloudflare**.
-- Tambahkan **Page Rules / Cache Rules**:
-  - URL `*.domain.com/static/*` $\rightarrow$ Cache Everything (1 bulan).
-  - URL `*.domain.com/api/stats` $\rightarrow$ Cache Everything (TTL: 1 jam).
-  - URL `*.domain.com/api/filters*` $\rightarrow$ Cache Everything (TTL: 1 jam).
-  - URL `*.domain.com/api/analytics/*` $\rightarrow$ Cache Everything (TTL: 1 jam).
-- **Efek:** 90–95% permintaan tidak akan membebani server kamu karena langsung dijawab oleh CDN Cloudflare terdekat di kota pengunjung!
-
-### 2. Jalankan Uvicorn Multi-Workers
-Di server VPS (misal VPS $4/bulan IDCloudHost/DigitalOcean):
-```bash
-uvicorn backend.main:app --host 0.0.0.0 --port 8000 --workers 4
-```
-SQLite sudah menggunakan mode **WAL (`Write-Ahead Logging`)**, sehingga mampu melayani ribuan pembacaan konkuren per detik tanpa hambatan (*read concurrency*).
-
----
-
-## 🍴 Cara Fork & Berkontribusi (How to Fork)
-
-1. **Fork Repository Ini:**
-   - Klik tombol **Fork** di pojok kanan atas halaman GitHub repository ini.
-   - Pilih akun personal atau organisasi kamu.
-
-2. **Clone Hasil Fork ke Komputer Kamu:**
-   ```bash
-   git clone https://github.com/<username-kamu>/cpns2024-dashboard.git
-   cd cpns2024-dashboard
-   ```
-
-3. **Buat Branch Fitur Baru:**
-   ```bash
-   git checkout -b fitur-analisis-baru
-   ```
-
-4. **Lakukan Perubahan & Commit:**
-   ```bash
-   git add .
-   git commit -m "Menambahkan fitur analisis perbandingan regional"
-   ```
-
-5. **Push ke GitHub & Buat Pull Request:**
-   ```bash
-   git push origin fitur-analisis-baru
-   ```
-   Buka repository kamu di GitHub dan klik tombol **Compare & pull request**.
-
----
-
-## ⚖️ Lisensi & Sumber Data
-
-- **Sumber Data Formasi:** Portal Resmi Seleksi Calon ASN Badan Kepegawaian Negara (BKN) 2024.
-- **Mirror Data Riil:** Nubisub Open Data (`api-sscasn.vercel.app` / `nubisub/sscasn`).
-- **Standar Gaji Pokok:** Peraturan Pemerintah Republik Indonesia Nomor 5 Tahun 2024.
-- **Regulasi Tunjangan:** Peraturan Presiden Republik Indonesia & Peraturan Daerah tentang Tukin/TPP.
-- **Lisensi Software:** MIT License — bebas digunakan, dikembangkan, dan dibagikan untuk kepentingan edukasi dan transparansi publik.
+Proyek ini dilisensikan di bawah [MIT License](LICENSE) — bebas digunakan dan dikembangkan untuk kepentingan edukasi, riset, dan transparansi publik.
