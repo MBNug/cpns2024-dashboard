@@ -91,7 +91,7 @@ Buka browser di **http://localhost:8000** (dan Swagger Docs di `http://localhost
 ### ✅ Cara Paling Gampang & Gratis (Recommended)
 
 #### Pilihan 1: Render.com (Gratis & Sangat Mudah)
-1. Fork repository ini ke akun GitHub kamu.
+1. Buka [github.com/new](https://github.com/new) dan buat repo baru, lalu push repo ini.
 2. Buka [Render.com](https://render.com) dan buat akun (gratis).
 3. Klik **New +** $\rightarrow$ pilih **Web Service** $\rightarrow$ hubungkan dengan repository GitHub kamu.
 4. Isi konfigurasi berikut:
@@ -99,6 +99,16 @@ Buka browser di **http://localhost:8000** (dan Swagger Docs di `http://localhost
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
 5. Klik **Create Web Service**. Dalam 2–3 menit web kamu sudah live dengan URL publik gratis seperti `https://cpns-dashboard.onrender.com`.
+
+##### ⏱️ Trik Gratis Server Anti-Sleep (Tetap Aktif 24 Jam Tanpa Loading Lama)
+Di Render Free Tier, server akan masuk mode *sleep* jika tidak ada pengunjung selama 15 menit, yang membuat pengunjung berikutnya menunggu *cold start* ~30-50 detik. Agar server selalu *standby* dan responsif 24/7:
+1. Buka [UptimeRobot.com](https://uptimerobot.com) (gratis untuk 50 monitor).
+2. Klik **Add New Monitor**:
+   - **Monitor Type:** `HTTP(s)`
+   - **Friendly Name:** `CPNS Dashboard Ping`
+   - **URL (or IP):** `https://nama-web-kamu.onrender.com/health`
+   - **Monitoring Interval:** Setiap `10 minutes` (atau 14 menit).
+3. Bot UptimeRobot akan mengirim ping ringan setiap 10 menit ke endpoint `/health`, sehingga server Render tetap terjaga dan aktif nonstop sebulan penuh (masuk dalam kuota 750 jam gratis per bulan).
 
 #### Pilihan 2: Railway.app (Gratis Trial / Performa Cepat)
 1. Buka [Railway.app](https://railway.app), login dengan GitHub.
