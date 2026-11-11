@@ -1144,18 +1144,6 @@ def download_sqlite_db():
     raise HTTPException(status_code=404, detail="Database cpns2024.db tidak ditemukan")
 
 
-@app.get("/api/download/audit-report")
-def download_audit_report():
-    report_path = DATA_DIR / "laporan_tpp_lengkap.md"
-    if report_path.exists():
-        return FileResponse(
-            str(report_path),
-            media_type="text/markdown",
-            filename="laporan_tpp_lengkap.md"
-        )
-    raise HTTPException(status_code=404, detail="Laporan audit belum dibuat")
-
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
