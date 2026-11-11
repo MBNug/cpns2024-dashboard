@@ -37,19 +37,35 @@ app.add_middleware(
 )
 
 
-def get_db_connection() -> sqlite3.Connection:
-    """Create a SQLite connection configured with WAL and dict row factory."""
-    if not DB_PATH.exists():
+import threading
+
+_db_lock = threading.Lock()
+
+
+def ensure_database_ready():
+    """Ensure cpns2024.db is extracted completely and ready for queries without race conditions."""
+    if DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000:
+        return
+
+    with _db_lock:
+        if DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000:
+            return
+
         gz_path = DATA_DIR / "cpns2024.db.gz"
         raw_csv_path = DATA_DIR / "raw_cpns_2024.csv"
         schema_path = BASE_DIR / "scripts" / "schema.sql"
 
         if gz_path.exists():
             import gzip, shutil
-            print(f"[INFO] Extracting {gz_path} to {DB_PATH}...")
+            tmp_path = DATA_DIR / "cpns2024.db.tmp"
+            print(f"[STARTUP] Extracting {gz_path} to {tmp_path} ...")
             with gzip.open(str(gz_path), "rb") as f_in:
-                with open(str(DB_PATH), "wb") as f_out:
+                with open(str(tmp_path), "wb") as f_out:
                     shutil.copyfileobj(f_in, f_out)
+            # Atomic swap so no concurrent request can read half-written file
+            if tmp_path.exists():
+                os.replace(str(tmp_path), str(DB_PATH))
+            print(f"[STARTUP] Database extracted successfully ({DB_PATH.stat().st_size / (1024*1024):.1f} MB).")
         elif raw_csv_path.exists() and schema_path.exists():
             print("[INFO] Building cpns2024.db from raw_cpns_2024.csv via ETL...")
             from scripts.etl_normalize import run_etl
@@ -57,10 +73,20 @@ def get_db_connection() -> sqlite3.Connection:
         else:
             raise HTTPException(
                 status_code=503,
-                detail="Database cpns2024.db not found. Please run scripts/etl_normalize.py first."
+                detail="Database cpns2024.db not found. Please ensure data/cpns2024.db.gz exists."
             )
 
-    conn = sqlite3.connect(str(DB_PATH), timeout=10.0)
+
+@app.on_event("startup")
+def startup_event():
+    """Unpack database immediately on startup before any requests arrive."""
+    ensure_database_ready()
+
+
+def get_db_connection() -> sqlite3.Connection:
+    """Create a SQLite connection configured with WAL and dict row factory."""
+    ensure_database_ready()
+    conn = sqlite3.connect(str(DB_PATH), timeout=15.0)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode = WAL;")
     conn.execute("PRAGMA synchronous = NORMAL;")
@@ -998,12 +1024,20 @@ if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def serve_index():
     index_file = FRONTEND_DIR / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file))
     return {"message": "Frontend not yet built. Please check frontend/index.html"}
+
+
+@app.get("/favicon.ico")
+def serve_favicon():
+    svg_path = FRONTEND_DIR / "tako_logo.svg"
+    if svg_path.exists():
+        return FileResponse(str(svg_path), media_type="image/svg+xml")
+    raise HTTPException(status_code=404, detail="Favicon not found")
 
 
 @app.get("/sumber-data")
