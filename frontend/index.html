@@ -1939,9 +1939,16 @@
           ? '<span class="inline-block px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">✅ Regulasi Resmi Terverifikasi</span>'
           : '<span class="inline-block px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">⚠️ Estimasi Kisaran (Bukan Nilai Pasti)</span>';
 
+        const regLink = d.link_regulasi || `https://peraturan.bpk.go.id/Search?keywords=${encodeURIComponent(reg)}`;
         document.getElementById('modal-tukin-regulasi').innerHTML = `
           <div class="font-medium text-slate-200">${reg}</div>
-          <div class="mt-1">${badgeTag}</div>
+          <div class="mt-1.5 flex flex-wrap items-center gap-2">
+            ${badgeTag}
+            <a href="${regLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 hover:text-white border border-indigo-500/30 text-[10px] font-semibold transition active:scale-95 shadow-sm">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              <span>Cek Dokumen Resmi (BPK RI)</span>
+            </a>
+          </div>
           ${!isVerified ? '<p class="text-[10px] text-amber-300/80 mt-1 italic leading-tight">* Catatan: Data Perbup/Perwal/Perda resmi instansi belum terpublikasi terbuka. Nilai tukin/TPP di atas adalah estimasi kisaran standar regional, bukan kepastian mutlak.</p>' : ''}
         `;
 
