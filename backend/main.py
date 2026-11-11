@@ -42,13 +42,28 @@ import threading
 _db_lock = threading.Lock()
 
 
+def is_db_up_to_date() -> bool:
+    """Check if local SQLite database exists and has required precomputed tables."""
+    if not (DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000):
+        return False
+    try:
+        conn = sqlite3.connect(str(DB_PATH), timeout=3.0)
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM top_jurusan_precomputed LIMIT 1")
+        cur.execute("SELECT 1 FROM top_instansi_precomputed LIMIT 1")
+        conn.close()
+        return True
+    except Exception:
+        return False
+
+
 def ensure_database_ready():
     """Ensure cpns2024.db is extracted completely and ready for queries without race conditions."""
-    if DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000:
+    if is_db_up_to_date():
         return
 
     with _db_lock:
-        if DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000:
+        if is_db_up_to_date():
             return
 
         gz_path = DATA_DIR / "cpns2024.db.gz"
