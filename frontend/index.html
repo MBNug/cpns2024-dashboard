@@ -882,9 +882,9 @@
 
           <!-- Total Take Home Pay -->
           <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-            <span class="text-[10px] text-slate-500 uppercase font-semibold">Total Take-Home Pay</span>
+            <span class="text-[10px] text-slate-500 uppercase font-semibold">Estimasi Bersih (THP Netto)</span>
             <div id="modal-thp" class="text-lg font-bold text-amber-300 font-mono mt-1">---</div>
-            <span class="text-[10px] text-slate-500">Gaji Pokok + Tukin</span>
+            <div id="modal-thp-sscasn" class="text-[10px] text-slate-400 mt-0.5 font-mono">BKN: ---</div>
           </div>
 
         </div>
@@ -1801,8 +1801,6 @@
         document.getElementById('modal-golongan').textContent = `Golongan ${d.golongan_awal || '-'}`;
         document.getElementById('modal-gaji-pokok-80').textContent = `80% CPNS: ${formatRp(d.gaji_pokok_cpns_80)} (100%: ${formatRp(d.gaji_pokok_100)})`;
 
-        document.getElementById('modal-thp').textContent = `${formatJuta(d.gaji_min)} - ${formatJuta(d.gaji_max)}`;
-
         document.getElementById('modal-lokasi').textContent = d.lokasi_nm;
         document.getElementById('modal-kategori-instansi').textContent = d.kategori_instansi;
 
@@ -1845,6 +1843,10 @@
         document.getElementById('slip-bpjs').textContent = `- ${formatRp(potonganBpjs)}`;
         document.getElementById('slip-taspen').textContent = `- ${formatRp(potonganTaspen)}`;
         document.getElementById('slip-total-netto').textContent = `~ ${formatRp(totalNetto)} / bln`;
+
+        // Sinkronisasi Card Kanan Atas dengan Netto THP
+        document.getElementById('modal-thp').textContent = `~ ${formatJuta(totalNetto)} / bln`;
+        document.getElementById('modal-thp-sscasn').textContent = `Publikasi BKN: ${formatJuta(d.gaji_min)} - ${formatJuta(d.gaji_max)}`;
 
         // Populate majors list
         const majorsContainer = document.getElementById('modal-majors-list');
