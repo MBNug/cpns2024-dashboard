@@ -94,6 +94,16 @@
           <span class="text-slate-400">Regulasi Gaji:</span>
           <span class="text-sky-300 font-semibold">PP No. 5/2024 (80% CPNS)</span>
         </div>
+        <!-- Bandingkan Formasi Button -->
+        <button
+          type="button"
+          id="btn-open-compare"
+          onclick="openCompareModal()"
+          class="px-3.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition flex items-center gap-1.5 font-semibold active:scale-95 shadow-sm"
+          title="Bandingkan formasi yang disimpan"
+        >
+          <span>⭐ Bandingkan (<span id="compare-count-badge" class="font-mono">0</span>)</span>
+        </button>
         <!-- Kontribusi TPP Button -->
         <button onclick="openCrowdsourceModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5 font-semibold active:scale-95 shadow-sm">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,10 +287,10 @@
             <input
               type="text"
               id="filter-q"
-              placeholder="Cth: Komputer, Auditor, IKN..."
+              placeholder="Cth: Auditor BPK, Analis IKN..."
               class="w-full pl-9 pr-8 py-2 text-xs rounded-xl bg-slate-950 border border-slate-700/80 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-slate-100 placeholder-slate-500 transition"
             />
-            <button id="btn-clear-q" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300">
+            <button type="button" id="btn-clear-q" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300">
               ✕
             </button>
           </div>
@@ -300,7 +310,7 @@
               autocomplete="off"
               class="w-full pl-3 pr-8 py-2 text-xs rounded-xl bg-slate-950 border border-slate-700/80 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-slate-100 placeholder-slate-500 transition"
             />
-            <button id="btn-clear-jurusan" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300">
+            <button type="button" id="btn-clear-jurusan" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300">
               ✕
             </button>
           </div>
@@ -347,19 +357,29 @@
       <!-- Filters Grid (Row 2) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5 pt-1">
         
-        <!-- Dropdown Instansi Spesifik -->
-        <div class="space-y-1">
+        <!-- Searchable & Cascading Instansi Spesifik -->
+        <div class="space-y-1 relative" id="instansi-combobox-wrapper">
           <label class="text-xs font-medium text-slate-300 flex items-center justify-between">
             <span>Instansi Spesifik</span>
-            <span class="text-[10px] text-slate-500">K/L & Pemda</span>
+            <span id="instansi-count-badge" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-400 font-mono border border-slate-700/70">Memuat...</span>
           </label>
-          <select
-            id="filter-instansi-id"
-            class="w-full py-2 px-3 text-xs rounded-xl bg-slate-950 border border-slate-700/80 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-slate-100 transition"
-          >
-            <option value="ALL">Semua Instansi</option>
-            <!-- Populated dynamically via /api/filters -->
-          </select>
+          <div class="relative">
+            <input
+              type="text"
+              id="filter-instansi-input"
+              placeholder="Cari dari instansi..."
+              autocomplete="off"
+              class="w-full pl-3 pr-8 py-2 text-xs rounded-xl bg-slate-950 border border-slate-700/80 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-slate-100 placeholder-slate-500 transition"
+            />
+            <input type="hidden" id="filter-instansi-id" value="ALL" />
+            <button type="button" id="btn-clear-instansi" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-500 hover:text-slate-300" title="Hapus pilihan instansi">
+              ✕
+            </button>
+          </div>
+          <!-- Autocomplete Dropdown List -->
+          <div id="instansi-autocomplete-list" class="hidden absolute top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 py-1 text-xs divide-y divide-slate-800">
+            <!-- Dynamically injected instansi items -->
+          </div>
         </div>
 
         <!-- Dropdown Jenis Formasi -->
@@ -452,8 +472,8 @@
           <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Semua Data</span>
         </div>
 
-        <!-- Buttons: Quick Toggle 0 Pelamar, Reset & Export CSV -->
-        <div class="flex items-center gap-2.5 flex-wrap">
+        <!-- Buttons: Quick Toggle 0 Pelamar, Salin Link, Reset & Export CSV -->
+        <div class="flex items-center gap-2 flex-wrap">
           <!-- Quick Toggle Formasi 0 Pelamar -->
           <button
             type="button"
@@ -463,11 +483,21 @@
             <span>⚡ Formasi 0 Pelamar</span>
           </button>
 
+          <!-- Share / Copy Filter Link -->
+          <button
+            type="button"
+            id="btn-copy-filter-link"
+            class="px-3.5 py-2 text-xs font-medium rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 transition flex items-center gap-1.5 active:scale-95"
+            title="Salin URL filter aktif agar bisa dibagikan atau dibuka ulang"
+          >
+            <span>🔗 Salin Link Filter</span>
+          </button>
+
           <!-- Reset Filter -->
           <button
             type="button"
             id="btn-reset-filters"
-            class="px-4 py-2 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700/80 transition flex items-center gap-1.5 active:scale-95"
+            class="px-3.5 py-2 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700/80 transition flex items-center gap-1.5 active:scale-95"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -490,6 +520,131 @@
 
       </div>
 
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- 4. ANALYTICS & INSIGHTS SECTION -->
+    <!-- ======================================================================= -->
+    <section id="section-analytics" class="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 shadow-xl space-y-4">
+      
+      <!-- Header & Collapse Toggle -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-200">
+            Ringkasan Filter & Analitik Visual Nasional
+          </h2>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-medium">
+            Klik grafik untuk memfilter
+          </span>
+        </div>
+        <button
+          type="button"
+          id="btn-toggle-analytics"
+          class="px-3 py-1.5 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 active:scale-95"
+        >
+          <span id="analytics-toggle-label">Sembunyikan Grafik</span>
+          <svg id="analytics-toggle-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Dynamic Filter Summary Bar (Live from /api/formasi data.summary) -->
+      <div id="dynamic-filter-summary" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800/90 text-xs">
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+          <span class="text-[10px] text-slate-400 block uppercase tracking-wider">Formasi Sesuai Filter</span>
+          <span id="summary-total-formasi" class="text-sm sm:text-base font-bold text-cyan-400 font-mono">---</span>
+        </div>
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+          <span class="text-[10px] text-slate-400 block uppercase tracking-wider">Total Kuota Kursi</span>
+          <span id="summary-total-kuota" class="text-sm sm:text-base font-bold text-emerald-400 font-mono">---</span>
+        </div>
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+          <span class="text-[10px] text-slate-400 block uppercase tracking-wider">Total Pelamar (MS)</span>
+          <span id="summary-total-pelamar" class="text-sm sm:text-base font-bold text-sky-400 font-mono">---</span>
+        </div>
+        <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
+          <span class="text-[10px] text-slate-400 block uppercase tracking-wider">Rata-Rata Kompetisi</span>
+          <span id="summary-avg-rasio" class="text-sm sm:text-base font-bold text-indigo-300 font-mono">1 : ---</span>
+        </div>
+        <button
+          type="button"
+          id="summary-zero-btn"
+          class="col-span-2 sm:col-span-1 px-2.5 py-1.5 rounded-lg bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/30 text-left transition group"
+          title="Klik untuk filter 0 pelamar"
+        >
+          <span class="text-[10px] text-emerald-300 block uppercase tracking-wider font-semibold">⚡ 0 Pelamar (Filter Ini)</span>
+          <span id="summary-formasi-kosong" class="text-sm sm:text-base font-bold text-emerald-300 font-mono group-hover:text-emerald-200">---</span>
+        </button>
+      </div>
+
+      <!-- Collapsible Visual Distribution Cards -->
+      <div id="analytics-cards-body" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        
+        <!-- Card A: Distribusi Tingkat Keketatan Nasional -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Distribusi Tingkat Keketatan</h3>
+            <span class="text-[10px] text-slate-500">Klik bar untuk filter</span>
+          </div>
+          <div id="analytics-keketatan-bars" class="space-y-2.5 text-xs">
+            <div class="text-slate-500 text-[11px]">Memuat statistik keketatan...</div>
+          </div>
+        </div>
+
+        <!-- Card B: Proporsi Jalur Formasi -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Proporsi Jalur Formasi</h3>
+            <span class="text-[10px] text-slate-500">Klik jalur untuk filter</span>
+          </div>
+          <div id="analytics-jenis-bars" class="space-y-2 text-xs max-h-56 overflow-y-auto pr-1">
+            <div class="text-slate-500 text-[11px]">Memuat proporsi jalur...</div>
+          </div>
+        </div>
+
+        <!-- Card C: Sebaran Instansi & Peluang Strategis -->
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col justify-between space-y-3">
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Sebaran Instansi & Peluang Strategis</h3>
+              <span id="analytics-instansi-total" class="text-[10px] font-mono text-cyan-400">--- Instansi</span>
+            </div>
+            <div id="analytics-instansi-kategori" class="grid grid-cols-3 gap-2 text-center">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <div class="pt-2.5 border-t border-slate-800/80 space-y-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">Filter Cepat Strategis (1-Klik):</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onclick="applyStrategicPreset('s1-zero')"
+                class="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition active:scale-95"
+              >
+                🎯 S-1 Tanpa Pelamar
+              </button>
+              <button
+                type="button"
+                onclick="applyStrategicPreset('high-salary-loose')"
+                class="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-[11px] font-semibold transition active:scale-95"
+              >
+                💰 Gaji Tinggi (≥ 10 Jt) & Longgar
+              </button>
+              <button
+                type="button"
+                onclick="applyStrategicPreset('pusat-loose')"
+                class="px-2.5 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-[11px] font-semibold transition active:scale-95"
+              >
+                🏛️ Instansi Pusat Longgar
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </section>
 
     <!-- ======================================================================= -->
@@ -550,7 +705,7 @@
               <th scope="col" class="py-3 px-3 text-center min-w-[100px]">Kuota & Pelamar</th>
               <th scope="col" class="py-3 px-3 min-w-[160px]">Kompetisi & Peluang</th>
               <th scope="col" class="py-3 px-3.5 min-w-[170px]">Gaji Publikasi BKN</th>
-              <th scope="col" class="py-3 px-3 text-center w-20">Aksi</th>
+              <th scope="col" class="py-3 px-3 text-center w-28">Aksi</th>
             </tr>
           </thead>
 
@@ -903,6 +1058,15 @@
     <!-- Modal Card -->
     <div class="relative w-full max-w-3xl rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden transition-all duration-200">
       
+      <!-- Loading Overlay -->
+      <div id="modal-detail-loading" class="hidden absolute inset-0 z-30 bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
+        <svg class="animate-spin w-8 h-8 text-cyan-400" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span class="text-xs text-cyan-300 font-medium tracking-wide">Memuat detail formasi...</span>
+      </div>
+
       <!-- Modal Header -->
       <div class="p-5 border-b border-slate-800 flex items-start justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900">
         <div>
@@ -922,13 +1086,37 @@
           </p>
         </div>
 
-        <!-- Close Button -->
-        <button
-          id="btn-close-modal"
-          class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition active:scale-95"
-        >
-          ✕
-        </button>
+        <!-- Header Action Buttons -->
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            id="btn-modal-bookmark"
+            onclick="toggleBookmarkFromModal()"
+            class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition active:scale-95"
+            title="Simpan untuk dibandingkan"
+          >
+            <span id="modal-bookmark-icon">☆</span>
+            <span class="hidden sm:inline" id="modal-bookmark-label">Simpan</span>
+          </button>
+
+          <button
+            type="button"
+            id="btn-share-detail"
+            onclick="copyDetailShareLink()"
+            class="px-2.5 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center gap-1 transition active:scale-95"
+            title="Salin link langsung ke formasi ini"
+          >
+            <span>🔗 Bagikan Formasi</span>
+          </button>
+
+          <!-- Close Button -->
+          <button
+            id="btn-close-modal"
+            class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition active:scale-95"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       <!-- Modal Body -->
@@ -1016,9 +1204,74 @@
               </svg>
               <span>Simulasi Rincian Slip Penghasilan Bersih (Take-Home Pay)</span>
             </h4>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-semibold border border-amber-500/20">
+            <span id="modal-thp-badge" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-semibold border border-amber-500/20">
               Estimasi Masa CPNS (1 Tahun Pertama)
             </span>
+          </div>
+
+          <!-- Interactive THP Simulator Controls -->
+          <div id="thp-simulator-controls" class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            
+            <!-- 1. Status Pegawai Toggle -->
+            <div class="space-y-1.5">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Status Pegawai</span>
+              <div class="grid grid-cols-2 gap-1 p-1 rounded-lg bg-slate-950 border border-slate-800">
+                <button
+                  type="button"
+                  id="btn-sim-cpns"
+                  onclick="setThpStatusPegawai(false)"
+                  class="py-1.5 px-2 rounded-md text-[11px] font-bold transition bg-cyan-600 text-white shadow-sm"
+                >
+                  CPNS (80%)
+                </button>
+                <button
+                  type="button"
+                  id="btn-sim-pns"
+                  onclick="setThpStatusPegawai(true)"
+                  class="py-1.5 px-2 rounded-md text-[11px] font-semibold transition text-slate-400 hover:text-white"
+                >
+                  PNS Penuh (100%)
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Status Keluarga Select -->
+            <div class="space-y-1.5">
+              <label for="thp-sim-keluarga" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Status Keluarga (Tunjangan)</label>
+              <select
+                id="thp-sim-keluarga"
+                onchange="recalculateModalTHP()"
+                class="w-full py-1.5 px-2.5 text-[11px] rounded-lg bg-slate-950 border border-slate-700 text-slate-100 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              >
+                <option value="TK0">Lajang (TK/0)</option>
+                <option value="K0">Menikah (K/0: +10% Tunj. Pasangan)</option>
+                <option value="K1">Menikah + 1 Anak (K/1: +12%)</option>
+                <option value="K2">Menikah + 2 Anak (K/2: +14%)</option>
+              </select>
+            </div>
+
+            <!-- 3. Tukin / TPP Slider -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="font-semibold text-slate-400 uppercase tracking-wider">Simulasi Tukin / TPP</span>
+                <span id="thp-sim-tukin-label" class="font-mono font-bold text-emerald-400">Rp 0</span>
+              </div>
+              <input
+                type="range"
+                id="thp-sim-tukin-slider"
+                min="0"
+                max="10000000"
+                step="50000"
+                value="0"
+                oninput="recalculateModalTHP()"
+                class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+              />
+              <div class="flex items-center justify-between text-[9px] text-slate-500 font-mono">
+                <span id="thp-sim-tukin-min-lbl">Min: Rp 0</span>
+                <span id="thp-sim-tukin-max-lbl">Max: Rp 0</span>
+              </div>
+            </div>
+
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
@@ -1028,11 +1281,15 @@
                 (+) Estimasi Penerimaan Bruto
               </span>
               <div class="flex justify-between text-slate-300 text-[11px]">
-                <span>Gaji Pokok CPNS (80% PP 5/2024):</span>
+                <span id="slip-label-gaji-pokok">Gaji Pokok CPNS (80% PP 5/2024):</span>
                 <span id="slip-gaji-pokok" class="font-mono font-medium text-white">---</span>
               </div>
+              <div id="slip-row-tunj-keluarga" class="hidden flex justify-between text-slate-300 text-[11px]">
+                <span id="slip-label-tunj-keluarga">Tunjangan Keluarga:</span>
+                <span id="slip-tunj-keluarga" class="font-mono font-medium text-sky-300">+ Rp 0</span>
+              </div>
               <div class="flex justify-between text-slate-300 text-[11px]">
-                <span>Tukin / TPP Awal:</span>
+                <span>Tukin / TPP Simulasi:</span>
                 <span id="slip-tukin" class="font-mono font-medium text-emerald-300">---</span>
               </div>
               <div class="flex justify-between text-slate-300 text-[11px]">
@@ -1076,12 +1333,12 @@
               <span>Mengapa Bruto Simulasi Berbeda dengan Rentang Publikasi BKN?</span>
             </div>
             <p class="text-slate-400 leading-relaxed text-[10.5px]">
-              Sebanyak <strong class="text-slate-300">78,4% formasi</strong> di portal SSCASN BKN (terutama Pemerintah Daerah) hanya mencantumkan komponen <strong class="text-slate-300">Gaji Pokok dasar (PP No. 5 Tahun 2024)</strong>. Simulasi di atas memodelkan penghasilan riil bulanan ASN di lapangan yang menggabungkan <strong class="text-slate-300">Gaji Pokok 80% + Estimasi Tukin/TPP + Uang Makan (PMK 49/2023)</strong> dikurangi iuran wajib BPJS & Taspen.
+              Sebanyak <strong class="text-slate-300">78,4% formasi</strong> di portal SSCASN BKN (terutama Pemerintah Daerah) hanya mencantumkan komponen <strong class="text-slate-300">Gaji Pokok dasar (PP No. 5 Tahun 2024)</strong>. Gunakan simulator interaktif di atas untuk menguji skenario CPNS vs PNS penuh, tunjangan keluarga, serta kisaran Tukin/TPP instansi.
             </p>
           </div>
 
           <p class="text-[10px] text-slate-500 italic leading-tight">
-            * Catatan: Simulasi di atas adalah estimasi nominal bulanan untuk CPNS lajang (tanpa tunjangan keluarga). Setelah diangkat PNS 100% (tahun kedua), gaji pokok naik penuh 100% dan take-home pay meningkat otomatis.
+            * Catatan: Iuran BPJS Kesehatan (1%) & Taspen/Pensiun (8%) dihitung dari Gaji Pokok + Tunjangan Keluarga sesuai regulasi ASN yang berlaku.
           </p>
         </div>
 
@@ -1113,6 +1370,97 @@
         <button
           type="button"
           onclick="closeDetailModal()"
+          class="px-4 py-1.5 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+        >
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL BANDINGKAN FORMASI (SIDE-BY-SIDE COMPARISON) -->
+  <!-- ========================================================================= -->
+  <div
+    id="modal-compare"
+    class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4"
+  >
+    <div class="relative w-full max-w-6xl rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden transition-all duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              ⭐ Simpan & Bandingkan (Maks 10)
+            </span>
+          </div>
+          <h3 class="text-base sm:text-lg font-bold text-white tracking-tight mt-1">
+            Perbandingan Formasi CPNS 2024 Side-by-Side
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Evaluasi peluang lolos, kuota, dan kompensasi antar formasi pilihanmu secara berdampingan.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-clear-bookmarks"
+            onclick="clearAllBookmarks()"
+            class="px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-semibold transition active:scale-95"
+          >
+            🗑️ Hapus Semua
+          </button>
+          <button
+            type="button"
+            onclick="closeCompareModal()"
+            class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition active:scale-95"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 max-h-[75vh] overflow-y-auto text-xs space-y-4">
+        
+        <!-- Loading State -->
+        <div id="compare-loading" class="hidden py-6 text-center text-cyan-400 font-medium flex items-center justify-center gap-2">
+          <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <span>Menyinkronkan data terbaru formasi tersimpan...</span>
+        </div>
+
+        <!-- Empty State -->
+        <div id="compare-empty-state" class="hidden py-12 text-center space-y-3">
+          <div class="w-12 h-12 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-300 text-xl">
+            ☆
+          </div>
+          <h4 class="text-sm font-semibold text-slate-200">Belum Ada Formasi yang Disimpan</h4>
+          <p class="text-xs text-slate-400 max-w-md mx-auto">
+            Klik tombol ikon bintang (<strong>☆</strong>) pada kolom Aksi di tabel atau di dalam modal Detail formasi untuk menyimpan hingga 10 formasi ke daftar perbandingan.
+          </p>
+        </div>
+
+        <!-- Side-by-Side Comparison Table -->
+        <div id="compare-table-container" class="overflow-x-auto rounded-xl border border-slate-800">
+          <table id="compare-table" class="w-full text-left text-xs divide-y divide-slate-800">
+            <!-- Dynamically populated -->
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/70 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500">Tersimpan otomatis di browser (localStorage)</span>
+        <button
+          type="button"
+          onclick="closeCompareModal()"
           class="px-4 py-1.5 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
         >
           Tutup
@@ -1250,14 +1598,19 @@
     </div>
   </div>
 
-  </main>
+  <!-- Toast Notification -->
+  <div
+    id="toast-notification"
+    class="fixed bottom-5 right-5 z-[60] hidden max-w-sm px-4 py-2.5 rounded-xl bg-slate-900/95 border border-cyan-500/40 text-xs text-slate-100 shadow-2xl backdrop-blur transition-all duration-200"
+  ></div>
 
   <!-- ========================================================================= -->
-  <!-- JAVASCRIPT LOGIC FOR STEP 4.1 -->
+  <!-- JAVASCRIPT LOGIC -->
   <!-- ========================================================================= -->
   <script>
-    // State management for Step 4.1
     const API_BASE = window.location.protocol === 'file:' ? 'http://127.0.0.1:8000' : '';
+    const BOOKMARK_STORAGE_KEY = 'cpns2024_bookmarks';
+    const MAX_BOOKMARKS = 10;
 
     const state = {
       q: '',
@@ -1266,6 +1619,7 @@
       jenjang: 'ALL',
       kategori_instansi: 'ALL',
       instansi_id: 'ALL',
+      instansi_nama: '',
       jenis_formasi: 'ALL',
       status_keketatan: 'ALL',
       zero_applicant_only: false,
@@ -1274,6 +1628,42 @@
       page: 1,
       limit: 10
     };
+
+    let allInstansi = [];
+    let statsCache = null;
+    let activeDetailId = null;
+    let currentDetailData = null;
+    let currentDetailInstansi = '';
+    let currentDetailRegulasi = '';
+    const loadedFormasiMap = new Map();
+
+    // AbortControllers for preventing stale out-of-order responses
+    let tableAbortController = null;
+    let jurusanAbortController = null;
+    let detailAbortController = null;
+
+    // THP Simulator state
+    const thpSimState = {
+      isPns100: false,
+      keluarga: 'TK0',
+      cpns80: 0,
+      pns100: 0,
+      uangMakanBulan: 0,
+      tukinMin: 0,
+      tukinMax: 0,
+      tukinBaseline: 0
+    };
+
+    // Helper: Escape HTML to prevent XSS / broken markup
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
     // Helper: Currency Formatter
     function formatRp(val) {
@@ -1287,38 +1677,482 @@
       return `Rp ${jt} Jt`;
     }
 
-    // 1. Fetch & Populate KPI Cards
+    // Helper: Toast Notification
+    let toastTimer = null;
+    function showToast(message, tone = 'info') {
+      const toast = document.getElementById('toast-notification');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.className = 'fixed bottom-5 right-5 z-[60] max-w-sm px-4 py-2.5 rounded-xl bg-slate-900/95 text-xs shadow-2xl backdrop-blur transition-all duration-200 border ';
+      if (tone === 'warn') {
+        toast.className += 'border-amber-500/50 text-amber-200';
+      } else if (tone === 'success') {
+        toast.className += 'border-emerald-500/50 text-emerald-200';
+      } else {
+        toast.className += 'border-cyan-500/40 text-slate-100';
+      }
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2800);
+    }
+
+    // Helper: Copy text with fallback
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (!ok) throw new Error('Clipboard copy failed');
+      return true;
+    }
+
+    // =========================================================================
+    // URL QUERY PARAMETER SYNC (DEEP-LINKING)
+    // =========================================================================
+    function buildFilterParams(includePagination = true, includeDetail = true) {
+      const params = new URLSearchParams();
+      if (state.q) params.set('q', state.q);
+      if (state.jurusan) params.set('jurusan', state.jurusan);
+      if (state.jurusan_id) params.set('jurusan_id', String(state.jurusan_id));
+      if (state.jenjang !== 'ALL') params.set('jenjang', state.jenjang);
+      if (state.kategori_instansi !== 'ALL') params.set('kategori_instansi', state.kategori_instansi);
+      if (state.instansi_id !== 'ALL') {
+        params.set('instansi_id', String(state.instansi_id));
+        if (state.instansi_nama) params.set('instansi_nama', state.instansi_nama);
+      }
+      if (state.jenis_formasi !== 'ALL') params.set('jenis_formasi', state.jenis_formasi);
+      if (state.status_keketatan !== 'ALL') params.set('status_keketatan', state.status_keketatan);
+      if (state.zero_applicant_only) params.set('zero_applicant_only', 'true');
+      if (state.gaji_min > 0) params.set('gaji_min', String(state.gaji_min));
+      if (state.sort_by !== 'kuota_desc') params.set('sort_by', state.sort_by);
+      if (includePagination) {
+        if (state.page > 1) params.set('page', String(state.page));
+        if (state.limit !== 10) params.set('limit', String(state.limit));
+      }
+      if (includeDetail && activeDetailId) {
+        params.set('detail', String(activeDetailId));
+      }
+      return params;
+    }
+
+    function syncStateToUrl() {
+      const params = buildFilterParams(true, true);
+      const qs = params.toString();
+      const newUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+      try {
+        window.history.replaceState(null, '', newUrl);
+      } catch (e) {
+        // Ignore SecurityError if opened directly via restricted file:// context
+      }
+    }
+
+    function initStateFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('q')) state.q = params.get('q').trim();
+      if (params.has('jurusan')) state.jurusan = params.get('jurusan').trim();
+      if (params.has('jurusan_id')) {
+        const jid = Number(params.get('jurusan_id'));
+        state.jurusan_id = Number.isFinite(jid) && jid > 0 ? jid : null;
+      }
+      if (params.has('jenjang')) state.jenjang = params.get('jenjang') || 'ALL';
+      if (params.has('kategori_instansi')) state.kategori_instansi = params.get('kategori_instansi') || 'ALL';
+      if (params.has('instansi_id')) state.instansi_id = params.get('instansi_id') || 'ALL';
+      if (params.has('instansi_nama')) state.instansi_nama = params.get('instansi_nama') || '';
+      if (params.has('jenis_formasi')) state.jenis_formasi = params.get('jenis_formasi') || 'ALL';
+      if (params.has('status_keketatan')) state.status_keketatan = params.get('status_keketatan') || 'ALL';
+      if (params.get('zero_applicant_only') === 'true') {
+        state.zero_applicant_only = true;
+        if (state.status_keketatan === 'ALL') state.status_keketatan = 'Tanpa Pelamar';
+      } else if (state.status_keketatan === 'Tanpa Pelamar') {
+        state.zero_applicant_only = true;
+      }
+      if (params.has('gaji_min')) {
+        const gm = Number(params.get('gaji_min'));
+        state.gaji_min = Number.isFinite(gm) && gm >= 0 ? gm : 0;
+      }
+      if (params.has('sort_by')) state.sort_by = params.get('sort_by') || 'kuota_desc';
+      if (params.has('page')) {
+        const pg = Number(params.get('page'));
+        state.page = Number.isFinite(pg) && pg >= 1 ? pg : 1;
+      }
+      if (params.has('limit')) {
+        const lim = Number(params.get('limit'));
+        state.limit = [10, 25, 50, 100].includes(lim) ? lim : 10;
+      }
+      return params.get('detail') || null;
+    }
+
+    function syncControlsFromState() {
+      const inputQ = document.getElementById('filter-q');
+      const btnClearQ = document.getElementById('btn-clear-q');
+      inputQ.value = state.q;
+      btnClearQ.classList.toggle('hidden', !state.q);
+
+      const inputJurusan = document.getElementById('filter-jurusan-input');
+      const btnClearJurusan = document.getElementById('btn-clear-jurusan');
+      inputJurusan.value = state.jurusan;
+      btnClearJurusan.classList.toggle('hidden', !state.jurusan);
+
+      document.getElementById('filter-jenjang').value = state.jenjang;
+      document.getElementById('filter-kategori-instansi').value = state.kategori_instansi;
+      document.getElementById('filter-jenis-formasi').value = state.jenis_formasi;
+      document.getElementById('filter-status-keketatan').value = state.status_keketatan;
+
+      const btnZero = document.getElementById('btn-toggle-zero');
+      if (state.zero_applicant_only) {
+        btnZero.classList.add('bg-emerald-500/30', 'border-emerald-400', 'text-white');
+      } else {
+        btnZero.classList.remove('bg-emerald-500/30', 'border-emerald-400', 'text-white');
+      }
+
+      const sliderGaji = document.getElementById('filter-gaji-min-range');
+      const labelGaji = document.getElementById('label-gaji-min');
+      sliderGaji.value = state.gaji_min;
+      labelGaji.textContent = state.gaji_min === 0 ? 'Semua (Rp 0)' : `≥ ${formatJuta(state.gaji_min)}`;
+
+      document.getElementById('filter-sort-by').value = state.sort_by;
+      document.getElementById('table-page-size').value = String(state.limit);
+
+      // Sync Instansi combobox
+      document.getElementById('filter-instansi-id').value = state.instansi_id;
+      const inputInstansi = document.getElementById('filter-instansi-input');
+      const btnClearInstansi = document.getElementById('btn-clear-instansi');
+      if (state.instansi_id !== 'ALL') {
+        const match = allInstansi.find(i => String(i.instansi_id) === String(state.instansi_id));
+        if (match) state.instansi_nama = match.nama_instansi;
+        inputInstansi.value = state.instansi_nama || String(state.instansi_id);
+        btnClearInstansi.classList.remove('hidden');
+      } else {
+        inputInstansi.value = '';
+        btnClearInstansi.classList.add('hidden');
+      }
+      updateInstansiPlaceholder();
+    }
+
+    // =========================================================================
+    // 1. FETCH & POPULATE KPI CARDS + SECTION 4 ANALYTICS
+    // =========================================================================
     async function loadStats() {
       try {
         const resp = await fetch(`${API_BASE}/api/stats`);
         if (!resp.ok) throw new Error(`Stats fetch failed (${resp.status})`);
         const data = await resp.json();
+        statsCache = data;
 
-        // Total Formasi
         document.getElementById('kpi-total-formasi').textContent = Number(data.total_formasi || 0).toLocaleString('id-ID');
-
-        // Total Kuota
         document.getElementById('kpi-total-kuota').textContent = Number(data.total_kuota || 0).toLocaleString('id-ID');
-
-        // Total Pelamar (MS)
         document.getElementById('kpi-total-pelamar').textContent = Number(data.total_pelamar || 0).toLocaleString('id-ID');
-
-        // Rata-rata Rasio Persaingan
         document.getElementById('kpi-avg-rasio').textContent = `1 : ${data.avg_rasio_kompetisi || 0}`;
-
-        // Formasi Kosong (0 Pelamar)
         document.getElementById('kpi-formasi-kosong').textContent = Number(data.total_formasi_kosong || 0).toLocaleString('id-ID');
 
-        // Median Gaji
         const medMin = formatJuta(data.gaji_median_min);
         const medMax = formatJuta(data.gaji_median_max);
         document.getElementById('kpi-median-gaji').textContent = `${medMin} - ${medMax}`;
+
+        renderAnalyticsCards(data);
       } catch (err) {
         console.error('Error loading KPI stats:', err);
       }
     }
 
-    // 2. Fetch & Populate Filter Dropdowns
+    function renderAnalyticsCards(data) {
+      const totalFormasi = Math.max(1, Number(data.total_formasi || 1));
+
+      // Card A: Distribusi Tingkat Keketatan Nasional
+      const keketatanContainer = document.getElementById('analytics-keketatan-bars');
+      const keketatanOrder = [
+        { key: 'Tanpa Pelamar', label: '⚡ Tanpa Pelamar', barClass: 'bg-emerald-400', badgeClass: 'text-emerald-300' },
+        { key: 'Sangat Longgar', label: 'Sangat Longgar (≤ 1.0)', barClass: 'bg-cyan-400', badgeClass: 'text-cyan-300' },
+        { key: 'Moderat', label: 'Moderat (1.1 - 15.0)', barClass: 'bg-amber-400', badgeClass: 'text-amber-300' },
+        { key: 'Sangat Ketat', label: 'Sangat Ketat (> 15.0)', barClass: 'bg-rose-400', badgeClass: 'text-rose-300' }
+      ];
+      const kekMap = new Map((data.keketatan_stats || []).map(x => [x.status, x]));
+      keketatanContainer.innerHTML = '';
+
+      keketatanOrder.forEach(tier => {
+        const stat = kekMap.get(tier.key) || { count: 0, kuota: 0, pelamar: 0 };
+        const pct = ((stat.count / totalFormasi) * 100);
+        const isActive = state.status_keketatan === tier.key;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `w-full text-left p-2 rounded-lg border transition group ${isActive ? 'bg-slate-800/90 border-cyan-500/60' : 'bg-slate-900/50 hover:bg-slate-800/70 border-slate-800 hover:border-slate-700'}`;
+        btn.innerHTML = `
+          <div class="flex items-center justify-between text-[11px] mb-1">
+            <span class="font-semibold ${tier.badgeClass}">${tier.label}</span>
+            <span class="font-mono text-slate-300">
+              <strong>${Number(stat.count || 0).toLocaleString('id-ID')}</strong>
+              <span class="text-slate-500">(${pct.toFixed(1)}%)</span>
+            </span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div class="h-full ${tier.barClass} rounded-full transition-all duration-300" style="width: ${Math.max(pct, 1.5)}%"></div>
+          </div>
+          <div class="mt-1 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+            <span>Kuota: ${Number(stat.kuota || 0).toLocaleString('id-ID')}</span>
+            <span>Pelamar: ${Number(stat.pelamar || 0).toLocaleString('id-ID')}</span>
+          </div>
+        `;
+        btn.addEventListener('click', () => {
+          const nextVal = state.status_keketatan === tier.key ? 'ALL' : tier.key;
+          state.status_keketatan = nextVal;
+          state.zero_applicant_only = (nextVal === 'Tanpa Pelamar');
+          state.page = 1;
+          syncControlsFromState();
+          syncStateToUrl();
+          updateActiveChips();
+          renderAnalyticsCards(statsCache);
+          loadFormasiTable();
+        });
+        keketatanContainer.appendChild(btn);
+      });
+
+      // Card B: Proporsi Jalur Formasi
+      const jenisContainer = document.getElementById('analytics-jenis-bars');
+      const jenisList = [...(data.jenis_formasi_stats || [])].sort((a, b) => (b.count || 0) - (a.count || 0));
+      jenisContainer.innerHTML = '';
+
+      jenisList.forEach(item => {
+        const pct = ((item.count || 0) / totalFormasi) * 100;
+        const isActive = state.jenis_formasi === item.jenis;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `w-full text-left p-2 rounded-lg border transition ${isActive ? 'bg-slate-800/90 border-cyan-500/60' : 'bg-slate-900/50 hover:bg-slate-800/70 border-slate-800 hover:border-slate-700'}`;
+        btn.innerHTML = `
+          <div class="flex items-center justify-between gap-2 text-[11px] mb-1">
+            <span class="font-semibold text-slate-200 truncate" title="${escapeHtml(item.jenis)}">${escapeHtml(item.jenis)}</span>
+            <span class="font-mono text-slate-300 shrink-0">
+              ${Number(item.count || 0).toLocaleString('id-ID')} <span class="text-slate-500">(${pct.toFixed(1)}%)</span>
+            </span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full" style="width: ${Math.max(pct, 1.5)}%"></div>
+          </div>
+          <div class="mt-0.5 text-[10px] text-slate-500 font-mono">
+            Kuota: ${Number(item.kuota || 0).toLocaleString('id-ID')} kursi
+          </div>
+        `;
+        btn.addEventListener('click', () => {
+          state.jenis_formasi = state.jenis_formasi === item.jenis ? 'ALL' : item.jenis;
+          state.page = 1;
+          syncControlsFromState();
+          syncStateToUrl();
+          updateActiveChips();
+          renderAnalyticsCards(statsCache);
+          loadFormasiTable();
+        });
+        jenisContainer.appendChild(btn);
+      });
+
+      // Card C: Sebaran Instansi by Kategori
+      document.getElementById('analytics-instansi-total').textContent = `${Number(data.total_instansi || 0).toLocaleString('id-ID')} Instansi`;
+      const katContainer = document.getElementById('analytics-instansi-kategori');
+      const katMap = data.instansi_by_kategori || {};
+      const katDefs = [
+        { key: 'Pusat', label: 'Pusat', color: 'text-cyan-300 border-cyan-500/30 bg-cyan-500/10' },
+        { key: 'Provinsi', label: 'Provinsi', color: 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10' },
+        { key: 'Kabupaten/Kota', label: 'Kab / Kota', color: 'text-amber-300 border-amber-500/30 bg-amber-500/10' }
+      ];
+      katContainer.innerHTML = '';
+      katDefs.forEach(k => {
+        const cnt = katMap[k.key] || 0;
+        const isActive = state.kategori_instansi === k.key;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `p-2.5 rounded-xl border transition text-center ${isActive ? 'ring-2 ring-cyan-400 ' : ''}${k.color}`;
+        btn.innerHTML = `
+          <div class="text-base font-extrabold font-mono">${Number(cnt).toLocaleString('id-ID')}</div>
+          <div class="text-[10px] font-semibold mt-0.5">${k.label}</div>
+        `;
+        btn.title = `Klik untuk memfilter instansi lingkup ${k.key}`;
+        btn.addEventListener('click', () => {
+          const nextKat = state.kategori_instansi === k.key ? 'ALL' : k.key;
+          handleKategoriInstansiChange(nextKat);
+        });
+        katContainer.appendChild(btn);
+      });
+    }
+
+    function updateDynamicSummary(summary, fallbackTotal = 0) {
+      const s = summary || {};
+      const totalFormasi = s.total_formasi !== undefined ? s.total_formasi : fallbackTotal;
+      document.getElementById('summary-total-formasi').textContent = Number(totalFormasi || 0).toLocaleString('id-ID');
+      document.getElementById('summary-total-kuota').textContent = s.total_kuota !== undefined ? Number(s.total_kuota).toLocaleString('id-ID') : '---';
+      document.getElementById('summary-total-pelamar').textContent = s.total_pelamar !== undefined ? Number(s.total_pelamar).toLocaleString('id-ID') : '---';
+      document.getElementById('summary-avg-rasio').textContent = s.avg_rasio_kompetisi !== undefined ? `1 : ${s.avg_rasio_kompetisi}` : '1 : ---';
+      document.getElementById('summary-formasi-kosong').textContent = s.total_formasi_kosong !== undefined ? Number(s.total_formasi_kosong).toLocaleString('id-ID') : '---';
+    }
+
+    function applyStrategicPreset(presetKey) {
+      // Reset base filters cleanly before applying preset
+      state.q = '';
+      state.jurusan = '';
+      state.jurusan_id = null;
+      state.jenjang = 'ALL';
+      state.kategori_instansi = 'ALL';
+      state.instansi_id = 'ALL';
+      state.instansi_nama = '';
+      state.jenis_formasi = 'ALL';
+      state.status_keketatan = 'ALL';
+      state.zero_applicant_only = false;
+      state.gaji_min = 0;
+      state.sort_by = 'kuota_desc';
+      state.page = 1;
+
+      if (presetKey === 's1-zero') {
+        state.jenjang = 'S-1';
+        state.zero_applicant_only = true;
+        state.status_keketatan = 'Tanpa Pelamar';
+        state.sort_by = 'kuota_desc';
+      } else if (presetKey === 'high-salary-loose') {
+        state.gaji_min = 10000000;
+        state.status_keketatan = 'Sangat Longgar';
+        state.sort_by = 'gaji_max_desc';
+      } else if (presetKey === 'pusat-loose') {
+        state.kategori_instansi = 'Pusat';
+        state.status_keketatan = 'Sangat Longgar';
+        state.sort_by = 'rasio_asc';
+      }
+
+      syncControlsFromState();
+      syncStateToUrl();
+      updateActiveChips();
+      if (statsCache) renderAnalyticsCards(statsCache);
+      loadFormasiTable();
+    }
+
+    // =========================================================================
+    // 2. FETCH & POPULATE FILTER DROPDOWNS + CASCADING INSTANSI COMBOBOX
+    // =========================================================================
+    function getFilteredInstansiList() {
+      if (state.kategori_instansi === 'ALL') return allInstansi;
+      return allInstansi.filter(ins => ins.kategori_instansi === state.kategori_instansi);
+    }
+
+    function updateInstansiPlaceholder() {
+      const filtered = getFilteredInstansiList();
+      const inputInstansi = document.getElementById('filter-instansi-input');
+      const countBadge = document.getElementById('instansi-count-badge');
+      if (!inputInstansi || !countBadge) return;
+
+      if (state.kategori_instansi === 'ALL') {
+        inputInstansi.placeholder = `Cari dari ${filtered.length} instansi...`;
+        countBadge.textContent = `${filtered.length} instansi`;
+      } else {
+        inputInstansi.placeholder = `Cari dari ${filtered.length} instansi ${state.kategori_instansi}...`;
+        countBadge.textContent = `${filtered.length} ${state.kategori_instansi === 'Kabupaten/Kota' ? 'Kab/Kota' : state.kategori_instansi}`;
+      }
+    }
+
+    function renderInstansiDropdown(queryTerm = '') {
+      const listEl = document.getElementById('instansi-autocomplete-list');
+      const filteredByScope = getFilteredInstansiList();
+      const term = queryTerm.trim().toLowerCase();
+
+      const matches = term
+        ? filteredByScope.filter(ins => ins.nama_instansi.toLowerCase().includes(term))
+        : filteredByScope;
+
+      listEl.innerHTML = '';
+
+      if (matches.length === 0) {
+        listEl.innerHTML = '<div class="p-3 text-slate-500 text-center">Tidak ada instansi yang cocok</div>';
+        listEl.classList.remove('hidden');
+        return;
+      }
+
+      const maxShow = 80;
+      matches.slice(0, maxShow).forEach(ins => {
+        const div = document.createElement('div');
+        const isSelected = String(state.instansi_id) === String(ins.instansi_id);
+        div.className = `px-3 py-2 hover:bg-slate-800 cursor-pointer flex items-center justify-between gap-2 transition ${isSelected ? 'bg-cyan-950/60 text-cyan-300' : ''}`;
+        div.innerHTML = `
+          <span class="font-medium text-slate-200 truncate" title="${escapeHtml(ins.nama_instansi)}">${escapeHtml(ins.nama_instansi)}</span>
+          <span class="shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono">${escapeHtml(ins.kategori_instansi === 'Kabupaten/Kota' ? 'Kab/Kota' : ins.kategori_instansi)}</span>
+        `;
+        div.addEventListener('click', () => {
+          selectInstansiOption(ins);
+        });
+        listEl.appendChild(div);
+      });
+
+      if (matches.length > maxShow) {
+        const note = document.createElement('div');
+        note.className = 'px-3 py-1.5 text-[10px] text-slate-500 text-center bg-slate-950/60';
+        note.textContent = `Menampilkan ${maxShow} dari ${matches.length} instansi — ketik untuk mempersempit`;
+        listEl.appendChild(note);
+      }
+
+      listEl.classList.remove('hidden');
+    }
+
+    function selectInstansiOption(ins) {
+      const inputInstansi = document.getElementById('filter-instansi-input');
+      const hiddenInstansi = document.getElementById('filter-instansi-id');
+      const btnClearInstansi = document.getElementById('btn-clear-instansi');
+      const listEl = document.getElementById('instansi-autocomplete-list');
+
+      state.instansi_id = String(ins.instansi_id);
+      state.instansi_nama = ins.nama_instansi;
+      state.page = 1;
+
+      inputInstansi.value = ins.nama_instansi;
+      hiddenInstansi.value = String(ins.instansi_id);
+      btnClearInstansi.classList.remove('hidden');
+      listEl.classList.add('hidden');
+
+      syncStateToUrl();
+      updateActiveChips();
+      loadFormasiTable();
+    }
+
+    function clearSelectedInstansi(triggerReload = true) {
+      state.instansi_id = 'ALL';
+      state.instansi_nama = '';
+      document.getElementById('filter-instansi-input').value = '';
+      document.getElementById('filter-instansi-id').value = 'ALL';
+      document.getElementById('btn-clear-instansi').classList.add('hidden');
+      document.getElementById('instansi-autocomplete-list').classList.add('hidden');
+
+      if (triggerReload) {
+        state.page = 1;
+        syncStateToUrl();
+        updateActiveChips();
+        loadFormasiTable();
+      }
+    }
+
+    function handleKategoriInstansiChange(newKategori) {
+      state.kategori_instansi = newKategori;
+      document.getElementById('filter-kategori-instansi').value = newKategori;
+
+      // Cascade check: if selected agency belongs to another category, clear it
+      if (state.instansi_id !== 'ALL' && newKategori !== 'ALL') {
+        const currentAgency = allInstansi.find(i => String(i.instansi_id) === String(state.instansi_id));
+        if (currentAgency && currentAgency.kategori_instansi !== newKategori) {
+          clearSelectedInstansi(false);
+        }
+      }
+
+      updateInstansiPlaceholder();
+      state.page = 1;
+      syncStateToUrl();
+      updateActiveChips();
+      if (statsCache) renderAnalyticsCards(statsCache);
+      loadFormasiTable();
+    }
+
     async function loadFilterOptions() {
       try {
         const resp = await fetch(`${API_BASE}/api/filters`);
@@ -1345,28 +2179,33 @@
           selJenis.appendChild(opt);
         });
 
-        // Instansi dropdown
-        const selInstansi = document.getElementById('filter-instansi-id');
-        selInstansi.innerHTML = '<option value="ALL">Semua Instansi</option>';
-        (data.instansi || []).forEach(ins => {
-          const opt = document.createElement('option');
-          opt.value = ins.instansi_id;
-          opt.textContent = `${ins.nama_instansi} (${ins.kategori_instansi})`;
-          selInstansi.appendChild(opt);
-        });
+        // Store full instansi list in memory
+        allInstansi = data.instansi || [];
 
+        // Re-sync controls now that dropdowns and allInstansi are loaded
+        syncControlsFromState();
+        updateActiveChips();
       } catch (err) {
         console.error('Error loading filter options:', err);
       }
     }
 
-    // 3. Update Filter Count Indicator & Load Table
+    // =========================================================================
+    // 3. LOAD FORMASI TABLE (WITH AbortController + SUMMARY UPDATE)
+    // =========================================================================
     async function loadFormasiTable() {
       const spinner = document.getElementById('table-loading-spinner');
       const tableBody = document.getElementById('table-body');
       const emptyState = document.getElementById('table-empty-state');
 
+      if (tableAbortController) {
+        tableAbortController.abort();
+      }
+      const controller = new AbortController();
+      tableAbortController = controller;
+
       spinner.classList.remove('hidden');
+      syncStateToUrl();
 
       try {
         const params = new URLSearchParams();
@@ -1387,14 +2226,16 @@
         params.set('page', state.page);
         params.set('limit', state.limit);
 
-        const resp = await fetch(`${API_BASE}/api/formasi?${params.toString()}`);
+        const resp = await fetch(`${API_BASE}/api/formasi?${params.toString()}`, {
+          signal: controller.signal
+        });
         if (!resp.ok) throw new Error(`Table fetch failed (${resp.status})`);
         const data = await resp.json();
 
-        // Update matches badge
+        // Update matches badge & Section 4 dynamic summary
         document.getElementById('filter-total-count').textContent = Number(data.total || 0).toLocaleString('id-ID');
+        updateDynamicSummary(data.summary, data.total);
 
-        // Check empty state
         if (!data.items || data.items.length === 0) {
           tableBody.innerHTML = '';
           emptyState.classList.remove('hidden');
@@ -1403,13 +2244,17 @@
         }
 
         emptyState.classList.add('hidden');
+        data.items.forEach(it => loadedFormasiMap.set(String(it.formasi_id), it));
         renderTableRows(data.items, (data.page - 1) * data.limit + 1);
         renderPagination(data.total, data.page, data.limit, data.total_pages);
 
       } catch (err) {
+        if (err.name === 'AbortError') return;
         console.error('Error loading formasi table:', err);
       } finally {
-        spinner.classList.add('hidden');
+        if (tableAbortController === controller) {
+          spinner.classList.add('hidden');
+        }
       }
     }
 
@@ -1460,17 +2305,19 @@
         const scopeBadge = getScopeBadge(item.kategori_instansi);
         const jenisBadge = getJenisBadge(item.jenis_formasi);
         const keketatanBadge = getKeketatanBadge(item.status_keketatan, item.peluang_lolos_pct);
+        const bookmarked = isBookmarked(item.formasi_id);
+        const safeId = escapeHtml(item.formasi_id);
 
         // Major badges (up to 2)
         const majors = item.jurusan_list || [];
         let majorHtml = '';
         const displayMajors = majors.slice(0, 2);
         displayMajors.forEach(m => {
-          majorHtml += `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-800/90 text-slate-300 border border-slate-700/80 text-[10px] font-mono leading-tight">${m}</span>`;
+          majorHtml += `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-800/90 text-slate-300 border border-slate-700/80 text-[10px] font-mono leading-tight">${escapeHtml(m)}</span>`;
         });
         if (majors.length > 2) {
           const remaining = majors.length - 2;
-          majorHtml += `<button type="button" onclick="openDetailModal('${item.formasi_id}')" class="inline-block px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-semibold hover:bg-indigo-500/30 transition">+${remaining} jurusan</button>`;
+          majorHtml += `<button type="button" onclick="openDetailModal('${safeId}')" class="inline-block px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-semibold hover:bg-indigo-500/30 transition">+${remaining} jurusan</button>`;
         }
         if (!majors.length) {
           majorHtml = '<span class="text-slate-500 italic text-[11px]">Semua Jurusan</span>';
@@ -1483,11 +2330,11 @@
               <span class="font-mono text-cyan-400 font-bold text-xs shrink-0">${rowNum}.</span>
               <div>
                 <div class="font-bold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-2">
-                  ${item.jabatan_nm}
+                  ${escapeHtml(item.jabatan_nm)}
                 </div>
                 <div class="mt-1 flex items-center gap-1.5 flex-wrap">
                   ${jenisBadge}
-                  <span class="text-[9px] font-mono text-slate-500 bg-slate-950 px-1 py-0.2 rounded border border-slate-800">${item.formasi_id}</span>
+                  <span class="text-[9px] font-mono text-slate-500 bg-slate-950 px-1 py-0.2 rounded border border-slate-800">${safeId}</span>
                 </div>
                 <!-- Mobile Compact Summary Card -->
                 <div class="sm:hidden mt-2 p-2 rounded-lg bg-slate-950/90 border border-slate-800 space-y-1">
@@ -1511,15 +2358,15 @@
           <!-- Instansi & Penempatan -->
           <td class="py-3 px-3.5">
             <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="font-semibold text-slate-200 text-xs">${item.nama_instansi}</span>
+              <span class="font-semibold text-slate-200 text-xs">${escapeHtml(item.nama_instansi)}</span>
               ${scopeBadge}
             </div>
-            <div class="flex items-center gap-1 text-[11px] text-slate-400 mt-1 line-clamp-1" title="${item.lokasi_nm}">
+            <div class="flex items-center gap-1 text-[11px] text-slate-400 mt-1 line-clamp-1" title="${escapeHtml(item.lokasi_nm)}">
               <svg class="w-3 h-3 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>${item.lokasi_nm}</span>
+              <span>${escapeHtml(item.lokasi_nm)}</span>
             </div>
           </td>
 
@@ -1558,23 +2405,34 @@
               ${formatJuta(item.gaji_min)} - ${formatJuta(item.gaji_max)}
             </div>
             <div class="text-[10px] text-slate-400 mt-0.5">
-              <span class="text-sky-300 font-semibold">Gol. ${item.golongan_awal || '-'}</span> (Gaji Pokok 80%: ${formatJuta(item.gaji_pokok_cpns_80)})
+              <span class="text-sky-300 font-semibold">Gol. ${escapeHtml(item.golongan_awal || '-')}</span> (Gaji Pokok 80%: ${formatJuta(item.gaji_pokok_cpns_80)})
             </div>
           </td>
 
           <!-- Aksi -->
           <td class="py-3 px-3 text-center">
-            <button
-              type="button"
-              onclick="openDetailModal('${item.formasi_id}')"
-              class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-md shadow-cyan-500/20 active:scale-95 transition flex items-center justify-center gap-1 mx-auto"
-            >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              <span>Detail</span>
-            </button>
+            <div class="flex items-center justify-center gap-1.5">
+              <button
+                type="button"
+                data-bookmark-id="${safeId}"
+                onclick="toggleBookmark('${safeId}')"
+                title="Simpan untuk dibandingkan"
+                class="w-7 h-7 rounded-lg border text-sm flex items-center justify-center transition active:scale-95 ${bookmarked ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-400 hover:text-amber-300'}"
+              >
+                ${bookmarked ? '★' : '☆'}
+              </button>
+              <button
+                type="button"
+                onclick="openDetailModal('${safeId}')"
+                class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-md shadow-cyan-500/20 active:scale-95 transition flex items-center justify-center gap-1"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>Detail</span>
+              </button>
+            </div>
           </td>
         `;
 
@@ -1605,7 +2463,6 @@
 
       controls.innerHTML = '';
 
-      // First Button
       const btnFirst = document.createElement('button');
       btnFirst.type = 'button';
       btnFirst.className = `px-2.5 py-1 rounded-lg border text-xs font-mono transition ${page === 1 ? 'border-slate-800 text-slate-600 cursor-not-allowed' : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-cyan-500 hover:text-white'}`;
@@ -1620,7 +2477,6 @@
       });
       controls.appendChild(btnFirst);
 
-      // Prev Button
       const btnPrev = document.createElement('button');
       btnPrev.type = 'button';
       btnPrev.className = `px-2.5 py-1 rounded-lg border text-xs font-mono transition ${page === 1 ? 'border-slate-800 text-slate-600 cursor-not-allowed' : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-cyan-500 hover:text-white'}`;
@@ -1635,7 +2491,6 @@
       });
       controls.appendChild(btnPrev);
 
-      // Numbered Page Window (Sliding 5 pages)
       const windowSize = 5;
       let startP = Math.max(1, page - Math.floor(windowSize / 2));
       let endP = Math.min(totalPages, startP + windowSize - 1);
@@ -1658,7 +2513,6 @@
         controls.appendChild(btnPage);
       }
 
-      // Next Button
       const btnNext = document.createElement('button');
       btnNext.type = 'button';
       btnNext.className = `px-2.5 py-1 rounded-lg border text-xs font-mono transition ${page === totalPages ? 'border-slate-800 text-slate-600 cursor-not-allowed' : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-cyan-500 hover:text-white'}`;
@@ -1673,7 +2527,6 @@
       });
       controls.appendChild(btnNext);
 
-      // Last Button
       const btnLast = document.createElement('button');
       btnLast.type = 'button';
       btnLast.className = `px-2.5 py-1 rounded-lg border text-xs font-mono transition ${page === totalPages ? 'border-slate-800 text-slate-600 cursor-not-allowed' : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-cyan-500 hover:text-white'}`;
@@ -1689,16 +2542,168 @@
       controls.appendChild(btnLast);
     }
 
-    // Modal Operations
+    // =========================================================================
+    // 4. MODAL DETAIL & INTERACTIVE THP SIMULATOR
+    // =========================================================================
+    function initThpSimulator(d) {
+      const cpns80 = Number(d.gaji_pokok_cpns_80 || 2228560);
+      const pns100 = Number(d.gaji_pokok_100 || Math.round(cpns80 / 0.8));
+      const gol = d.golongan_awal || 'III/a';
+      const uangMakanPerHari = gol.startsWith('IV') ? 41000 : (gol.startsWith('III') ? 37000 : 35000);
+      const uangMakanBulan = uangMakanPerHari * 22;
+
+      let tukinEst = 0;
+      if (d.gaji_min && d.gaji_min > (cpns80 * 1.35)) {
+        tukinEst = d.gaji_min - cpns80;
+      } else {
+        tukinEst = d.tukin_min || 2100000;
+      }
+
+      const rawMin = d.tukin_min !== null && d.tukin_min !== undefined ? Number(d.tukin_min) : tukinEst;
+      const rawMax = d.tukin_max !== null && d.tukin_max !== undefined ? Number(d.tukin_max) : tukinEst;
+      const sliderMin = Math.min(rawMin, tukinEst);
+      const sliderMax = Math.max(rawMax, tukinEst, sliderMin);
+
+      thpSimState.isPns100 = false;
+      thpSimState.keluarga = 'TK0';
+      thpSimState.cpns80 = cpns80;
+      thpSimState.pns100 = pns100;
+      thpSimState.uangMakanBulan = uangMakanBulan;
+      thpSimState.tukinMin = sliderMin;
+      thpSimState.tukinMax = sliderMax;
+      thpSimState.tukinBaseline = tukinEst;
+
+      // Reset UI controls
+      document.getElementById('thp-sim-keluarga').value = 'TK0';
+      const slider = document.getElementById('thp-sim-tukin-slider');
+      slider.min = String(sliderMin);
+      slider.max = String(sliderMax);
+      slider.step = sliderMax - sliderMin >= 200000 ? '50000' : '10000';
+      slider.value = String(tukinEst);
+      slider.disabled = (sliderMax <= sliderMin);
+
+      document.getElementById('thp-sim-tukin-min-lbl').textContent = `Min: ${formatJuta(sliderMin)}`;
+      document.getElementById('thp-sim-tukin-max-lbl').textContent = `Max: ${formatJuta(sliderMax)}`;
+
+      setThpStatusPegawai(false, false);
+      recalculateModalTHP();
+    }
+
+    function setThpStatusPegawai(isPns100, recalc = true) {
+      thpSimState.isPns100 = Boolean(isPns100);
+      const btnCpns = document.getElementById('btn-sim-cpns');
+      const btnPns = document.getElementById('btn-sim-pns');
+      if (thpSimState.isPns100) {
+        btnPns.className = 'py-1.5 px-2 rounded-md text-[11px] font-bold transition bg-emerald-600 text-white shadow-sm';
+        btnCpns.className = 'py-1.5 px-2 rounded-md text-[11px] font-semibold transition text-slate-400 hover:text-white';
+      } else {
+        btnCpns.className = 'py-1.5 px-2 rounded-md text-[11px] font-bold transition bg-cyan-600 text-white shadow-sm';
+        btnPns.className = 'py-1.5 px-2 rounded-md text-[11px] font-semibold transition text-slate-400 hover:text-white';
+      }
+      if (recalc) recalculateModalTHP();
+    }
+
+    function recalculateModalTHP() {
+      const kelSelect = document.getElementById('thp-sim-keluarga');
+      const tukinSlider = document.getElementById('thp-sim-tukin-slider');
+      if (!kelSelect || !tukinSlider) return;
+
+      thpSimState.keluarga = kelSelect.value;
+      const tukinVal = Number(tukinSlider.value || 0);
+      document.getElementById('thp-sim-tukin-label').textContent = formatRp(tukinVal);
+
+      const activeGajiPokok = thpSimState.isPns100 ? thpSimState.pns100 : thpSimState.cpns80;
+      const kelRates = { TK0: 0, K0: 0.10, K1: 0.12, K2: 0.14 };
+      const kelLabels = {
+        TK0: 'Tunjangan Keluarga:',
+        K0: 'Tunj. Pasangan (10%):',
+        K1: 'Tunj. Keluarga (K/1: 12%):',
+        K2: 'Tunj. Keluarga (K/2: 14%):'
+      };
+      const kelRate = kelRates[thpSimState.keluarga] || 0;
+      const tunjKeluarga = Math.round(activeGajiPokok * kelRate);
+
+      const totalBruto = activeGajiPokok + tunjKeluarga + tukinVal + thpSimState.uangMakanBulan;
+      const iuranBase = activeGajiPokok + tunjKeluarga;
+      const potonganBpjs = Math.round(iuranBase * 0.01);
+      const potonganTaspen = Math.round(iuranBase * 0.08);
+      const totalPotongan = potonganBpjs + potonganTaspen;
+      const totalNetto = totalBruto - totalPotongan;
+
+      document.getElementById('modal-thp-badge').textContent = thpSimState.isPns100
+        ? 'Estimasi PNS Penuh (100% Gaji Pokok)'
+        : 'Estimasi Masa CPNS (1 Tahun Pertama)';
+      document.getElementById('slip-label-gaji-pokok').textContent = thpSimState.isPns100
+        ? 'Gaji Pokok PNS (100% PP 5/2024):'
+        : 'Gaji Pokok CPNS (80% PP 5/2024):';
+
+      document.getElementById('slip-gaji-pokok').textContent = formatRp(activeGajiPokok);
+
+      const rowKel = document.getElementById('slip-row-tunj-keluarga');
+      if (tunjKeluarga > 0) {
+        rowKel.classList.remove('hidden');
+        document.getElementById('slip-label-tunj-keluarga').textContent = kelLabels[thpSimState.keluarga] || 'Tunjangan Keluarga:';
+        document.getElementById('slip-tunj-keluarga').textContent = `+ ${formatRp(tunjKeluarga)}`;
+      } else {
+        rowKel.classList.add('hidden');
+      }
+
+      document.getElementById('slip-tukin').textContent = `+ ${formatRp(tukinVal)}`;
+      document.getElementById('slip-uang-makan').textContent = `+ ${formatRp(thpSimState.uangMakanBulan)}`;
+      document.getElementById('slip-total-bruto').textContent = formatRp(totalBruto);
+
+      document.getElementById('slip-bpjs').textContent = `- ${formatRp(potonganBpjs)}`;
+      document.getElementById('slip-taspen').textContent = `- ${formatRp(potonganTaspen)}`;
+      document.getElementById('slip-total-netto').textContent = `~ ${formatRp(totalNetto)} / bln`;
+      document.getElementById('modal-thp').textContent = `~ ${formatRp(totalNetto)} / bln`;
+    }
+
+    function updateModalBookmarkButton(formasiId) {
+      const btn = document.getElementById('btn-modal-bookmark');
+      const icon = document.getElementById('modal-bookmark-icon');
+      const label = document.getElementById('modal-bookmark-label');
+      if (!btn || !icon || !label) return;
+
+      const saved = isBookmarked(formasiId);
+      icon.textContent = saved ? '★' : '☆';
+      label.textContent = saved ? 'Tersimpan' : 'Simpan';
+      if (saved) {
+        btn.className = 'px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400 text-xs font-semibold flex items-center gap-1 transition active:scale-95';
+      } else {
+        btn.className = 'px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition active:scale-95';
+      }
+    }
+
     async function openDetailModal(formasiId) {
       const modal = document.getElementById('modal-detail');
+      const loadingOverlay = document.getElementById('modal-detail-loading');
+
+      activeDetailId = String(formasiId);
+      syncStateToUrl();
+      updateModalBookmarkButton(activeDetailId);
+
       modal.classList.remove('hidden');
+      loadingOverlay.classList.remove('hidden');
       document.body.classList.add('overflow-hidden');
 
+      if (detailAbortController) {
+        detailAbortController.abort();
+      }
+      const controller = new AbortController();
+      detailAbortController = controller;
+
       try {
-        const resp = await fetch(`${API_BASE}/api/formasi/${formasiId}`);
+        const resp = await fetch(`${API_BASE}/api/formasi/${encodeURIComponent(formasiId)}`, {
+          signal: controller.signal
+        });
         if (!resp.ok) throw new Error(`Detail fetch failed (${resp.status})`);
         const d = await resp.json();
+
+        currentDetailData = d;
+        loadedFormasiMap.set(String(d.formasi_id), {
+          ...d,
+          jurusan_list: (d.majors || []).map(m => m.nama_jurusan)
+        });
 
         currentDetailInstansi = d.nama_instansi || '';
         currentDetailRegulasi = d.regulasi_tukin || '';
@@ -1723,18 +2728,16 @@
 
         const reg = d.regulasi_tukin || 'Estimasi Standar Indikatif';
         const badgeTag = '<span class="inline-block px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">⚠️ Estimasi Indikatif (Bukan Angka Pasti)</span>';
-
         const actionButton = `
-          <button type="button" onclick="openCrowdsourceModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-semibold transition active:scale-95 shadow-sm">
+          <button type="button" onclick="openCrowdsourceModalFromDetail()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-semibold transition active:scale-95 shadow-sm">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Kirim SK / Slip Tukin Riil via Form</span>
           </button>
         `;
-
         const disclaimerNote = '<p class="text-[10px] text-amber-300/90 mt-1.5 italic leading-tight">* Catatan: Data resmi BKN hanya mencakup Formasi, Kuota, Jumlah Pelamar, dan Rentang Gaji Publikasi SSCASN. Nilai Tukin/TPP di atas adalah estimasi indikatif. Jika Anda memiliki rincian SK Tukin/TPP resmi instansi ini, silakan kirimkan melalui formulir kontribusi.</p>';
 
         document.getElementById('modal-tukin-regulasi').innerHTML = `
-          <div class="font-medium text-slate-200">${reg}</div>
+          <div class="font-medium text-slate-200">${escapeHtml(reg)}</div>
           <div class="mt-1.5 flex flex-wrap items-center gap-2">
             ${badgeTag}
             ${actionButton}
@@ -1742,41 +2745,11 @@
           ${disclaimerNote}
         `;
 
-        // Kalkulasi Rincian Simulasi Take-Home Pay (THP)
-        const cpns80 = d.gaji_pokok_cpns_80 || 2228560;
-        const gol = d.golongan_awal || 'III/a';
-        // Hierarki Standar Biaya Masukan PMK 49/2023: Gol IV = 41k, Gol III = 37k, Gol I/II = 35k
-        const uangMakanPerHari = gol.startsWith('IV') ? 41000 : (gol.startsWith('III') ? 37000 : 35000);
-        const uangMakanBulan = uangMakanPerHari * 22; // Rata-rata 22 hari kerja
-
-        // Kalkulasi Komponen Tukin/Tunjangan yang Selaras dengan Data BKN
-        let tukinEst = 0;
-        if (d.gaji_min && d.gaji_min > (cpns80 * 1.35)) {
-          // Jika publikasi BKN sudah mencakup Tukin/Tunjangan Khusus (K/L Pusat, Dokter, Jaksa, dll)
-          tukinEst = d.gaji_min - cpns80;
-        } else {
-          // Jika publikasi BKN hanya mencantumkan Gaji Pokok murni (mayoritas Pemda): gunakan baseline regional
-          tukinEst = d.tukin_min || 2100000;
-        }
-        const totalBruto = cpns80 + tukinEst + uangMakanBulan;
-
-        const potonganBpjs = Math.round(cpns80 * 0.01); // 1% BPJS
-        const potonganTaspen = Math.round(cpns80 * 0.08); // 8% Taspen
-        const totalPotongan = potonganBpjs + potonganTaspen;
-        const totalNetto = totalBruto - totalPotongan;
-
-        document.getElementById('slip-gaji-pokok').textContent = formatRp(cpns80);
-        document.getElementById('slip-tukin').textContent = `+ ${formatRp(tukinEst)}`;
-        document.getElementById('slip-uang-makan').textContent = `+ ${formatRp(uangMakanBulan)}`;
-        document.getElementById('slip-total-bruto').textContent = formatRp(totalBruto);
-
-        document.getElementById('slip-bpjs').textContent = `- ${formatRp(potonganBpjs)}`;
-        document.getElementById('slip-taspen').textContent = `- ${formatRp(potonganTaspen)}`;
-        document.getElementById('slip-total-netto').textContent = `~ ${formatRp(totalNetto)} / bln`;
-
-        // Sinkronisasi Card Kanan Atas dengan Netto THP
-        document.getElementById('modal-thp').textContent = `~ ${formatRp(totalNetto)} / bln`;
         document.getElementById('modal-thp-sscasn').textContent = `Publikasi Resmi BKN: ${formatRp(d.gaji_min)} - ${formatRp(d.gaji_max)}`;
+
+        // Initialize interactive THP simulator
+        initThpSimulator(d);
+        updateModalBookmarkButton(d.formasi_id);
 
         // Populate majors list
         const majorsContainer = document.getElementById('modal-majors-list');
@@ -1792,8 +2765,8 @@
             btn.type = 'button';
             btn.className = 'px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-cyan-950 text-slate-300 hover:text-cyan-300 border border-slate-700/80 hover:border-cyan-700 text-xs font-mono flex items-center gap-1.5 transition active:scale-95';
             btn.innerHTML = `
-              <span>${m.nama_jurusan}</span>
-              <span class="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-cyan-400">${m.jenjang}</span>
+              <span>${escapeHtml(m.nama_jurusan)}</span>
+              <span class="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-cyan-400">${escapeHtml(m.jenjang)}</span>
             `;
             btn.title = `Klik untuk memfilter tabel dengan jurusan: ${m.nama_jurusan}`;
             btn.addEventListener('click', () => {
@@ -1804,19 +2777,338 @@
         }
 
       } catch (err) {
+        if (err.name === 'AbortError') return;
         console.error('Error fetching detail modal:', err);
+        showToast('Gagal memuat detail formasi. Coba lagi.', 'warn');
+        closeDetailModal();
+      } finally {
+        if (detailAbortController === controller) {
+          loadingOverlay.classList.add('hidden');
+        }
       }
     }
 
     function closeDetailModal() {
+      if (detailAbortController) {
+        detailAbortController.abort();
+      }
       const modal = document.getElementById('modal-detail');
       modal.classList.add('hidden');
-      document.body.classList.remove('overflow-hidden');
+      document.getElementById('modal-detail-loading').classList.add('hidden');
+      activeDetailId = null;
+      syncStateToUrl();
+      syncBodyScrollLock();
     }
 
-    let currentDetailInstansi = '';
-    let currentDetailRegulasi = '';
+    function syncBodyScrollLock() {
+      const anyOpen = ['modal-detail', 'modal-crowdsource', 'modal-compare'].some(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden');
+      });
+      document.body.classList.toggle('overflow-hidden', anyOpen);
+    }
 
+    async function copyDetailShareLink() {
+      if (!activeDetailId) return;
+      const params = buildFilterParams(false, true);
+      const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      const btn = document.getElementById('btn-share-detail');
+      const orig = btn.innerHTML;
+      try {
+        await copyToClipboard(url);
+        btn.innerHTML = '<span>✅ Link Tersalin!</span>';
+        setTimeout(() => { btn.innerHTML = orig; }, 2200);
+      } catch (e) {
+        showToast('Gagal menyalin otomatis. Salin URL dari address bar.', 'warn');
+      }
+    }
+
+    // =========================================================================
+    // 5. BOOKMARK & SIDE-BY-SIDE COMPARISON (localStorage)
+    // =========================================================================
+    function getBookmarks() {
+      try {
+        const raw = localStorage.getItem(BOOKMARK_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveBookmarks(list) {
+      try {
+        localStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(list.slice(0, MAX_BOOKMARKS)));
+      } catch (e) {
+        console.error('Failed to save bookmarks to localStorage:', e);
+      }
+      updateBookmarkUI();
+    }
+
+    function isBookmarked(formasiId) {
+      return getBookmarks().some(b => String(b.formasi_id) === String(formasiId));
+    }
+
+    function toggleBookmark(formasiId) {
+      const list = getBookmarks();
+      const idx = list.findIndex(b => String(b.formasi_id) === String(formasiId));
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        saveBookmarks(list);
+        showToast('Formasi dihapus dari perbandingan.', 'info');
+      } else {
+        if (list.length >= MAX_BOOKMARKS) {
+          showToast(`Maksimal ${MAX_BOOKMARKS} formasi dapat disimpan untuk dibandingkan.`, 'warn');
+          return;
+        }
+        const item = loadedFormasiMap.get(String(formasiId)) || (currentDetailData && String(currentDetailData.formasi_id) === String(formasiId) ? currentDetailData : null);
+        if (!item) {
+          showToast('Data formasi belum tersedia untuk disimpan.', 'warn');
+          return;
+        }
+        list.push(item);
+        saveBookmarks(list);
+        showToast('Formasi disimpan ke daftar perbandingan!', 'success');
+      }
+    }
+
+    function toggleBookmarkFromModal() {
+      if (!activeDetailId) return;
+      toggleBookmark(activeDetailId);
+      updateModalBookmarkButton(activeDetailId);
+    }
+
+    function removeBookmark(formasiId) {
+      const list = getBookmarks().filter(b => String(b.formasi_id) !== String(formasiId));
+      saveBookmarks(list);
+      if (!document.getElementById('modal-compare').classList.contains('hidden')) {
+        renderCompareTable(list);
+      }
+    }
+
+    function clearAllBookmarks() {
+      saveBookmarks([]);
+      if (!document.getElementById('modal-compare').classList.contains('hidden')) {
+        renderCompareTable([]);
+      }
+      showToast('Semua formasi tersimpan telah dihapus.', 'info');
+    }
+
+    function updateBookmarkUI() {
+      const list = getBookmarks();
+      const badge = document.getElementById('compare-count-badge');
+      if (badge) badge.textContent = String(list.length);
+
+      const savedIds = new Set(list.map(b => String(b.formasi_id)));
+      document.querySelectorAll('[data-bookmark-id]').forEach(btn => {
+        const fid = btn.getAttribute('data-bookmark-id');
+        const active = savedIds.has(String(fid));
+        btn.textContent = active ? '★' : '☆';
+        if (active) {
+          btn.className = 'w-7 h-7 rounded-lg border text-sm flex items-center justify-center transition active:scale-95 bg-amber-500/20 border-amber-400 text-amber-300';
+        } else {
+          btn.className = 'w-7 h-7 rounded-lg border text-sm flex items-center justify-center transition active:scale-95 bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-400 hover:text-amber-300';
+        }
+      });
+
+      if (activeDetailId) {
+        updateModalBookmarkButton(activeDetailId);
+      }
+    }
+
+    function computeEstimatedThp(item) {
+      const cpns80 = Number(item.gaji_pokok_cpns_80 || 2228560);
+      const gol = item.golongan_awal || 'III/a';
+      const uangMakanPerHari = gol.startsWith('IV') ? 41000 : (gol.startsWith('III') ? 37000 : 35000);
+      const uangMakanBulan = uangMakanPerHari * 22;
+      let tukinEst = 0;
+      if (item.gaji_min && item.gaji_min > (cpns80 * 1.35)) {
+        tukinEst = item.gaji_min - cpns80;
+      } else {
+        tukinEst = item.tukin_min || 2100000;
+      }
+      const bruto = cpns80 + tukinEst + uangMakanBulan;
+      const pot = Math.round(cpns80 * 0.01) + Math.round(cpns80 * 0.08);
+      return bruto - pot;
+    }
+
+    async function openCompareModal() {
+      const modal = document.getElementById('modal-compare');
+      const loadingEl = document.getElementById('compare-loading');
+      modal.classList.remove('hidden');
+      syncBodyScrollLock();
+
+      let bookmarks = getBookmarks();
+      if (bookmarks.length === 0) {
+        loadingEl.classList.add('hidden');
+        renderCompareTable([]);
+        return;
+      }
+
+      // Render stored data immediately, then try refreshing from /api/formasi-batch
+      renderCompareTable(bookmarks);
+
+      const ids = bookmarks.map(b => b.formasi_id).filter(Boolean).slice(0, MAX_BOOKMARKS);
+      if (ids.length > 0) {
+        loadingEl.classList.remove('hidden');
+        try {
+          const resp = await fetch(`${API_BASE}/api/formasi-batch?ids=${encodeURIComponent(ids.join(','))}`);
+          if (resp.ok) {
+            const data = await resp.json();
+            if (Array.isArray(data.items) && data.items.length > 0) {
+              const freshMap = new Map(data.items.map(it => [String(it.formasi_id), it]));
+              bookmarks = bookmarks.map(b => freshMap.get(String(b.formasi_id)) || b);
+              saveBookmarks(bookmarks);
+              renderCompareTable(bookmarks);
+            }
+          }
+        } catch (err) {
+          // Graceful fallback to stored localStorage items
+          console.warn('Batch refresh fallback to stored bookmarks:', err);
+        } finally {
+          loadingEl.classList.add('hidden');
+        }
+      }
+    }
+
+    function closeCompareModal() {
+      document.getElementById('modal-compare').classList.add('hidden');
+      syncBodyScrollLock();
+    }
+
+    function renderCompareTable(items) {
+      const emptyEl = document.getElementById('compare-empty-state');
+      const containerEl = document.getElementById('compare-table-container');
+      const tableEl = document.getElementById('compare-table');
+      const clearBtn = document.getElementById('btn-clear-bookmarks');
+
+      if (!items || items.length === 0) {
+        emptyEl.classList.remove('hidden');
+        containerEl.classList.add('hidden');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+      containerEl.classList.remove('hidden');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+
+      const headerCols = items.map(it => `
+        <th class="p-3 min-w-[220px] align-top bg-slate-950/90 border-l border-slate-800">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-mono text-cyan-400">${escapeHtml(it.formasi_id)}</span>
+              <div class="text-xs font-bold text-white mt-0.5 line-clamp-2">${escapeHtml(it.jabatan_nm)}</div>
+            </div>
+            <button
+              type="button"
+              onclick="removeBookmark('${escapeHtml(it.formasi_id)}')"
+              class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 flex items-center justify-center shrink-0 transition"
+              title="Hapus dari perbandingan"
+            >
+              ✕
+            </button>
+          </div>
+        </th>
+      `).join('');
+
+      const rowsSpec = [
+        {
+          label: 'Instansi & Lingkup',
+          render: it => `<div class="font-semibold text-slate-200">${escapeHtml(it.nama_instansi)}</div><div class="mt-1">${getScopeBadge(it.kategori_instansi)}</div>`
+        },
+        {
+          label: 'Lokasi Penempatan',
+          render: it => `<span class="text-slate-300">${escapeHtml(it.lokasi_nm || '-')}</span>`
+        },
+        {
+          label: 'Jalur Formasi',
+          render: it => getJenisBadge(it.jenis_formasi)
+        },
+        {
+          label: 'Kuota Kursi',
+          render: it => `<span class="font-mono font-bold text-emerald-400">${Number(it.jumlah_formasi || 0).toLocaleString('id-ID')} Kursi</span>`
+        },
+        {
+          label: 'Pelamar (MS)',
+          render: it => `<span class="font-mono font-semibold text-sky-300">${Number(it.jumlah_pelamar || 0).toLocaleString('id-ID')} Orang</span>`
+        },
+        {
+          label: 'Rasio & Peluang Lolos',
+          render: it => `<div class="font-mono font-bold text-indigo-300 mb-1">1 : ${it.rasio_kompetisi}</div><div>${getKeketatanBadge(it.status_keketatan, it.peluang_lolos_pct)}</div>`
+        },
+        {
+          label: 'Golongan Awal',
+          render: it => `<span class="font-mono font-semibold text-sky-300">Gol. ${escapeHtml(it.golongan_awal || '-')}</span>`
+        },
+        {
+          label: 'Gaji Publikasi BKN',
+          render: it => `<span class="font-mono font-bold text-amber-300">${formatJuta(it.gaji_min)} - ${formatJuta(it.gaji_max)}</span>`
+        },
+        {
+          label: 'Estimasi THP (CPNS 80%)',
+          render: it => `<span class="font-mono font-bold text-emerald-300">~ ${formatRp(computeEstimatedThp(it))} / bln</span>`
+        },
+        {
+          label: 'Kualifikasi Jurusan',
+          render: it => {
+            const majors = it.jurusan_list || [];
+            if (!majors.length) return `<span class="text-slate-400 italic">${escapeHtml(it.pendidikan_raw || 'Semua Jurusan')}</span>`;
+            const shown = majors.slice(0, 4).map(m => `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-mono">${escapeHtml(m)}</span>`).join(' ');
+            const extra = majors.length > 4 ? `<span class="text-[10px] text-indigo-300 font-semibold">+${majors.length - 4} lainnya</span>` : '';
+            return `<div class="flex flex-wrap gap-1">${shown} ${extra}</div>`;
+          }
+        },
+        {
+          label: 'Aksi',
+          render: it => `
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                onclick="closeCompareModal(); openDetailModal('${escapeHtml(it.formasi_id)}')"
+                class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-[11px] transition active:scale-95"
+              >
+                Buka Detail
+              </button>
+              <button
+                type="button"
+                onclick="removeBookmark('${escapeHtml(it.formasi_id)}')"
+                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 border border-slate-700 text-[11px] transition"
+              >
+                Hapus
+              </button>
+            </div>
+          `
+        }
+      ];
+
+      const bodyRows = rowsSpec.map(spec => `
+        <tr class="divide-x divide-slate-800 hover:bg-slate-800/30">
+          <th class="p-3 bg-slate-950/70 text-slate-400 font-semibold uppercase text-[10px] tracking-wider w-44 shrink-0 align-top">
+            ${spec.label}
+          </th>
+          ${items.map(it => `<td class="p-3 align-top bg-slate-900/40">${spec.render(it)}</td>`).join('')}
+        </tr>
+      `).join('');
+
+      tableEl.innerHTML = `
+        <thead>
+          <tr>
+            <th class="p-3 bg-slate-950 text-slate-400 font-semibold uppercase text-[10px] tracking-wider w-44 text-left align-top">
+              Parameter Formasi
+            </th>
+            ${headerCols}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          ${bodyRows}
+        </tbody>
+      `;
+    }
+
+    // =========================================================================
+    // CROWDSOURCE MODAL
+    // =========================================================================
     function updateGoogleFormLink() {
       const instansi = encodeURIComponent(document.getElementById('crowd-instansi').value.trim() || '');
       const regulasi = encodeURIComponent(document.getElementById('crowd-regulasi').value.trim() || '');
@@ -1826,9 +3118,7 @@
       const formUrl = `${baseUrl}&entry.1057785259=${instansi}&entry.621332457=${regulasi}&entry.595628026=${linkJdih}`;
 
       const gBtn = document.getElementById('link-google-form');
-      if (gBtn) {
-        gBtn.href = formUrl;
-      }
+      if (gBtn) gBtn.href = formUrl;
     }
 
     function openCrowdsourceModal(namaInstansi = '', regulasi = '') {
@@ -1836,9 +3126,7 @@
       const inputInstansi = document.getElementById('crowd-instansi');
       const inputRegulasi = document.getElementById('crowd-regulasi');
 
-      if (namaInstansi) {
-        inputInstansi.value = namaInstansi;
-      }
+      if (namaInstansi) inputInstansi.value = namaInstansi;
       if (regulasi && !regulasi.includes('Estimasi Kisaran')) {
         inputRegulasi.value = regulasi;
       } else if (regulasi.includes('Estimasi Kisaran')) {
@@ -1846,9 +3134,8 @@
       }
 
       updateGoogleFormLink();
-
       modal.classList.remove('hidden');
-      document.body.classList.add('overflow-hidden');
+      syncBodyScrollLock();
     }
 
     function openCrowdsourceModalFromDetail() {
@@ -1856,12 +3143,8 @@
     }
 
     function closeCrowdsourceModal() {
-      const modal = document.getElementById('modal-crowdsource');
-      modal.classList.add('hidden');
-      const detailModal = document.getElementById('modal-detail');
-      if (detailModal && detailModal.classList.contains('hidden')) {
-        document.body.classList.remove('overflow-hidden');
-      }
+      document.getElementById('modal-crowdsource').classList.add('hidden');
+      syncBodyScrollLock();
     }
 
     function copyCrowdReport() {
@@ -1872,64 +3155,112 @@
 
       const text = `LAPORAN DATA TPP DAERAH CPNS 2024:\n- Instansi: ${instansi}\n- Regulasi: ${regulasi}\n- Link JDIH: ${link}\n- Catatan: ${notes}`;
 
-      navigator.clipboard.writeText(text).then(() => {
+      copyToClipboard(text).then(() => {
         const btn = document.getElementById('btn-copy-label');
         const orig = btn.textContent;
         btn.textContent = '✅ Format Berhasil Disalin!';
         setTimeout(() => { btn.textContent = orig; }, 2500);
-      }).catch(err => {
+      }).catch(() => {
         alert('Gagal menyalin otomatis, silakan salin manual teks berikut:\n\n' + text);
       });
     }
 
     function applyMajorFilterFromModal(majorName, majorId) {
-      const inputJurusan = document.getElementById('filter-jurusan-input');
-      const btnClearJurusan = document.getElementById('btn-clear-jurusan');
-
-      inputJurusan.value = majorName;
       state.jurusan = majorName;
       state.jurusan_id = majorId;
       state.page = 1;
 
-      btnClearJurusan.classList.remove('hidden');
+      syncControlsFromState();
       updateActiveChips();
-      loadFormasiTable();
       closeDetailModal();
+      loadFormasiTable();
     }
 
-    // 4. Update Filter Active Chips
+    // =========================================================================
+    // INTERACTIVE "FILTER AKTIF" CHIPS
+    // =========================================================================
+    function clearFilterByKey(key) {
+      if (key === 'q') {
+        state.q = '';
+      } else if (key === 'jurusan') {
+        state.jurusan = '';
+        state.jurusan_id = null;
+      } else if (key === 'jenjang') {
+        state.jenjang = 'ALL';
+      } else if (key === 'kategori_instansi') {
+        state.kategori_instansi = 'ALL';
+      } else if (key === 'instansi_id') {
+        state.instansi_id = 'ALL';
+        state.instansi_nama = '';
+      } else if (key === 'jenis_formasi') {
+        state.jenis_formasi = 'ALL';
+      } else if (key === 'status_keketatan') {
+        state.status_keketatan = 'ALL';
+        state.zero_applicant_only = false;
+      } else if (key === 'zero_applicant_only') {
+        state.zero_applicant_only = false;
+        if (state.status_keketatan === 'Tanpa Pelamar') state.status_keketatan = 'ALL';
+      } else if (key === 'gaji_min') {
+        state.gaji_min = 0;
+      }
+
+      state.page = 1;
+      syncControlsFromState();
+      syncStateToUrl();
+      updateActiveChips();
+      if (statsCache) renderAnalyticsCards(statsCache);
+      loadFormasiTable();
+    }
+
     function updateActiveChips() {
       const container = document.getElementById('active-filter-chips');
       container.innerHTML = '<span class="text-[11px] text-slate-500">Filter Aktif:</span>';
 
       const chips = [];
-      if (state.q) chips.push(`Keyword: "${state.q}"`);
-      if (state.jurusan) chips.push(`Jurusan: ${state.jurusan}`);
-      if (state.jenjang !== 'ALL') chips.push(`Jenjang: ${state.jenjang}`);
-      if (state.kategori_instansi !== 'ALL') chips.push(`Lingkup: ${state.kategori_instansi}`);
+      if (state.q) chips.push({ key: 'q', label: `Keyword: "${state.q}"` });
+      if (state.jurusan) chips.push({ key: 'jurusan', label: `Jurusan: ${state.jurusan}` });
+      if (state.jenjang !== 'ALL') chips.push({ key: 'jenjang', label: `Jenjang: ${state.jenjang}` });
+      if (state.kategori_instansi !== 'ALL') chips.push({ key: 'kategori_instansi', label: `Lingkup: ${state.kategori_instansi}` });
       if (state.instansi_id !== 'ALL') {
-        const sel = document.getElementById('filter-instansi-id');
-        const text = sel.options[sel.selectedIndex]?.text?.split('(')[0]?.trim();
-        chips.push(`Instansi: ${text || state.instansi_id}`);
+        const match = allInstansi.find(i => String(i.instansi_id) === String(state.instansi_id));
+        const text = match?.nama_instansi || state.instansi_nama || state.instansi_id;
+        chips.push({ key: 'instansi_id', label: `Instansi: ${text}` });
       }
-      if (state.jenis_formasi !== 'ALL') chips.push(`Jalur: ${state.jenis_formasi}`);
-      if (state.status_keketatan !== 'ALL') chips.push(`Keketatan: ${state.status_keketatan}`);
-      if (state.zero_applicant_only) chips.push('⚡ 0 Pelamar');
-      if (state.gaji_min > 0) chips.push(`Min: ${formatJuta(state.gaji_min)}`);
+      if (state.jenis_formasi !== 'ALL') chips.push({ key: 'jenis_formasi', label: `Jalur: ${state.jenis_formasi}` });
+      if (state.zero_applicant_only) {
+        chips.push({ key: 'zero_applicant_only', label: '⚡ 0 Pelamar' });
+      } else if (state.status_keketatan !== 'ALL') {
+        chips.push({ key: 'status_keketatan', label: `Keketatan: ${state.status_keketatan}` });
+      }
+      if (state.gaji_min > 0) chips.push({ key: 'gaji_min', label: `Min: ${formatJuta(state.gaji_min)}` });
 
       if (chips.length === 0) {
-        container.innerHTML += '<span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Semua Data</span>';
+        const emptyPill = document.createElement('span');
+        emptyPill.className = 'text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400';
+        emptyPill.textContent = 'Semua Data';
+        container.appendChild(emptyPill);
       } else {
         chips.forEach(c => {
-          const chip = document.createElement('span');
-          chip.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-medium';
-          chip.textContent = c;
-          container.appendChild(chip);
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-cyan-950 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-800/60 hover:border-cyan-500 font-medium inline-flex items-center gap-1.5 transition active:scale-95';
+          btn.title = 'Klik untuk menghapus filter ini';
+
+          const labelSpan = document.createElement('span');
+          labelSpan.textContent = c.label;
+          const xSpan = document.createElement('span');
+          xSpan.className = 'text-cyan-400 hover:text-white font-bold';
+          xSpan.textContent = '✕';
+
+          btn.appendChild(labelSpan);
+          btn.appendChild(xSpan);
+          btn.addEventListener('click', () => clearFilterByKey(c.key));
+          container.appendChild(btn);
         });
       }
     }
 
-    // 5. Debounce Utility
+    // Debounce Utility
     function debounce(func, wait = 300) {
       let timeout;
       return function(...args) {
@@ -1938,12 +3269,13 @@
       };
     }
 
-    // 6. Setup Event Listeners
+    // =========================================================================
+    // 6. EVENT LISTENERS
+    // =========================================================================
     function setupEventListeners() {
       const inputQ = document.getElementById('filter-q');
       const btnClearQ = document.getElementById('btn-clear-q');
 
-      // Keyword search debounced
       inputQ.addEventListener('input', debounce((e) => {
         state.q = e.target.value.trim();
         state.page = 1;
@@ -1961,7 +3293,7 @@
         loadFormasiTable();
       });
 
-      // Jurusan autocomplete
+      // Jurusan autocomplete with AbortController
       const inputJurusan = document.getElementById('filter-jurusan-input');
       const btnClearJurusan = document.getElementById('btn-clear-jurusan');
       const listJurusan = document.getElementById('jurusan-autocomplete-list');
@@ -1973,6 +3305,10 @@
         state.jurusan_id = null;
         state.page = 1;
 
+        if (jurusanAbortController) {
+          jurusanAbortController.abort();
+        }
+
         if (term.length < 2) {
           listJurusan.classList.add('hidden');
           updateActiveChips();
@@ -1980,10 +3316,15 @@
           return;
         }
 
+        const controller = new AbortController();
+        jurusanAbortController = controller;
+
         try {
           const params = new URLSearchParams({ q: term, limit: 12 });
           if (state.jenjang !== 'ALL') params.set('jenjang', state.jenjang);
-          const r = await fetch(`${API_BASE}/api/filters/jurusan?${params.toString()}`);
+          const r = await fetch(`${API_BASE}/api/filters/jurusan?${params.toString()}`, {
+            signal: controller.signal
+          });
           if (!r.ok) return;
           const items = await r.json();
 
@@ -1995,8 +3336,8 @@
               const div = document.createElement('div');
               div.className = 'px-3 py-2 hover:bg-slate-800 cursor-pointer flex items-center justify-between gap-2 transition';
               div.innerHTML = `
-                <span class="font-medium text-slate-200 truncate">${it.nama_jurusan}</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono">${it.jenjang}</span>
+                <span class="font-medium text-slate-200 truncate">${escapeHtml(it.nama_jurusan)}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono">${escapeHtml(it.jenjang)}</span>
               `;
               div.addEventListener('click', () => {
                 inputJurusan.value = it.nama_jurusan;
@@ -2013,6 +3354,7 @@
           }
           listJurusan.classList.remove('hidden');
         } catch (err) {
+          if (err.name === 'AbortError') return;
           console.error('Error autocompleting jurusan:', err);
         }
         updateActiveChips();
@@ -2020,6 +3362,7 @@
       }, 250));
 
       btnClearJurusan.addEventListener('click', () => {
+        if (jurusanAbortController) jurusanAbortController.abort();
         inputJurusan.value = '';
         state.jurusan = '';
         state.jurusan_id = null;
@@ -2030,10 +3373,46 @@
         loadFormasiTable();
       });
 
-      // Close dropdown when clicking outside
+      // Instansi Spesifik searchable combobox
+      const inputInstansi = document.getElementById('filter-instansi-input');
+      const btnClearInstansi = document.getElementById('btn-clear-instansi');
+      const listInstansi = document.getElementById('instansi-autocomplete-list');
+
+      inputInstansi.addEventListener('focus', () => {
+        const currentSelected = state.instansi_id !== 'ALL' && inputInstansi.value === state.instansi_nama;
+        renderInstansiDropdown(currentSelected ? '' : inputInstansi.value);
+      });
+
+      inputInstansi.addEventListener('input', (e) => {
+        const term = e.target.value;
+        btnClearInstansi.classList.toggle('hidden', !term.trim() && state.instansi_id === 'ALL');
+        if (!term.trim() && state.instansi_id !== 'ALL') {
+          clearSelectedInstansi(true);
+          renderInstansiDropdown('');
+          return;
+        }
+        renderInstansiDropdown(term);
+      });
+
+      btnClearInstansi.addEventListener('click', () => {
+        clearSelectedInstansi(true);
+      });
+
+      // Close autocomplete dropdowns when clicking outside
       document.addEventListener('click', (e) => {
         if (!inputJurusan.contains(e.target) && !listJurusan.contains(e.target)) {
           listJurusan.classList.add('hidden');
+        }
+        const instansiWrapper = document.getElementById('instansi-combobox-wrapper');
+        if (instansiWrapper && !instansiWrapper.contains(e.target)) {
+          listInstansi.classList.add('hidden');
+          // Restore selected name if user typed partial text without picking
+          if (state.instansi_id !== 'ALL') {
+            inputInstansi.value = state.instansi_nama || '';
+          } else {
+            inputInstansi.value = '';
+            btnClearInstansi.classList.add('hidden');
+          }
         }
       });
 
@@ -2045,20 +3424,9 @@
         loadFormasiTable();
       });
 
-      // Lingkup Instansi dropdown
+      // Lingkup Instansi dropdown (cascading with Instansi Spesifik)
       document.getElementById('filter-kategori-instansi').addEventListener('change', (e) => {
-        state.kategori_instansi = e.target.value;
-        state.page = 1;
-        updateActiveChips();
-        loadFormasiTable();
-      });
-
-      // Instansi ID dropdown
-      document.getElementById('filter-instansi-id').addEventListener('change', (e) => {
-        state.instansi_id = e.target.value;
-        state.page = 1;
-        updateActiveChips();
-        loadFormasiTable();
+        handleKategoriInstansiChange(e.target.value);
       });
 
       // Jenis Formasi dropdown
@@ -2066,6 +3434,7 @@
         state.jenis_formasi = e.target.value;
         state.page = 1;
         updateActiveChips();
+        if (statsCache) renderAnalyticsCards(statsCache);
         loadFormasiTable();
       });
 
@@ -2073,40 +3442,60 @@
       document.getElementById('filter-status-keketatan').addEventListener('change', (e) => {
         state.status_keketatan = e.target.value;
         state.zero_applicant_only = (e.target.value === 'Tanpa Pelamar');
-        const btnZero = document.getElementById('btn-toggle-zero');
-        if (state.zero_applicant_only) {
-          btnZero.classList.add('bg-emerald-500/30', 'border-emerald-400', 'text-white');
-        } else {
-          btnZero.classList.remove('bg-emerald-500/30', 'border-emerald-400', 'text-white');
-        }
         state.page = 1;
+        syncControlsFromState();
         updateActiveChips();
+        if (statsCache) renderAnalyticsCards(statsCache);
         loadFormasiTable();
       });
 
       // Quick Toggle 0 Pelamar
       function toggleZeroApplicants() {
         state.zero_applicant_only = !state.zero_applicant_only;
-        const btnZero = document.getElementById('btn-toggle-zero');
-        const selKeketatan = document.getElementById('filter-status-keketatan');
-
         if (state.zero_applicant_only) {
           state.status_keketatan = 'Tanpa Pelamar';
-          selKeketatan.value = 'Tanpa Pelamar';
-          btnZero.classList.add('bg-emerald-500/30', 'border-emerald-400', 'text-white');
         } else {
           state.status_keketatan = 'ALL';
-          selKeketatan.value = 'ALL';
-          btnZero.classList.remove('bg-emerald-500/30', 'border-emerald-400', 'text-white');
         }
         state.page = 1;
+        syncControlsFromState();
         updateActiveChips();
+        if (statsCache) renderAnalyticsCards(statsCache);
         loadFormasiTable();
       }
 
       document.getElementById('btn-toggle-zero').addEventListener('click', toggleZeroApplicants);
       const cardZero = document.getElementById('card-zero-applicants');
       if (cardZero) cardZero.addEventListener('click', toggleZeroApplicants);
+      const summaryZero = document.getElementById('summary-zero-btn');
+      if (summaryZero) summaryZero.addEventListener('click', toggleZeroApplicants);
+
+      // Copy Filter Link button
+      document.getElementById('btn-copy-filter-link').addEventListener('click', async () => {
+        const params = buildFilterParams(true, true);
+        const qs = params.toString();
+        const url = qs ? `${window.location.origin}${window.location.pathname}?${qs}` : `${window.location.origin}${window.location.pathname}`;
+        const btn = document.getElementById('btn-copy-filter-link');
+        const orig = btn.innerHTML;
+        try {
+          await copyToClipboard(url);
+          btn.innerHTML = '<span>✅ Link Tersalin!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2200);
+        } catch (err) {
+          showToast('Gagal menyalin link filter.', 'warn');
+        }
+      });
+
+      // Collapse / Expand Analytics Section
+      const btnToggleAnalytics = document.getElementById('btn-toggle-analytics');
+      const analyticsBody = document.getElementById('analytics-cards-body');
+      const analyticsToggleLabel = document.getElementById('analytics-toggle-label');
+      const analyticsToggleIcon = document.getElementById('analytics-toggle-icon');
+      btnToggleAnalytics.addEventListener('click', () => {
+        const isHidden = analyticsBody.classList.toggle('hidden');
+        analyticsToggleLabel.textContent = isHidden ? 'Tampilkan Grafik' : 'Sembunyikan Grafik';
+        analyticsToggleIcon.classList.toggle('rotate-180', isHidden);
+      });
 
       // Gaji Min Slider
       const sliderGaji = document.getElementById('filter-gaji-min-range');
@@ -2151,40 +3540,43 @@
         loadFormasiTable();
       });
 
-      // Modal Close handlers
+      // Modal Close handlers (Backdrop & Escape for all 3 modals)
       document.getElementById('btn-close-modal').addEventListener('click', closeDetailModal);
-      const modalEl = document.getElementById('modal-detail');
-      modalEl.addEventListener('click', (e) => {
-        if (e.target === modalEl) closeDetailModal();
+      const modalDetail = document.getElementById('modal-detail');
+      const modalCrowd = document.getElementById('modal-crowdsource');
+      const modalCompare = document.getElementById('modal-compare');
+
+      modalDetail.addEventListener('click', (e) => {
+        if (e.target === modalDetail) closeDetailModal();
       });
+      modalCrowd.addEventListener('click', (e) => {
+        if (e.target === modalCrowd) closeCrowdsourceModal();
+      });
+      modalCompare.addEventListener('click', (e) => {
+        if (e.target === modalCompare) closeCompareModal();
+      });
+
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modalEl.classList.contains('hidden')) {
+        if (e.key !== 'Escape') return;
+        // Close topmost open modal first
+        if (!modalCrowd.classList.contains('hidden')) {
+          closeCrowdsourceModal();
+        } else if (!modalCompare.classList.contains('hidden')) {
+          closeCompareModal();
+        } else if (!modalDetail.classList.contains('hidden')) {
           closeDetailModal();
         }
       });
 
       // Reset Button
       document.getElementById('btn-reset-filters').addEventListener('click', () => {
-        document.getElementById('filter-q').value = '';
-        document.getElementById('btn-clear-q').classList.add('hidden');
-        document.getElementById('filter-jurusan-input').value = '';
-        document.getElementById('btn-clear-jurusan').classList.add('hidden');
-        document.getElementById('filter-jenjang').value = 'ALL';
-        document.getElementById('filter-kategori-instansi').value = 'ALL';
-        document.getElementById('filter-instansi-id').value = 'ALL';
-        document.getElementById('filter-jenis-formasi').value = 'ALL';
-        document.getElementById('filter-status-keketatan').value = 'ALL';
-        sliderGaji.value = 0;
-        labelGaji.textContent = 'Semua (Rp 0)';
-        document.getElementById('filter-sort-by').value = 'kuota_desc';
-        document.getElementById('btn-toggle-zero').classList.remove('bg-emerald-500/30', 'border-emerald-400', 'text-white');
-
         state.q = '';
         state.jurusan = '';
         state.jurusan_id = null;
         state.jenjang = 'ALL';
         state.kategori_instansi = 'ALL';
         state.instansi_id = 'ALL';
+        state.instansi_nama = '';
         state.jenis_formasi = 'ALL';
         state.status_keketatan = 'ALL';
         state.zero_applicant_only = false;
@@ -2192,7 +3584,10 @@
         state.sort_by = 'kuota_desc';
         state.page = 1;
 
+        syncControlsFromState();
+        syncStateToUrl();
         updateActiveChips();
+        if (statsCache) renderAnalyticsCards(statsCache);
         loadFormasiTable();
       });
 
@@ -2214,8 +3609,7 @@
         if (state.gaji_min > 0) params.set('gaji_min', state.gaji_min);
         params.set('sort_by', state.sort_by);
 
-        const exportUrl = `${API_BASE}/api/export?${params.toString()}`;
-        window.location.href = exportUrl;
+        window.location.href = `${API_BASE}/api/export?${params.toString()}`;
       });
 
       // Crowdsource form live link sync
@@ -2225,12 +3619,26 @@
       });
     }
 
-    // Init App
-    document.addEventListener('DOMContentLoaded', () => {
-      loadStats();
-      loadFilterOptions();
-      loadFormasiTable();
+    // =========================================================================
+    // INIT APP
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      const initialDetailId = initStateFromUrl();
+      syncControlsFromState();
+      updateActiveChips();
+      updateBookmarkUI();
       setupEventListeners();
+
+      // Fire all 3 initial data fetches in parallel (eliminates sequential waterfall on Render)
+      await Promise.all([
+        loadStats(),
+        loadFilterOptions(),
+        loadFormasiTable()
+      ]);
+
+      if (initialDetailId) {
+        openDetailModal(initialDetailId);
+      }
 
       // Smart Auto-Hide / Show Header on Scroll (Mobile & Desktop)
       let lastScrollY = window.scrollY;
@@ -2243,13 +3651,10 @@
             const currentScrollY = window.scrollY;
             if (header) {
               if (currentScrollY <= 60) {
-                // At the top: always visible
                 header.classList.remove('-translate-y-full');
               } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                // Scrolling down: hide smoothly
                 header.classList.add('-translate-y-full');
               } else if (currentScrollY < lastScrollY) {
-                // Scrolling up: reveal smoothly
                 header.classList.remove('-translate-y-full');
               }
             }

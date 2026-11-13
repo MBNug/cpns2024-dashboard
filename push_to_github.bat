@@ -2,6 +2,9 @@
 title Push CPNS 2024 Dashboard ke GitHub
 cd /d "D:\CPNS\Dashboard"
 
+set "COMMIT_MSG=%~1"
+if "%COMMIT_MSG%"=="" set "COMMIT_MSG=feat: upgrade CPNS 2024 dashboard with analytics, comparison, THP simulator and Render speed optimizations"
+
 echo =======================================================
 echo   PUSH CPNS 2024 DASHBOARD KE GITHUB
 echo =======================================================
@@ -11,6 +14,11 @@ echo [INFO] Menyiapkan branch main dan remote origin...
 git branch -M main
 git remote remove origin >nul 2>&1
 git remote add origin https://github.com/MBNug/cpns2024-dashboard.git
+
+echo.
+echo [INFO] Menambahkan dan menyimpan perubahan lokal (git add ^& commit)...
+git add -A
+git commit -m "%COMMIT_MSG%"
 
 echo.
 echo [INFO] Mengirim file ke GitHub...

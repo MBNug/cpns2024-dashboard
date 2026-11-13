@@ -15,6 +15,9 @@ data/cpns2024.db
 data/cpns2024.db-wal
 data/cpns2024.db-shm
 
+# Local pre-upgrade backup folder
+backup_pre_upgrade/
+
 # Downloaded official regulation PDFs (uploaded separately to Google Drive)
 data/regulasi_pdf/
 
