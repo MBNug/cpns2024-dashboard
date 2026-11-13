@@ -54,6 +54,45 @@
     .glow-cyan {
       box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
     }
+    /* Mobile UX & Touch Ergonomics */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes supportShimmer {
+      0% { transform: translateX(-140%) skewX(-20deg); }
+      35%, 100% { transform: translateX(240%) skewX(-20deg); }
+    }
+    .btn-support-catchy {
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 18px -2px rgba(245, 158, 11, 0.45);
+    }
+    .btn-support-catchy::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 45%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      animation: supportShimmer 3.8s infinite ease-in-out;
+      pointer-events: none;
+    }
+    @media (max-width: 639px) {
+      /* Prevent iOS Safari forced auto-zoom when tapping form controls */
+      input[type="text"],
+      input[type="search"],
+      input[type="url"],
+      select,
+      textarea {
+        font-size: 16px !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-cyan-500 selection:text-slate-950">
@@ -62,71 +101,89 @@
   <!-- TOP NAVIGATION / HEADER -->
   <!-- ========================================================================= -->
   <header id="main-header" class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 transition-transform duration-300 ease-in-out">
-    <div class="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5 sm:gap-4">
       
-      <!-- Logo & Title -->
-      <div class="flex items-center gap-3.5">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 ring-1 ring-white/20">
-          <!-- Emblem SVG -->
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              PORTAL DATA FORMASI CPNS 2024
-            </h1>
-            <span class="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-              3NF Normalized
-            </span>
+      <!-- Logo & Title + Mobile Pinned Catchy Support CTA -->
+      <div class="flex items-center justify-between gap-2 w-full md:w-auto">
+        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 ring-1 ring-white/20 shrink-0">
+            <!-- Emblem SVG -->
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
           </div>
-          <p class="text-xs text-slate-400">
-            Database Eksplorasi & Analitik Terbuka Seleksi Calon Pegawai Negeri Sipil (BKN 2024)
-          </p>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <h1 class="text-[13px] sm:text-lg font-bold tracking-tight text-white flex items-center gap-2 truncate">
+                PORTAL CPNS 2024
+              </h1>
+              <span class="hidden sm:inline-block text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                3NF Normalized
+              </span>
+            </div>
+            <p class="text-[10px] sm:text-xs text-slate-400 truncate">
+              Analitik Formasi SSCASN BKN 2024
+            </p>
+          </div>
         </div>
+
+        <!-- Mobile Top-Right Catchy Support Me Pill (Always Visible Without Scrolling) -->
+        <a
+          href="#section-support-creator"
+          onclick="document.getElementById('section-support-creator').scrollIntoView({behavior: 'smooth'}); return false;"
+          class="md:hidden btn-support-catchy shrink-0 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-slate-950 text-[11px] font-extrabold tracking-tight flex items-center gap-1.5 active:scale-95 transition border border-amber-200/60"
+        >
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-600 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+          </span>
+          <span>☕ Support Me</span>
+        </a>
       </div>
 
       <!-- Header Actions & Navigation -->
-      <div class="flex flex-wrap items-center gap-2.5 text-xs">
-        <!-- Standard Gaji -->
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60">
-          <span class="text-slate-400">Regulasi Gaji:</span>
-          <span class="text-sky-300 font-semibold">PP No. 5/2024 (80% CPNS)</span>
-        </div>
+      <div class="flex flex-wrap md:flex-nowrap items-center gap-1.5 sm:gap-2.5 text-[11px] sm:text-xs w-full md:w-auto">
+        <!-- Catchy Support Me Button FIRST on Desktop -->
+        <a
+          href="#section-support-creator"
+          onclick="document.getElementById('section-support-creator').scrollIntoView({behavior: 'smooth'}); return false;"
+          class="hidden md:flex btn-support-catchy px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 border border-amber-200/60 transition items-center gap-1.5 font-extrabold active:scale-95 shrink-0"
+        >
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-600 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+          </span>
+          <span>☕ Support Me</span>
+        </a>
         <!-- Bandingkan Formasi Button -->
         <button
           type="button"
           id="btn-open-compare"
           onclick="openCompareModal()"
-          class="px-3.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition flex items-center gap-1.5 font-semibold active:scale-95 shadow-sm"
+          class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition flex items-center gap-1 font-semibold active:scale-95 shadow-sm shrink-0"
           title="Bandingkan formasi yang disimpan"
         >
           <span>⭐ Bandingkan (<span id="compare-count-badge" class="font-mono">0</span>)</span>
         </button>
         <!-- Kontribusi TPP Button -->
-        <button onclick="openCrowdsourceModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5 font-semibold active:scale-95 shadow-sm">
+        <button onclick="openCrowdsourceModal()" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1 font-semibold active:scale-95 shadow-sm shrink-0">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
           <span>Kontribusi TPP</span>
         </button>
         <!-- Sumber Data Page Link with Smooth Scroll -->
-        <a href="#section-sumber-data" onclick="document.getElementById('section-sumber-data').scrollIntoView({behavior: 'smooth'}); return false;" class="px-3.5 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 transition flex items-center gap-1.5 font-semibold active:scale-95">
+        <a href="#section-sumber-data" onclick="document.getElementById('section-sumber-data').scrollIntoView({behavior: 'smooth'}); return false;" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 transition flex items-center gap-1 font-semibold active:scale-95 shrink-0">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
           <span>Sumber Data</span>
         </a>
-        <!-- Support Me Button with Smooth Scroll -->
-        <a
-          href="#section-support-creator"
-          onclick="document.getElementById('section-support-creator').scrollIntoView({behavior: 'smooth'}); return false;"
-          class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 transition flex items-center gap-1.5 font-bold active:scale-95 shadow-sm shadow-amber-950/40"
-        >
-          <span>☕</span>
-          <span>Support Me</span>
-        </a>
+        <!-- Standard Gaji (Desktop Only) -->
+        <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 shrink-0">
+          <span class="text-slate-400">Gaji:</span>
+          <span class="text-sky-300 font-semibold">PP 5/2024</span>
+        </div>
       </div>
 
     </div>
@@ -135,15 +192,15 @@
   <!-- ========================================================================= -->
   <!-- MAIN CONTAINER -->
   <!-- ========================================================================= -->
-  <main class="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+  <main class="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
     <!-- ======================================================================= -->
     <!-- 1. KPI SUMMARY CARDS -->
     <!-- ======================================================================= -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
+    <section class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3.5">
       
       <!-- Card 1: Total Formasi -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-4 transition-all duration-200 hover:border-slate-700 glow-cyan">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-3 sm:p-4 transition-all duration-200 hover:border-slate-700 glow-cyan">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Formasi</span>
           <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
@@ -160,7 +217,7 @@
       </div>
 
       <!-- Card 2: Total Kuota Kursi -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-4 transition-all duration-200 hover:border-slate-700">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-3 sm:p-4 transition-all duration-200 hover:border-slate-700">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Kuota Kursi</span>
           <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
@@ -177,7 +234,7 @@
       </div>
 
       <!-- Card 3: Total Pelamar (MS) -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-4 transition-all duration-200 hover:border-slate-700">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-3 sm:p-4 transition-all duration-200 hover:border-slate-700">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Pelamar (MS)</span>
           <div class="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">
@@ -194,7 +251,7 @@
       </div>
 
       <!-- Card 4: Rata-Rata Rasio Persaingan -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-4 transition-all duration-200 hover:border-slate-700">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-3 sm:p-4 transition-all duration-200 hover:border-slate-700">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Rata-Rata Persaingan</span>
           <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
@@ -212,7 +269,7 @@
       <!-- Card 5: Formasi 0 Pelamar (Peluang Emas) -->
       <div
         id="card-zero-applicants"
-        class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/30 p-4 transition-all duration-200 hover:border-emerald-400 cursor-pointer group shadow-lg shadow-emerald-500/10"
+        class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/30 p-3 sm:p-4 transition-all duration-200 hover:border-emerald-400 cursor-pointer group shadow-lg shadow-emerald-500/10"
         title="Klik untuk langsung memfilter formasi 0 pelamar"
       >
         <div class="flex items-center justify-between">
@@ -231,7 +288,7 @@
       </div>
 
       <!-- Card 6: Median Penghasilan -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-4 transition-all duration-200 hover:border-slate-700">
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-900/80 border border-slate-800 p-3 sm:p-4 transition-all duration-200 hover:border-slate-700">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Median Penghasilan</span>
           <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
@@ -251,21 +308,31 @@
     <!-- ======================================================================= -->
     <!-- 2. SEARCH & FILTER CONTROL PANEL -->
     <!-- ======================================================================= -->
-    <section class="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 shadow-xl space-y-4">
+    <section class="rounded-2xl bg-slate-900/90 border border-slate-800 p-3.5 sm:p-5 shadow-xl space-y-3.5 sm:space-y-4">
       
       <!-- Panel Header & Active Count -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
           <div class="w-2 h-2 rounded-full bg-cyan-400"></div>
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-200">
-            Pencarian & Parameter Filter Formasi
+          <h2 class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-200">
+            Pencarian & Filter Formasi
           </h2>
         </div>
-        <!-- Matches counter badge -->
-        <div id="filter-result-badge" class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-medium flex items-center gap-1.5">
-          <span>Menemukan:</span>
-          <strong id="filter-total-count" class="text-cyan-400 font-mono font-bold">---</strong>
-          <span>formasi</span>
+        <div class="flex items-center gap-2">
+          <!-- Matches counter badge -->
+          <div id="filter-result-badge" class="text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-medium flex items-center gap-1.5">
+            <span>Menemukan:</span>
+            <strong id="filter-total-count" class="text-cyan-400 font-mono font-bold">---</strong>
+            <span>formasi</span>
+          </div>
+          <!-- Mobile quick jump button to results -->
+          <button
+            type="button"
+            onclick="scrollToResultsSection()"
+            class="md:hidden text-[11px] px-2.5 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-semibold transition active:scale-95"
+          >
+            Lihat Hasil ↓
+          </button>
         </div>
       </div>
 
@@ -525,23 +592,23 @@
     <!-- ======================================================================= -->
     <!-- 4. ANALYTICS & INSIGHTS SECTION -->
     <!-- ======================================================================= -->
-    <section id="section-analytics" class="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 shadow-xl space-y-4">
+    <section id="section-analytics" class="rounded-2xl bg-slate-900/90 border border-slate-800 p-3.5 sm:p-5 shadow-xl space-y-3.5 sm:space-y-4">
       
       <!-- Header & Collapse Toggle -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2 flex-wrap">
           <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-200">
-            Ringkasan Filter & Analitik Visual Nasional
+          <h2 class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-200">
+            Ringkasan & Analitik
           </h2>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-medium">
+          <span class="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-medium">
             Klik grafik untuk memfilter
           </span>
         </div>
         <button
           type="button"
           id="btn-toggle-analytics"
-          class="px-3 py-1.5 text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 active:scale-95"
+          class="px-3 py-1.5 text-[11px] sm:text-xs font-medium rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 active:scale-95"
         >
           <span id="analytics-toggle-label">Sembunyikan Grafik</span>
           <svg id="analytics-toggle-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -551,7 +618,7 @@
       </div>
 
       <!-- Dynamic Filter Summary Bar (Live from /api/formasi data.summary) -->
-      <div id="dynamic-filter-summary" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800/90 text-xs">
+      <div id="dynamic-filter-summary" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-2.5 p-2.5 sm:p-3 rounded-xl bg-slate-950/70 border border-slate-800/90 text-xs">
         <div class="px-2.5 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800">
           <span class="text-[10px] text-slate-400 block uppercase tracking-wider">Formasi Sesuai Filter</span>
           <span id="summary-total-formasi" class="text-sm sm:text-base font-bold text-cyan-400 font-mono">---</span>
@@ -576,6 +643,32 @@
         >
           <span class="text-[10px] text-emerald-300 block uppercase tracking-wider font-semibold">⚡ 0 Pelamar (Filter Ini)</span>
           <span id="summary-formasi-kosong" class="text-sm sm:text-base font-bold text-emerald-300 font-mono group-hover:text-emerald-200">---</span>
+        </button>
+      </div>
+
+      <!-- Always-visible 1-Click Strategic Presets (Quick Win on Mobile & Desktop) -->
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-0.5">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mr-1">Filter Cepat:</span>
+        <button
+          type="button"
+          onclick="applyStrategicPreset('s1-zero')"
+          class="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition active:scale-95"
+        >
+          🎯 S-1 Tanpa Pelamar
+        </button>
+        <button
+          type="button"
+          onclick="applyStrategicPreset('high-salary-loose')"
+          class="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-[11px] font-semibold transition active:scale-95"
+        >
+          💰 Gaji ≥ 10 Jt & Longgar
+        </button>
+        <button
+          type="button"
+          onclick="applyStrategicPreset('pusat-loose')"
+          class="px-2.5 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-[11px] font-semibold transition active:scale-95"
+        >
+          🏛️ Pusat Longgar
         </button>
       </div>
 
@@ -604,43 +697,19 @@
           </div>
         </div>
 
-        <!-- Card C: Sebaran Instansi & Peluang Strategis -->
+        <!-- Card C: Sebaran Instansi -->
         <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col justify-between space-y-3">
           <div class="space-y-2.5">
             <div class="flex items-center justify-between">
-              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Sebaran Instansi & Peluang Strategis</h3>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Sebaran Lingkup Instansi</h3>
               <span id="analytics-instansi-total" class="text-[10px] font-mono text-cyan-400">--- Instansi</span>
             </div>
             <div id="analytics-instansi-kategori" class="grid grid-cols-3 gap-2 text-center">
               <!-- Populated dynamically -->
             </div>
           </div>
-
-          <div class="pt-2.5 border-t border-slate-800/80 space-y-2">
-            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">Filter Cepat Strategis (1-Klik):</span>
-            <div class="flex flex-wrap gap-1.5">
-              <button
-                type="button"
-                onclick="applyStrategicPreset('s1-zero')"
-                class="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition active:scale-95"
-              >
-                🎯 S-1 Tanpa Pelamar
-              </button>
-              <button
-                type="button"
-                onclick="applyStrategicPreset('high-salary-loose')"
-                class="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-[11px] font-semibold transition active:scale-95"
-              >
-                💰 Gaji Tinggi (≥ 10 Jt) & Longgar
-              </button>
-              <button
-                type="button"
-                onclick="applyStrategicPreset('pusat-loose')"
-                class="px-2.5 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-[11px] font-semibold transition active:scale-95"
-              >
-                🏛️ Instansi Pusat Longgar
-              </button>
-            </div>
+          <div class="p-3 rounded-lg bg-slate-900/70 border border-slate-800/80 text-[11px] text-slate-400 leading-relaxed">
+            Klik kartu <strong class="text-cyan-300">Pusat</strong>, <strong class="text-emerald-300">Provinsi</strong>, atau <strong class="text-amber-300">Kab/Kota</strong> di atas untuk langsung menyaring daftar formasi dan daftar instansi spesifik.
           </div>
         </div>
 
@@ -648,15 +717,15 @@
     </section>
 
     <!-- ======================================================================= -->
-    <!-- 3. DATA TABLE SECTION (Server-Side Paginated) -->
+    <!-- 3. DATA TABLE SECTION (Server-Side Paginated + Mobile Card View) -->
     <!-- ======================================================================= -->
     <section id="section-table" class="rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl overflow-hidden space-y-0">
       
       <!-- Table Header & Controls Bar -->
-      <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900">
+      <div class="p-3.5 sm:p-4 border-b border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-3 bg-slate-900">
         <div class="flex items-center gap-2.5">
           <div class="w-2.5 h-2.5 rounded-full bg-cyan-400"></div>
-          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200">
+          <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
             Daftar Formasi CPNS 2024 Terverifikasi
           </h3>
           <span id="table-loading-spinner" class="hidden text-xs text-cyan-400 font-medium flex items-center gap-1.5 animate-pulse">
@@ -664,36 +733,62 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
-            <span>Memuat data...</span>
+            <span>Memuat...</span>
           </span>
         </div>
 
-        <!-- Page Size Selector -->
-        <div class="flex items-center gap-2 text-xs text-slate-400">
-          <span>Tampilkan:</span>
-          <select
-            id="table-page-size"
-            class="py-1 px-2.5 text-xs rounded-lg bg-slate-950 border border-slate-700 text-slate-200 focus:border-cyan-500 transition"
-          >
-            <option value="10">10 Baris</option>
-            <option value="25">25 Baris</option>
-            <option value="50">50 Baris</option>
-            <option value="100">100 Baris</option>
-          </select>
+        <!-- View Mode Toggle (Cards / Table) & Page Size Selector -->
+        <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto text-xs text-slate-400">
+          <!-- View Mode Toggle -->
+          <div class="inline-flex items-center p-0.5 rounded-lg bg-slate-950 border border-slate-700/80">
+            <button
+              type="button"
+              id="btn-view-cards"
+              onclick="setTableViewMode('cards')"
+              class="px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1"
+            >
+              <span>📱 Kartu</span>
+            </button>
+            <button
+              type="button"
+              id="btn-view-table"
+              onclick="setTableViewMode('table')"
+              class="px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1"
+            >
+              <span>📊 Tabel</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span>Tampilkan:</span>
+            <select
+              id="table-page-size"
+              class="py-1 px-2.5 text-xs rounded-lg bg-slate-950 border border-slate-700 text-slate-200 focus:border-cyan-500 transition"
+            >
+              <option value="10">10 Baris</option>
+              <option value="25">25 Baris</option>
+              <option value="50">50 Baris</option>
+              <option value="100">100 Baris</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <!-- Mobile Scroll Guidance Notice -->
-      <div class="sm:hidden px-4 py-2.5 bg-gradient-to-r from-cyan-950/60 via-slate-900 to-cyan-950/60 border-b border-cyan-800/40 flex items-center justify-between text-[11px] text-cyan-300">
-        <div class="flex items-center gap-1.5 animate-pulse">
-          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-          <span class="font-medium">Geser tabel ke samping untuk info gaji, kuota & peluang lolos 👉</span>
+      <!-- Mobile Scroll Guidance Notice (shown only when user explicitly selects Table mode on narrow screens) -->
+      <div id="mobile-table-scroll-hint" class="hidden md:hidden px-4 py-2 bg-gradient-to-r from-cyan-950/60 via-slate-900 to-cyan-950/60 border-b border-cyan-800/40 flex items-center justify-between text-[11px] text-cyan-300">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-cyan-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          <span class="font-medium">Geser tabel ke samping atau pakai Mode Kartu agar lebih nyaman 👉</span>
         </div>
-        <span class="text-[10px] text-cyan-200 font-mono bg-cyan-900/60 px-2 py-0.5 rounded-full border border-cyan-700/50 shrink-0 ml-2">7 Kolom</span>
+      </div>
+
+      <!-- Mobile-Friendly Card List Container (Default on Mobile < 768px, Zero Horizontal Scroll) -->
+      <div id="mobile-cards-container" class="hidden p-3 sm:p-4 grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-950/30">
+        <!-- Dynamically injected cards via JavaScript -->
       </div>
 
       <!-- Responsive Table Container -->
-      <div class="overflow-x-auto min-h-[320px]">
+      <div id="desktop-table-wrapper" class="overflow-x-auto min-h-[320px]">
         <table class="w-full text-left text-xs divide-y divide-slate-800">
           
           <!-- Table Columns (Optimized for full viewport visibility) -->
@@ -1053,10 +1148,10 @@
   <!-- ========================================================================= -->
   <div
     id="modal-detail"
-    class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4"
   >
     <!-- Modal Card -->
-    <div class="relative w-full max-w-3xl rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden transition-all duration-200">
+    <div class="relative w-full max-w-3xl rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden transition-all duration-200 my-auto">
       
       <!-- Loading Overlay -->
       <div id="modal-detail-loading" class="hidden absolute inset-0 z-30 bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
@@ -1068,31 +1163,31 @@
       </div>
 
       <!-- Modal Header -->
-      <div class="p-5 border-b border-slate-800 flex items-start justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900">
-        <div>
-          <div class="flex items-center gap-2 mb-1">
-            <span id="modal-formasi-id" class="text-[11px] font-mono px-2.5 py-0.5 rounded-md bg-slate-800 text-cyan-400 font-semibold border border-slate-700">
+      <div class="p-3.5 sm:p-5 border-b border-slate-800 flex items-start justify-between gap-2.5 sm:gap-4 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900">
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
+            <span id="modal-formasi-id" class="text-[10px] sm:text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-800 text-cyan-400 font-semibold border border-slate-700 truncate max-w-[180px] sm:max-w-none">
               ---
             </span>
-            <span id="modal-jenis-formasi" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+            <span id="modal-jenis-formasi" class="text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
               UMUM
             </span>
           </div>
-          <h3 id="modal-jabatan-nm" class="text-base sm:text-lg font-bold text-white tracking-tight">
+          <h3 id="modal-jabatan-nm" class="text-sm sm:text-lg font-bold text-white tracking-tight leading-snug">
             ---
           </h3>
-          <p id="modal-instansi-nm" class="text-xs text-slate-400 mt-0.5">
+          <p id="modal-instansi-nm" class="text-[11px] sm:text-xs text-slate-400 mt-0.5">
             ---
           </p>
         </div>
 
         <!-- Header Action Buttons -->
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             type="button"
             id="btn-modal-bookmark"
             onclick="toggleBookmarkFromModal()"
-            class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition active:scale-95"
+            class="px-2 sm:px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition active:scale-95"
             title="Simpan untuk dibandingkan"
           >
             <span id="modal-bookmark-icon">☆</span>
@@ -1103,10 +1198,10 @@
             type="button"
             id="btn-share-detail"
             onclick="copyDetailShareLink()"
-            class="px-2.5 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center gap-1 transition active:scale-95"
+            class="px-2 sm:px-2.5 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center gap-1 transition active:scale-95"
             title="Salin link langsung ke formasi ini"
           >
-            <span>🔗 Bagikan Formasi</span>
+            <span>🔗 <span class="hidden sm:inline">Bagikan Formasi</span><span class="sm:hidden">Bagikan</span></span>
           </button>
 
           <!-- Close Button -->
@@ -1120,7 +1215,7 @@
       </div>
 
       <!-- Modal Body -->
-      <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto text-xs">
+      <div class="p-3.5 sm:p-6 space-y-4 sm:space-y-6 max-h-[78vh] sm:max-h-[75vh] overflow-y-auto text-xs">
         
         <!-- Key Metrics Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -1601,7 +1696,7 @@
   <!-- Toast Notification -->
   <div
     id="toast-notification"
-    class="fixed bottom-5 right-5 z-[60] hidden max-w-sm px-4 py-2.5 rounded-xl bg-slate-900/95 border border-cyan-500/40 text-xs text-slate-100 shadow-2xl backdrop-blur transition-all duration-200"
+    class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-5 sm:bottom-5 z-[60] hidden max-w-sm mx-auto sm:mx-0 px-4 py-2.5 rounded-xl bg-slate-900/95 border border-cyan-500/40 text-xs text-slate-100 shadow-2xl backdrop-blur transition-all duration-200 text-center sm:text-left"
   ></div>
 
   <!-- ========================================================================= -->
@@ -1636,6 +1731,9 @@
     let currentDetailInstansi = '';
     let currentDetailRegulasi = '';
     const loadedFormasiMap = new Map();
+    let tableViewMode = window.innerWidth < 768 ? 'cards' : 'table';
+    let lastLoadedItems = [];
+    let lastLoadedStartIdx = 1;
 
     // AbortControllers for preventing stale out-of-order responses
     let tableAbortController = null;
@@ -1683,7 +1781,7 @@
       const toast = document.getElementById('toast-notification');
       if (!toast) return;
       toast.textContent = message;
-      toast.className = 'fixed bottom-5 right-5 z-[60] max-w-sm px-4 py-2.5 rounded-xl bg-slate-900/95 text-xs shadow-2xl backdrop-blur transition-all duration-200 border ';
+      toast.className = 'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-5 sm:bottom-5 z-[60] max-w-sm mx-auto sm:mx-0 px-4 py-2.5 rounded-xl bg-slate-900/95 text-xs shadow-2xl backdrop-blur transition-all duration-200 border text-center sm:text-left ';
       if (tone === 'warn') {
         toast.className += 'border-amber-500/50 text-amber-200';
       } else if (tone === 'success') {
@@ -2237,15 +2335,24 @@
         updateDynamicSummary(data.summary, data.total);
 
         if (!data.items || data.items.length === 0) {
+          lastLoadedItems = [];
           tableBody.innerHTML = '';
+          const cardsContainer = document.getElementById('mobile-cards-container');
+          if (cardsContainer) cardsContainer.innerHTML = '';
           emptyState.classList.remove('hidden');
+          document.getElementById('desktop-table-wrapper').classList.add('hidden');
+          if (cardsContainer) cardsContainer.classList.add('hidden');
           renderPagination(0, 1, state.limit, 1);
           return;
         }
 
         emptyState.classList.add('hidden');
         data.items.forEach(it => loadedFormasiMap.set(String(it.formasi_id), it));
-        renderTableRows(data.items, (data.page - 1) * data.limit + 1);
+        lastLoadedItems = data.items;
+        lastLoadedStartIdx = (data.page - 1) * data.limit + 1;
+        applyTableViewVisibility();
+        renderTableRows(lastLoadedItems, lastLoadedStartIdx);
+        renderMobileCards(lastLoadedItems, lastLoadedStartIdx);
         renderPagination(data.total, data.page, data.limit, data.total_pages);
 
       } catch (err) {
@@ -2292,6 +2399,167 @@
       return `<span class="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/30 text-[10px] font-semibold">Ketat (${peluang}%)</span>`;
     }
 
+    function scrollToResultsSection() {
+      const el = document.getElementById('section-table');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function applyTableViewVisibility() {
+      const cardsBtn = document.getElementById('btn-view-cards');
+      const tableBtn = document.getElementById('btn-view-table');
+      const cardsEl = document.getElementById('mobile-cards-container');
+      const tableWrapper = document.getElementById('desktop-table-wrapper');
+      const hintEl = document.getElementById('mobile-table-scroll-hint');
+      const emptyEl = document.getElementById('table-empty-state');
+      const isEmpty = emptyEl && !emptyEl.classList.contains('hidden');
+
+      if (cardsBtn && tableBtn) {
+        if (tableViewMode === 'cards') {
+          cardsBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-bold transition flex items-center gap-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+          tableBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1 text-slate-400 hover:text-white';
+        } else {
+          tableBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-bold transition flex items-center gap-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+          cardsBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1 text-slate-400 hover:text-white';
+        }
+      }
+
+      if (hintEl) {
+        hintEl.classList.toggle('hidden', tableViewMode !== 'table');
+      }
+
+      if (!isEmpty && cardsEl && tableWrapper) {
+        if (tableViewMode === 'cards') {
+          cardsEl.classList.remove('hidden');
+          tableWrapper.classList.add('hidden');
+        } else {
+          cardsEl.classList.add('hidden');
+          tableWrapper.classList.remove('hidden');
+        }
+      }
+    }
+
+    function setTableViewMode(mode) {
+      tableViewMode = mode === 'cards' ? 'cards' : 'table';
+      applyTableViewVisibility();
+    }
+
+    function renderMobileCards(items, startIdx) {
+      const container = document.getElementById('mobile-cards-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      items.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 p-3.5 shadow-md flex flex-col justify-between gap-3 transition';
+
+        const rowNum = startIdx + idx;
+        const scopeBadge = getScopeBadge(item.kategori_instansi);
+        const jenisBadge = getJenisBadge(item.jenis_formasi);
+        const keketatanBadge = getKeketatanBadge(item.status_keketatan, item.peluang_lolos_pct);
+        const bookmarked = isBookmarked(item.formasi_id);
+        const safeId = escapeHtml(item.formasi_id);
+
+        const majors = item.jurusan_list || [];
+        let majorHtml = '';
+        majors.slice(0, 2).forEach(m => {
+          majorHtml += `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-800/90 text-slate-300 border border-slate-700/80 text-[10px] font-mono leading-tight">${escapeHtml(m)}</span>`;
+        });
+        if (majors.length > 2) {
+          majorHtml += `<button type="button" onclick="openDetailModal('${safeId}')" class="inline-block px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-semibold">+${majors.length - 2} jurusan</button>`;
+        }
+        if (!majors.length) {
+          majorHtml = '<span class="text-slate-500 italic text-[11px]">Semua Jurusan</span>';
+        }
+
+        card.innerHTML = `
+          <div class="space-y-2.5">
+            <!-- Top Row: Number + Jabatan + Bookmark -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                  <span class="font-mono text-cyan-400 font-bold text-xs">#${rowNum}</span>
+                  ${jenisBadge}
+                  ${scopeBadge}
+                </div>
+                <h4 class="font-bold text-white text-sm leading-snug">
+                  ${escapeHtml(item.jabatan_nm)}
+                </h4>
+              </div>
+              <button
+                type="button"
+                data-bookmark-id="${safeId}"
+                data-bookmark-kind="card"
+                onclick="toggleBookmark('${safeId}')"
+                title="Simpan untuk dibandingkan"
+                class="w-9 h-9 rounded-xl border text-base flex items-center justify-center shrink-0 transition active:scale-95 ${bookmarked ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-400 hover:text-amber-300'}"
+              >
+                ${bookmarked ? '★' : '☆'}
+              </button>
+            </div>
+
+            <!-- Instansi & Lokasi -->
+            <div class="space-y-1">
+              <div class="text-xs font-semibold text-slate-200 leading-snug">
+                ${escapeHtml(item.nama_instansi)}
+              </div>
+              <div class="flex items-start gap-1 text-[11px] text-slate-400 leading-snug">
+                <svg class="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>${escapeHtml(item.lokasi_nm)}</span>
+              </div>
+            </div>
+
+            <!-- Kualifikasi Jurusan -->
+            <div class="flex flex-wrap gap-1">
+              ${majorHtml}
+            </div>
+
+            <!-- Key Stats Grid -->
+            <div class="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/90">
+              <div>
+                <span class="text-[10px] text-slate-400 block">Kuota & Pelamar</span>
+                <div class="font-mono font-bold text-xs text-emerald-400 mt-0.5">
+                  ${item.jumlah_formasi} Kursi <span class="text-sky-300 font-normal">/ ${Number(item.jumlah_pelamar || 0).toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 block">Kompetisi (Rasio)</span>
+                <div class="font-mono font-bold text-xs text-indigo-300 mt-0.5">
+                  1 : ${item.rasio_kompetisi}
+                </div>
+              </div>
+              <div class="col-span-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <span class="text-[10px] text-slate-400 block">Gaji BKN (Gol. ${escapeHtml(item.golongan_awal || '-')})</span>
+                  <span class="font-mono font-bold text-xs text-amber-300">${formatJuta(item.gaji_min)} - ${formatJuta(item.gaji_max)}</span>
+                </div>
+                <div>
+                  ${keketatanBadge}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Full-Width Touch Action Button -->
+          <button
+            type="button"
+            onclick="openDetailModal('${safeId}')"
+            class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-md shadow-cyan-500/20 active:scale-[0.99] transition flex items-center justify-center gap-1.5"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>Lihat Detail & Simulasi Gaji →</span>
+          </button>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
     // Render Table Rows
     function renderTableRows(items, startIdx) {
       const tbody = document.getElementById('table-body');
@@ -2335,21 +2603,6 @@
                 <div class="mt-1 flex items-center gap-1.5 flex-wrap">
                   ${jenisBadge}
                   <span class="text-[9px] font-mono text-slate-500 bg-slate-950 px-1 py-0.2 rounded border border-slate-800">${safeId}</span>
-                </div>
-                <!-- Mobile Compact Summary Card -->
-                <div class="sm:hidden mt-2 p-2 rounded-lg bg-slate-950/90 border border-slate-800 space-y-1">
-                  <div class="flex items-center justify-between text-[10px]">
-                    <span class="text-slate-400">Kuota & Pelamar:</span>
-                    <span class="font-bold text-white font-mono">${item.jumlah_formasi} Kursi <span class="text-slate-400">/ ${Number(item.jumlah_pelamar || 0).toLocaleString('id-ID')}</span></span>
-                  </div>
-                  <div class="flex items-center justify-between text-[10px]">
-                    <span class="text-slate-400">Peluang Lolos:</span>
-                    <span class="font-bold text-emerald-400 font-mono">${(item.peluang_lolos_pct || 0).toFixed(2)}% <span class="text-[9px] text-slate-500">(1 : ${item.rasio_kompetisi})</span></span>
-                  </div>
-                  <div class="flex items-center justify-between text-[10px] pt-1 border-t border-slate-800/60">
-                    <span class="text-slate-400">Gaji BKN:</span>
-                    <span class="font-bold text-amber-300 font-mono text-[10px]">${formatJuta(item.gaji_min)} - ${formatJuta(item.gaji_max)}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -2473,6 +2726,7 @@
         if (state.page !== 1) {
           state.page = 1;
           loadFormasiTable();
+          scrollToResultsSection();
         }
       });
       controls.appendChild(btnFirst);
@@ -2487,11 +2741,12 @@
         if (state.page > 1) {
           state.page -= 1;
           loadFormasiTable();
+          scrollToResultsSection();
         }
       });
       controls.appendChild(btnPrev);
 
-      const windowSize = 5;
+      const windowSize = window.innerWidth < 480 ? 3 : 5;
       let startP = Math.max(1, page - Math.floor(windowSize / 2));
       let endP = Math.min(totalPages, startP + windowSize - 1);
       if (endP - startP + 1 < windowSize) {
@@ -2508,6 +2763,7 @@
           if (state.page !== p) {
             state.page = p;
             loadFormasiTable();
+            scrollToResultsSection();
           }
         });
         controls.appendChild(btnPage);
@@ -2523,6 +2779,7 @@
         if (state.page < totalPages) {
           state.page += 1;
           loadFormasiTable();
+          scrollToResultsSection();
         }
       });
       controls.appendChild(btnNext);
@@ -2537,6 +2794,7 @@
         if (state.page !== totalPages) {
           state.page = totalPages;
           loadFormasiTable();
+          scrollToResultsSection();
         }
       });
       controls.appendChild(btnLast);
@@ -2903,8 +3161,11 @@
       document.querySelectorAll('[data-bookmark-id]').forEach(btn => {
         const fid = btn.getAttribute('data-bookmark-id');
         const active = savedIds.has(String(fid));
+        const isCard = btn.dataset.bookmarkKind === 'card';
         btn.textContent = active ? '★' : '☆';
-        if (active) {
+        if (isCard) {
+          btn.className = `w-9 h-9 rounded-xl border text-base flex items-center justify-center shrink-0 transition active:scale-95 ${active ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-400 hover:text-amber-300'}`;
+        } else if (active) {
           btn.className = 'w-7 h-7 rounded-lg border text-sm flex items-center justify-center transition active:scale-95 bg-amber-500/20 border-amber-400 text-amber-300';
         } else {
           btn.className = 'w-7 h-7 rounded-lg border text-sm flex items-center justify-center transition active:scale-95 bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-400 hover:text-amber-300';
@@ -3628,6 +3889,17 @@
       updateActiveChips();
       updateBookmarkUI();
       setupEventListeners();
+      applyTableViewVisibility();
+
+      // Auto-collapse heavy visual breakdown charts on mobile screens (<768px) to keep scroll short
+      if (window.innerWidth < 768) {
+        const analyticsBody = document.getElementById('analytics-cards-body');
+        const analyticsToggleLabel = document.getElementById('analytics-toggle-label');
+        const analyticsToggleIcon = document.getElementById('analytics-toggle-icon');
+        if (analyticsBody) analyticsBody.classList.add('hidden');
+        if (analyticsToggleLabel) analyticsToggleLabel.textContent = 'Tampilkan Grafik';
+        if (analyticsToggleIcon) analyticsToggleIcon.classList.add('rotate-180');
+      }
 
       // Fire all 3 initial data fetches in parallel (eliminates sequential waterfall on Render)
       await Promise.all([
