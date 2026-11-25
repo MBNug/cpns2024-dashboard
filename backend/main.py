@@ -6,6 +6,7 @@ analytics, CSV export, and serves the dashboard frontend.
 
 import io
 import os
+import re
 import csv
 import math
 import sqlite3
@@ -48,9 +49,27 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 
 
 _db_lock = threading.Lock()
+_db_tls = threading.local()
 _indexes_ensured = False
 _analytics_build_lock = threading.Lock()
 _analytics_tables_ready = False
+_fast_index_checked = False
+_has_fast_index = False
+_instansi_mem_map: Optional[Dict[int, Tuple[str, str]]] = None
+
+_KAT_TO_ID = {"Pusat": 0, "Provinsi": 1, "Kabupaten/Kota": 2}
+_ID_TO_KAT = {0: "Pusat", 1: "Provinsi", 2: "Kabupaten/Kota"}
+_KEK_TO_ID = {"Tanpa Pelamar": 0, "Sangat Longgar": 1, "Moderat": 2, "Sangat Ketat": 3}
+_ID_TO_KEK = {0: "Tanpa Pelamar", 1: "Sangat Longgar", 2: "Moderat", 3: "Sangat Ketat"}
+_JENJANG_BITS = {
+    "S-1": 1,
+    "D-III": 2,
+    "D-IV": 4,
+    "S-2": 8,
+    "SMA/SMK": 16,
+    "S-3/Spesialis": 32,
+    "Profesi": 64,
+}
 
 _cache_lock = threading.Lock()
 _stats_cache: Optional[Dict[str, Any]] = None
@@ -58,8 +77,8 @@ _filters_cache: Optional[Dict[str, Any]] = None
 _summary_cache: "OrderedDict[Tuple[Any, ...], Dict[str, Any]]" = OrderedDict()
 _formasi_cache: "OrderedDict[Tuple[Any, ...], Dict[str, Any]]" = OrderedDict()
 _analytics_cache: "OrderedDict[Tuple[Any, ...], Dict[str, Any]]" = OrderedDict()
-_MAX_SUMMARY_CACHE = 512
-_MAX_FORMASI_CACHE = 256
+_MAX_SUMMARY_CACHE = 1024
+_MAX_FORMASI_CACHE = 512
 _MAX_ANALYTICS_CACHE = 256
 
 COMPOSITE_INDEX_STATEMENTS = (
@@ -212,14 +231,32 @@ def _ensure_composite_indexes() -> None:
     threading.Thread(target=_deferred_warm_analytics, daemon=True).start()
 
 
+def _db_file_has_f_idx(db_path: Path) -> bool:
+    if not (db_path.exists() and db_path.stat().st_size > 10_000_000):
+        return False
+    c = None
+    try:
+        c = sqlite3.connect(str(db_path), timeout=5.0)
+        return bool(c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='f_idx'").fetchone())
+    except sqlite3.Error:
+        return False
+    finally:
+        if c is not None:
+            c.close()
+
+
 def ensure_database_ready():
-    """Ensure cpns2024.db is extracted completely and ready for queries without race conditions."""
+    """Ensure cpns2024.db is extracted completely (including f_idx acceleration tables) without race conditions."""
     if _indexes_ensured and DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000:
         return
 
     with _db_lock:
-        if not (DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000):
-            gz_path = DATA_DIR / "cpns2024.db.gz"
+        gz_path = DATA_DIR / "cpns2024.db.gz"
+        needs_extract = not (DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000)
+        if not needs_extract and gz_path.exists() and not _db_file_has_f_idx(DB_PATH):
+            needs_extract = True
+
+        if needs_extract:
             raw_csv_path = DATA_DIR / "raw_cpns_2024.csv"
             schema_path = BASE_DIR / "scripts" / "schema.sql"
 
@@ -249,19 +286,24 @@ def ensure_database_ready():
 
 
 def _prewarm_common_queries() -> None:
-    """Background pre-warming of common filter combinations so Render responds in <1ms."""
+    """Background pre-warming of common filter combinations & SQLite RAM pages so Render responds in <5ms."""
+    import time
+    time.sleep(2.0)
     try:
+        conn = get_read_connection()
+        if _check_fast_index(conn):
+            # Touch f_idx, fj_fast, and f_fts pages into persistent thread-local cache
+            conn.execute("SELECT COUNT(*), SUM(kuota) FROM f_idx").fetchone()
+            conn.execute("SELECT COUNT(*) FROM fj_fast WHERE jid = 6").fetchone()
         # Pre-warm strategic presets
         get_formasi(jenjang="S-1", zero_applicant_only=True, status_keketatan="Tanpa Pelamar", sort_by="kuota_desc", page=1, limit=10)
         get_formasi(gaji_min=10000000, status_keketatan="Sangat Longgar", sort_by="gaji_max_desc", page=1, limit=10)
         get_formasi(kategori_instansi="Pusat", status_keketatan="Sangat Longgar", sort_by="rasio_asc", page=1, limit=10)
         get_formasi(zero_applicant_only=True, status_keketatan="Tanpa Pelamar", sort_by="kuota_desc", page=1, limit=10)
-        # Pre-warm kategori_instansi & status_keketatan
         for kat in ("Pusat", "Provinsi", "Kabupaten/Kota"):
             get_formasi(kategori_instansi=kat, sort_by="kuota_desc", page=1, limit=10)
         for st in ("Tanpa Pelamar", "Sangat Longgar", "Moderat", "Sangat Ketat"):
             get_formasi(status_keketatan=st, sort_by="kuota_desc", page=1, limit=10)
-        # Pre-warm jenjang tiers
         for j in ("S-1", "D-III", "D-IV", "SMA/SMK", "S-2", "Profesi", "S-3/Spesialis"):
             get_formasi(jenjang=j, sort_by="kuota_desc", page=1, limit=10)
     except Exception:
@@ -281,15 +323,14 @@ def startup_event():
         print(f"[STARTUP] Cache warm warning: {exc}")
 
 
-def get_db_connection() -> sqlite3.Connection:
-    """Create a SQLite connection configured with memory-mapped I/O, RAM page cache, and dict row factory."""
+def _open_configured_connection() -> sqlite3.Connection:
     ensure_database_ready()
     conn = None
     try:
         conn = sqlite3.connect(str(DB_PATH), timeout=15.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA temp_store = MEMORY;")
-        conn.execute("PRAGMA cache_size = -32000;")
+        conn.execute("PRAGMA cache_size = -48000;")
         conn.execute("PRAGMA mmap_size = 268435456;")
         return conn
     except sqlite3.OperationalError:
@@ -299,9 +340,57 @@ def get_db_connection() -> sqlite3.Connection:
         conn = sqlite3.connect(f"file:{db_uri}?immutable=1", uri=True, timeout=15.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA temp_store = MEMORY;")
-        conn.execute("PRAGMA cache_size = -32000;")
+        conn.execute("PRAGMA cache_size = -48000;")
         conn.execute("PRAGMA mmap_size = 268435456;")
         return conn
+
+
+def get_read_connection() -> sqlite3.Connection:
+    """Return a persistent per-thread SQLite connection so the 48MB RAM page cache stays hot across requests."""
+    conn = getattr(_db_tls, "conn", None)
+    if conn is not None:
+        try:
+            conn.execute("SELECT 1")
+            return conn
+        except sqlite3.Error:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            _db_tls.conn = None
+    conn = _open_configured_connection()
+    _db_tls.conn = conn
+    return conn
+
+
+def _check_fast_index(conn: sqlite3.Connection) -> bool:
+    global _fast_index_checked, _has_fast_index
+    if _fast_index_checked:
+        return _has_fast_index
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='f_idx'"
+    ).fetchone()
+    _has_fast_index = bool(row)
+    _fast_index_checked = True
+    return _has_fast_index
+
+
+def _get_instansi_mem_map(conn: sqlite3.Connection) -> Dict[int, Tuple[str, str]]:
+    global _instansi_mem_map
+    if _instansi_mem_map is not None:
+        return _instansi_mem_map
+    with _cache_lock:
+        if _instansi_mem_map is None:
+            _instansi_mem_map = {
+                r[0]: (r[1], r[2])
+                for r in conn.execute("SELECT instansi_id, nama_instansi, kategori_instansi FROM instansi")
+            }
+    return _instansi_mem_map
+
+
+def get_db_connection() -> sqlite3.Connection:
+    """Create a standalone SQLite connection when caller explicitly closes it."""
+    return _open_configured_connection()
 
 
 def get_median_salary(cur: sqlite3.Cursor, column: str) -> int:
@@ -547,72 +636,67 @@ def autocomplete_jurusan(
     jenjang: Optional[str] = Query(None, description="Optional tier filter"),
     limit: int = Query(35, ge=1, le=100)
 ):
-    """Searchable autocomplete endpoint for majors ranked by formation count instead of prefix alphabet."""
-    ensure_database_ready()
-    conn = None
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    """Searchable autocomplete endpoint for majors ranked by formation count using persistent RAM-cached connection."""
+    conn = get_read_connection()
+    cur = conn.cursor()
 
-        conditions = []
-        params: List[Any] = []
+    conditions = []
+    params: List[Any] = []
 
-        for tok in _parse_jurusan_tokens(q):
-            conditions.append("j.nama_jurusan LIKE ?")
-            params.append(f"%{tok}%")
+    for tok in _parse_jurusan_tokens(q):
+        conditions.append("j.nama_jurusan LIKE ?")
+        params.append(f"%{tok}%")
 
-        if jenjang and jenjang != "ALL":
-            conditions.append("j.jenjang = ?")
-            params.append(jenjang)
+    if jenjang and jenjang != "ALL":
+        conditions.append("j.jenjang = ?")
+        params.append(jenjang)
 
-        where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
-        has_agg = bool(
-            _analytics_tables_ready
-            or cur.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='agg_top_jurusan'"
-            ).fetchone()
-        )
+    where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
+    has_agg = bool(
+        _analytics_tables_ready
+        or _check_fast_index(conn)
+        or cur.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='agg_top_jurusan'"
+        ).fetchone()
+    )
 
-        if has_agg:
-            query = f"""
-                SELECT
-                    j.jurusan_id,
-                    j.nama_jurusan,
-                    j.jenjang,
-                    COALESCE(a.total_formasi, 0) AS total_formasi
-                FROM jurusan j
-                LEFT JOIN agg_top_jurusan a ON a.jurusan_id = j.jurusan_id
-                {where_clause}
-                ORDER BY COALESCE(a.total_formasi, 0) DESC, j.nama_jurusan ASC
-                LIMIT ?
-            """
-        else:
-            query = f"""
-                SELECT
-                    j.jurusan_id,
-                    j.nama_jurusan,
-                    j.jenjang,
-                    (SELECT COUNT(*) FROM formasi_jurusan fj WHERE fj.jurusan_id = j.jurusan_id) AS total_formasi
-                FROM jurusan j
-                {where_clause}
-                ORDER BY total_formasi DESC, j.nama_jurusan ASC
-                LIMIT ?
-            """
-        params.append(limit)
+    if has_agg:
+        query = f"""
+            SELECT
+                j.jurusan_id,
+                j.nama_jurusan,
+                j.jenjang,
+                COALESCE(a.total_formasi, 0) AS total_formasi
+            FROM jurusan j
+            LEFT JOIN agg_top_jurusan a ON a.jurusan_id = j.jurusan_id
+            {where_clause}
+            ORDER BY COALESCE(a.total_formasi, 0) DESC, j.nama_jurusan ASC
+            LIMIT ?
+        """
+    else:
+        query = f"""
+            SELECT
+                j.jurusan_id,
+                j.nama_jurusan,
+                j.jenjang,
+                (SELECT COUNT(*) FROM formasi_jurusan fj WHERE fj.jurusan_id = j.jurusan_id) AS total_formasi
+            FROM jurusan j
+            {where_clause}
+            ORDER BY total_formasi DESC, j.nama_jurusan ASC
+            LIMIT ?
+        """
+    params.append(limit)
 
-        cur.execute(query, params)
-        return [
-            {
-                "jurusan_id": r["jurusan_id"],
-                "nama_jurusan": r["nama_jurusan"],
-                "jenjang": r["jenjang"],
-                "total_formasi": r["total_formasi"] or 0,
-            }
-            for r in cur.fetchall()
-        ]
-    finally:
-        if conn is not None:
-            conn.close()
+    cur.execute(query, params)
+    return [
+        {
+            "jurusan_id": r["jurusan_id"],
+            "nama_jurusan": r["nama_jurusan"],
+            "jenjang": r["jenjang"],
+            "total_formasi": r["total_formasi"] or 0,
+        }
+        for r in cur.fetchall()
+    ]
 
 
 @app.get("/api/filters/instansi")
@@ -796,6 +880,143 @@ def build_filter_clause(
     return where_clause, params, needs_jurusan_join
 
 
+def _build_fast_fidx_clause(
+    cur: sqlite3.Cursor,
+    q: Optional[str] = None,
+    jurusan: Optional[str] = None,
+    jurusan_id: Optional[int] = None,
+    jenjang: Optional[str] = None,
+    kategori_instansi: Optional[str] = None,
+    instansi_id: Optional[int] = None,
+    jenis_formasi: Optional[str] = None,
+    gaji_min: Optional[int] = None,
+    gaji_max: Optional[int] = None,
+    max_rasio: Optional[float] = None,
+    status_keketatan: Optional[str] = None,
+    zero_applicant_only: bool = False,
+) -> Tuple[str, List[Any], bool]:
+    """
+    Build ultra-fast WHERE clause against compact integer-indexed `f_idx fi` + `fj_fast` + `f_fts`.
+    Returns (where_sql, params, is_empty_shortcircuit).
+    """
+    q_str = _clean_str(q)
+    jurusan_str = _clean_str(jurusan)
+    jurusan_id_int = _clean_int(jurusan_id)
+    jenjang_str = _clean_str(jenjang)
+    if jenjang_str == "ALL":
+        jenjang_str = None
+    kategori_str = _clean_str(kategori_instansi)
+    if kategori_str == "ALL":
+        kategori_str = None
+    instansi_id_int = _clean_int(instansi_id)
+    jenis_str = _clean_str(jenis_formasi)
+    if jenis_str == "ALL":
+        jenis_str = None
+    gaji_min_int = _clean_int(gaji_min)
+    gaji_max_int = _clean_int(gaji_max)
+    max_rasio_flt = _clean_float(max_rasio)
+    zero_only_bool = _clean_bool(zero_applicant_only)
+    keketatan_str = _clean_str(status_keketatan)
+    if keketatan_str == "ALL":
+        keketatan_str = None
+
+    conds: List[str] = []
+    params: List[Any] = []
+
+    if jenis_str and jenis_str != "UMUM":
+        return " WHERE 1=0", [], True
+
+    if kategori_str:
+        kat_code = _KAT_TO_ID.get(kategori_str)
+        if kat_code is None:
+            return " WHERE 1=0", [], True
+        conds.append("fi.kat_id = ?")
+        params.append(kat_code)
+
+    if instansi_id_int:
+        conds.append("fi.ins_id = ?")
+        params.append(instansi_id_int)
+
+    if zero_only_bool:
+        conds.append("fi.pelamar = 0")
+    elif keketatan_str:
+        kek_code = _KEK_TO_ID.get(keketatan_str)
+        if kek_code is None:
+            return " WHERE 1=0", [], True
+        conds.append("fi.kek_id = ?")
+        params.append(kek_code)
+
+    if gaji_min_int and gaji_min_int > 0:
+        conds.append("fi.gmax >= ?")
+        params.append(gaji_min_int)
+
+    if gaji_max_int and gaji_max_int > 0:
+        conds.append("fi.gmin <= ?")
+        params.append(gaji_max_int)
+
+    if max_rasio_flt is not None and max_rasio_flt > 0:
+        conds.append("fi.rasio <= ?")
+        params.append(max_rasio_flt)
+
+    if jenjang_str and not jurusan_id_int and not jurusan_str:
+        bit = _JENJANG_BITS.get(jenjang_str, 0)
+        if bit == 0:
+            return " WHERE 1=0", [], True
+        conds.append("(fi.jenjang_mask & ?) != 0")
+        params.append(bit)
+    elif jurusan_id_int:
+        if jenjang_str:
+            bit = _JENJANG_BITS.get(jenjang_str, 0)
+            conds.append("(fi.jenjang_mask & ?) != 0")
+            params.append(bit)
+        conds.append("fi.rid IN (SELECT rid FROM fj_fast WHERE jid = ?)")
+        params.append(jurusan_id_int)
+    elif jurusan_str:
+        j_conds = []
+        j_p: List[Any] = []
+        for tok in _parse_jurusan_tokens(jurusan_str):
+            j_conds.append("nama_jurusan LIKE ?")
+            j_p.append(f"%{tok}%")
+        if jenjang_str:
+            j_conds.append("jenjang = ?")
+            j_p.append(jenjang_str)
+        jw = " WHERE " + " AND ".join(j_conds) if j_conds else ""
+        matched_jids = [r[0] for r in cur.execute(f"SELECT jurusan_id FROM jurusan{jw}", j_p).fetchall()]
+        if not matched_jids:
+            return " WHERE 1=0", [], True
+        ph = ",".join("?" * len(matched_jids))
+        conds.append(f"fi.rid IN (SELECT rid FROM fj_fast WHERE jid IN ({ph}))")
+        params.extend(matched_jids)
+
+    if q_str:
+        fts_tokens = re.findall(r"[0-9A-Za-z]+", q_str.upper())
+        used_fts = False
+        if fts_tokens and all(len(t) >= 2 for t in fts_tokens):
+            fts_expr = " AND ".join(f'"{t}"*' for t in fts_tokens)
+            has_hit = cur.execute(
+                "SELECT 1 FROM f_fts WHERE f_fts MATCH ? LIMIT 1",
+                (fts_expr,),
+            ).fetchone()
+            if has_hit:
+                conds.append("fi.rid IN (SELECT rowid FROM f_fts WHERE f_fts MATCH ?)")
+                params.append(fts_expr)
+                used_fts = True
+        if not used_fts:
+            like_conds = []
+            like_p: List[Any] = []
+            for token in q_str.split():
+                st = f"%{token}%"
+                like_conds.append("(f2.formasi_id LIKE ? OR f2.jabatan_nm LIKE ? OR f2.lokasi_nm LIKE ? OR i2.nama_instansi LIKE ?)")
+                like_p.extend([st, st, st, st])
+            conds.append(
+                f"fi.fid IN (SELECT f2.formasi_id FROM formasi f2 INNER JOIN instansi i2 ON f2.instansi_id = i2.instansi_id WHERE {' AND '.join(like_conds)})"
+            )
+            params.extend(like_p)
+
+    where_sql = (" WHERE " + " AND ".join(conds)) if conds else ""
+    return where_sql, params, False
+
+
 @app.get("/api/formasi")
 def get_formasi(
     q: Optional[str] = Query(None, description="Search keyword for position/location/agency"),
@@ -815,44 +1036,87 @@ def get_formasi(
     limit: int = Query(10, ge=1, le=100, description="Items per page")
 ):
     """
-    Paginated formations list with dynamic filters, summary aggregates, and server-side LIMIT/OFFSET.
+    Paginated formations list backed by persistent RAM-cached `f_idx`, `fj_fast`, and `f_fts`.
     """
     sort_by = _clean_str(sort_by) or "kuota_desc"
     page = _clean_int(page) or 1
     limit = _clean_int(limit) or 10
 
-    where_clause, params, needs_jurusan = build_filter_clause(
-        q=q,
-        jurusan=jurusan,
-        jurusan_id=jurusan_id,
-        jenjang=jenjang,
-        kategori_instansi=kategori_instansi,
-        instansi_id=instansi_id,
-        jenis_formasi=jenis_formasi,
-        gaji_min=gaji_min,
-        gaji_max=gaji_max,
-        max_rasio=max_rasio,
-        status_keketatan=status_keketatan,
-        zero_applicant_only=zero_applicant_only
-    )
+    q_s = _clean_str(q)
+    jur_s = _clean_str(jurusan)
+    jur_id_i = _clean_int(jurusan_id)
+    jen_s = _clean_str(jenjang)
+    if jen_s == "ALL":
+        jen_s = None
+    kat_s = _clean_str(kategori_instansi)
+    if kat_s == "ALL":
+        kat_s = None
+    ins_id_i = _clean_int(instansi_id)
+    jenis_s = _clean_str(jenis_formasi)
+    if jenis_s == "ALL":
+        jenis_s = None
+    gmin_i = _clean_int(gaji_min)
+    if gmin_i is not None and gmin_i <= 0:
+        gmin_i = None
+    gmax_i = _clean_int(gaji_max)
+    if gmax_i is not None and gmax_i <= 0:
+        gmax_i = None
+    mras_f = _clean_float(max_rasio)
+    kek_s = _clean_str(status_keketatan)
+    if kek_s == "ALL":
+        kek_s = None
+    zero_b = _clean_bool(zero_applicant_only)
 
-    params_tuple = tuple(params)
-    formasi_cache_key = (where_clause, params_tuple, sort_by, page, limit)
+    filter_sig = (
+        q_s, jur_s, jur_id_i, jen_s, kat_s, ins_id_i,
+        jenis_s, gmin_i, gmax_i, mras_f, kek_s, zero_b
+    )
+    formasi_cache_key = (filter_sig, sort_by, page, limit)
     with _cache_lock:
         cached_resp = _formasi_cache.get(formasi_cache_key)
         if cached_resp is not None:
             _formasi_cache.move_to_end(formasi_cache_key)
             return cached_resp
 
-    conn = None
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    conn = get_read_connection()
+    cur = conn.cursor()
+    use_fast = _check_fast_index(conn)
 
-        # 1. Summary Metrics & Total Matching Records (with in-memory LRU cache)
-        summary_cache_key = (where_clause, params_tuple)
+    if use_fast:
+        fast_where, fast_params, is_empty = _build_fast_fidx_clause(
+            cur,
+            q=q_s,
+            jurusan=jur_s,
+            jurusan_id=jur_id_i,
+            jenjang=jen_s,
+            kategori_instansi=kat_s,
+            instansi_id=ins_id_i,
+            jenis_formasi=jenis_s,
+            gaji_min=gmin_i,
+            gaji_max=gmax_i,
+            max_rasio=mras_f,
+            status_keketatan=kek_s,
+            zero_applicant_only=zero_b,
+        )
+        if is_empty:
+            empty_summary = {
+                "total_formasi": 0,
+                "total_kuota": 0,
+                "total_pelamar": 0,
+                "avg_rasio_kompetisi": 0.0,
+                "total_formasi_kosong": 0,
+            }
+            return {
+                "items": [],
+                "total": 0,
+                "page": page,
+                "limit": limit,
+                "total_pages": 1,
+                "summary": empty_summary,
+            }
+
         summary = None
-        if not where_clause:
+        if not fast_where:
             stats_data = _get_stats_data()
             summary = {
                 "total_formasi": int(stats_data["total_formasi"]),
@@ -863,45 +1127,189 @@ def get_formasi(
             }
         else:
             with _cache_lock:
-                cached_sum = _summary_cache.get(summary_cache_key)
+                cached_sum = _summary_cache.get(filter_sig)
                 if cached_sum is not None:
-                    _summary_cache.move_to_end(summary_cache_key)
+                    _summary_cache.move_to_end(filter_sig)
                     summary = cached_sum
 
             if summary is None:
-                instansi_join_sql = (
-                    "INNER JOIN instansi i ON f.instansi_id = i.instansi_id"
-                    if "i." in where_clause
-                    else ""
-                )
-                summary_sql = f"""
-                    SELECT
-                        COUNT(*),
-                        COALESCE(SUM(f.jumlah_formasi), 0),
-                        COALESCE(SUM(f.jumlah_pelamar), 0),
-                        ROUND(COALESCE(AVG(f.rasio_kompetisi), 0), 2),
-                        COUNT(CASE WHEN f.jumlah_pelamar = 0 THEN 1 END)
-                    FROM formasi f
-                    {instansi_join_sql}
-                    {where_clause}
-                """
-                cur.execute(summary_sql, params)
-                s_formasi, s_kuota, s_pelamar, s_rasio, s_kosong = cur.fetchone()
-                summary = {
-                    "total_formasi": int(s_formasi or 0),
-                    "total_kuota": int(s_kuota or 0),
-                    "total_pelamar": int(s_pelamar or 0),
-                    "avg_rasio_kompetisi": float(s_rasio or 0.0),
-                    "total_formasi_kosong": int(s_kosong or 0),
-                }
+                # O(1) instant lookup shortcuts when filtering by a single indexed dimension
+                active_dims = [x is not None and x is not False for x in filter_sig]
+                if sum(active_dims) == 1:
+                    if jur_id_i is not None:
+                        r_agg = cur.execute(
+                            "SELECT total_formasi, total_kuota, total_pelamar, avg_rasio, total_kosong FROM agg_top_jurusan WHERE jurusan_id = ?",
+                            (jur_id_i,),
+                        ).fetchone()
+                        if r_agg:
+                            summary = {
+                                "total_formasi": int(r_agg[0]),
+                                "total_kuota": int(r_agg[1]),
+                                "total_pelamar": int(r_agg[2]),
+                                "avg_rasio_kompetisi": float(r_agg[3]),
+                                "total_formasi_kosong": int(r_agg[4]),
+                            }
+                    elif ins_id_i is not None:
+                        r_agg = cur.execute(
+                            "SELECT total_formasi, total_kuota, total_pelamar, avg_rasio, total_kosong FROM agg_top_instansi WHERE instansi_id = ?",
+                            (ins_id_i,),
+                        ).fetchone()
+                        if r_agg:
+                            summary = {
+                                "total_formasi": int(r_agg[0]),
+                                "total_kuota": int(r_agg[1]),
+                                "total_pelamar": int(r_agg[2]),
+                                "avg_rasio_kompetisi": float(r_agg[3]),
+                                "total_formasi_kosong": int(r_agg[4]),
+                            }
+                    elif jen_s is not None:
+                        r_agg = cur.execute(
+                            "SELECT total_formasi, total_kuota, total_pelamar, avg_rasio, total_kosong FROM agg_jenjang_summary WHERE jenjang = ?",
+                            (jen_s,),
+                        ).fetchone()
+                        if r_agg:
+                            summary = {
+                                "total_formasi": int(r_agg[0]),
+                                "total_kuota": int(r_agg[1]),
+                                "total_pelamar": int(r_agg[2]),
+                                "avg_rasio_kompetisi": float(r_agg[3]),
+                                "total_formasi_kosong": int(r_agg[4]),
+                            }
+
+                if summary is None:
+                    cur.execute(
+                        f"""
+                        SELECT
+                            COUNT(*),
+                            COALESCE(SUM(fi.kuota), 0),
+                            COALESCE(SUM(fi.pelamar), 0),
+                            ROUND(COALESCE(AVG(fi.rasio), 0), 2),
+                            SUM(CASE WHEN fi.pelamar = 0 THEN 1 ELSE 0 END)
+                        FROM f_idx fi
+                        {fast_where}
+                        """,
+                        fast_params,
+                    )
+                    s_f, s_k, s_p, s_r, s_z = cur.fetchone()
+                    summary = {
+                        "total_formasi": int(s_f or 0),
+                        "total_kuota": int(s_k or 0),
+                        "total_pelamar": int(s_p or 0),
+                        "avg_rasio_kompetisi": float(s_r or 0.0),
+                        "total_formasi_kosong": int(s_z or 0),
+                    }
+
                 with _cache_lock:
-                    _summary_cache[summary_cache_key] = summary
+                    _summary_cache[filter_sig] = summary
                     if len(_summary_cache) > _MAX_SUMMARY_CACHE:
                         _summary_cache.popitem(last=False)
 
         total_records = summary["total_formasi"]
+        total_pages = math.ceil(total_records / limit) if limit and total_records > 0 else 1
+        offset = (page - 1) * limit
 
-        # 2. Sorting
+        if total_records == 0:
+            empty_res = {
+                "items": [],
+                "total": 0,
+                "page": page,
+                "limit": limit,
+                "total_pages": 1,
+                "summary": summary,
+            }
+            return empty_res
+
+        fast_sorts = {
+            "kuota_desc": "fi.rid ASC",
+            "kuota_asc": "fi.kuota ASC, fi.gmin ASC",
+            "gaji_max_desc": "fi.gmax DESC, fi.kuota DESC",
+            "gaji_min_desc": "fi.gmin DESC, fi.gmax DESC",
+            "rasio_asc": "fi.rasio ASC, fi.kuota DESC",
+            "rasio_desc": "fi.rasio DESC, fi.pelamar DESC",
+            "pelamar_asc": "fi.pelamar ASC, fi.kuota DESC",
+            "pelamar_desc": "fi.pelamar DESC, fi.kuota DESC",
+        }
+        if sort_by == "jabatan_asc":
+            cur.execute(
+                f"""
+                SELECT fi.fid
+                FROM f_idx fi
+                INNER JOIN formasi f ON f.formasi_id = fi.fid
+                INNER JOIN instansi i ON i.instansi_id = fi.ins_id
+                {fast_where}
+                ORDER BY f.jabatan_nm ASC, i.nama_instansi ASC
+                LIMIT ? OFFSET ?
+                """,
+                fast_params + [limit, offset],
+            )
+        else:
+            fast_order = fast_sorts.get(sort_by, "fi.rid ASC")
+            cur.execute(
+                f"""
+                SELECT fi.fid
+                FROM f_idx fi
+                {fast_where}
+                ORDER BY {fast_order}
+                LIMIT ? OFFSET ?
+                """,
+                fast_params + [limit, offset],
+            )
+        matched_ids = [r[0] for r in cur.fetchall()]
+    else:
+        where_clause, params, _ = build_filter_clause(
+            q=q_s,
+            jurusan=jur_s,
+            jurusan_id=jur_id_i,
+            jenjang=jen_s,
+            kategori_instansi=kat_s,
+            instansi_id=ins_id_i,
+            jenis_formasi=jenis_s,
+            gaji_min=gmin_i,
+            gaji_max=gmax_i,
+            max_rasio=mras_f,
+            status_keketatan=kek_s,
+            zero_applicant_only=zero_b,
+        )
+        if not where_clause:
+            stats_data = _get_stats_data()
+            summary = {
+                "total_formasi": int(stats_data["total_formasi"]),
+                "total_kuota": int(stats_data["total_kuota"]),
+                "total_pelamar": int(stats_data["total_pelamar"]),
+                "avg_rasio_kompetisi": float(stats_data["avg_rasio_kompetisi"]),
+                "total_formasi_kosong": int(stats_data["total_formasi_kosong"]),
+            }
+        else:
+            instansi_join_sql = (
+                "INNER JOIN instansi i ON f.instansi_id = i.instansi_id"
+                if "i." in where_clause
+                else ""
+            )
+            cur.execute(
+                f"""
+                SELECT
+                    COUNT(*),
+                    COALESCE(SUM(f.jumlah_formasi), 0),
+                    COALESCE(SUM(f.jumlah_pelamar), 0),
+                    ROUND(COALESCE(AVG(f.rasio_kompetisi), 0), 2),
+                    COUNT(CASE WHEN f.jumlah_pelamar = 0 THEN 1 END)
+                FROM formasi f
+                {instansi_join_sql}
+                {where_clause}
+                """,
+                params,
+            )
+            s_f, s_k, s_p, s_r, s_z = cur.fetchone()
+            summary = {
+                "total_formasi": int(s_f or 0),
+                "total_kuota": int(s_k or 0),
+                "total_pelamar": int(s_p or 0),
+                "avg_rasio_kompetisi": float(s_r or 0.0),
+                "total_formasi_kosong": int(s_z or 0),
+            }
+        total_records = summary["total_formasi"]
+        total_pages = math.ceil(total_records / limit) if limit and total_records > 0 else 1
+        offset = (page - 1) * limit
         sort_mappings = {
             "kuota_desc": "f.jumlah_formasi DESC, f.gaji_max DESC",
             "kuota_asc": "f.jumlah_formasi ASC, f.gaji_min ASC",
@@ -914,116 +1322,114 @@ def get_formasi(
             "pelamar_desc": "f.jumlah_pelamar DESC, f.jumlah_formasi DESC",
         }
         order_clause = sort_mappings.get(sort_by, "f.jumlah_formasi DESC, f.gaji_max DESC")
-
-        # 3. Query Paginated IDs (only join instansi when needed by WHERE or ORDER BY)
-        offset = (page - 1) * limit
         paged_instansi_join = (
             "INNER JOIN instansi i ON f.instansi_id = i.instansi_id"
             if ("i." in where_clause or "i." in order_clause)
             else ""
         )
-        paged_sql = f"""
+        cur.execute(
+            f"""
             SELECT f.formasi_id
             FROM formasi f
             {paged_instansi_join}
             {where_clause}
             ORDER BY {order_clause}
             LIMIT ? OFFSET ?
-        """
-
-        cur.execute(paged_sql, params + [limit, offset])
+            """,
+            params + [limit, offset],
+        )
         matched_ids = [r[0] for r in cur.fetchall()]
 
-        total_pages = math.ceil(total_records / limit) if limit else 1
-        if not matched_ids:
-            empty_result = {
-                "items": [],
-                "total": total_records,
-                "page": page,
-                "limit": limit,
-                "total_pages": total_pages,
-                "summary": summary
-            }
-            with _cache_lock:
-                _formasi_cache[formasi_cache_key] = empty_result
-                if len(_formasi_cache) > _MAX_FORMASI_CACHE:
-                    _formasi_cache.popitem(last=False)
-            return empty_result
-
-        # 4. Fetch Full Formation Details + Majors for the Paged IDs
-        placeholders = ",".join(["?"] * len(matched_ids))
-        detail_sql = f"""
-            SELECT
-                f.formasi_id,
-                f.instansi_id,
-                i.nama_instansi,
-                i.kategori_instansi,
-                f.jabatan_nm,
-                f.lokasi_nm,
-                f.jenis_formasi,
-                f.jumlah_formasi,
-                f.jumlah_pelamar,
-                f.rasio_kompetisi,
-                f.peluang_lolos_pct,
-                f.status_keketatan,
-                f.gaji_min,
-                f.gaji_max,
-                f.golongan_awal,
-                f.gaji_pokok_cpns_80,
-                f.pendidikan_raw,
-                GROUP_CONCAT(j.nama_jurusan, ' || ') as jurusan_concat
-            FROM formasi f
-            INNER JOIN instansi i ON f.instansi_id = i.instansi_id
-            LEFT JOIN formasi_jurusan fj ON f.formasi_id = fj.formasi_id
-            LEFT JOIN jurusan j ON fj.jurusan_id = j.jurusan_id
-            WHERE f.formasi_id IN ({placeholders})
-            GROUP BY f.formasi_id
-            ORDER BY {order_clause}
-        """
-        cur.execute(detail_sql, matched_ids)
-        rows = cur.fetchall()
-
-        items = []
-        for r in rows:
-            concat = r["jurusan_concat"] or ""
-            jurusan_list = [j.strip() for j in concat.split(" || ") if j.strip()]
-            items.append({
-                "formasi_id": r["formasi_id"],
-                "instansi_id": r["instansi_id"],
-                "nama_instansi": r["nama_instansi"],
-                "kategori_instansi": r["kategori_instansi"],
-                "jabatan_nm": r["jabatan_nm"],
-                "lokasi_nm": r["lokasi_nm"],
-                "jenis_formasi": r["jenis_formasi"],
-                "jumlah_formasi": r["jumlah_formasi"],
-                "jumlah_pelamar": r["jumlah_pelamar"],
-                "rasio_kompetisi": r["rasio_kompetisi"],
-                "peluang_lolos_pct": r["peluang_lolos_pct"],
-                "status_keketatan": r["status_keketatan"],
-                "gaji_min": r["gaji_min"],
-                "gaji_max": r["gaji_max"],
-                "golongan_awal": r["golongan_awal"],
-                "gaji_pokok_cpns_80": r["gaji_pokok_cpns_80"],
-                "pendidikan_raw": r["pendidikan_raw"],
-                "jurusan_list": jurusan_list
-            })
-
-        result = {
-            "items": items,
+    if not matched_ids:
+        empty_result = {
+            "items": [],
             "total": total_records,
             "page": page,
             "limit": limit,
             "total_pages": total_pages,
-            "summary": summary
+            "summary": summary,
         }
         with _cache_lock:
-            _formasi_cache[formasi_cache_key] = result
+            _formasi_cache[formasi_cache_key] = empty_result
             if len(_formasi_cache) > _MAX_FORMASI_CACHE:
                 _formasi_cache.popitem(last=False)
-        return result
-    finally:
-        if conn is not None:
-            conn.close()
+        return empty_result
+
+    # Fetch Full Details + Majors for only the 10 matched IDs and preserve exact page order
+    placeholders = ",".join(["?"] * len(matched_ids))
+    cur.execute(
+        f"""
+        SELECT
+            f.formasi_id,
+            f.instansi_id,
+            i.nama_instansi,
+            i.kategori_instansi,
+            f.jabatan_nm,
+            f.lokasi_nm,
+            f.jenis_formasi,
+            f.jumlah_formasi,
+            f.jumlah_pelamar,
+            f.rasio_kompetisi,
+            f.peluang_lolos_pct,
+            f.status_keketatan,
+            f.gaji_min,
+            f.gaji_max,
+            f.golongan_awal,
+            f.gaji_pokok_cpns_80,
+            f.pendidikan_raw,
+            GROUP_CONCAT(j.nama_jurusan, ' || ') as jurusan_concat
+        FROM formasi f
+        INNER JOIN instansi i ON f.instansi_id = i.instansi_id
+        LEFT JOIN formasi_jurusan fj ON f.formasi_id = fj.formasi_id
+        LEFT JOIN jurusan j ON fj.jurusan_id = j.jurusan_id
+        WHERE f.formasi_id IN ({placeholders})
+        GROUP BY f.formasi_id
+        """,
+        matched_ids,
+    )
+    row_by_id = {r["formasi_id"]: r for r in cur.fetchall()}
+
+    items = []
+    for fid in matched_ids:
+        r = row_by_id.get(fid)
+        if not r:
+            continue
+        concat = r["jurusan_concat"] or ""
+        jurusan_list = [j.strip() for j in concat.split(" || ") if j.strip()]
+        items.append({
+            "formasi_id": r["formasi_id"],
+            "instansi_id": r["instansi_id"],
+            "nama_instansi": r["nama_instansi"],
+            "kategori_instansi": r["kategori_instansi"],
+            "jabatan_nm": r["jabatan_nm"],
+            "lokasi_nm": r["lokasi_nm"],
+            "jenis_formasi": r["jenis_formasi"],
+            "jumlah_formasi": r["jumlah_formasi"],
+            "jumlah_pelamar": r["jumlah_pelamar"],
+            "rasio_kompetisi": r["rasio_kompetisi"],
+            "peluang_lolos_pct": r["peluang_lolos_pct"],
+            "status_keketatan": r["status_keketatan"],
+            "gaji_min": r["gaji_min"],
+            "gaji_max": r["gaji_max"],
+            "golongan_awal": r["golongan_awal"],
+            "gaji_pokok_cpns_80": r["gaji_pokok_cpns_80"],
+            "pendidikan_raw": r["pendidikan_raw"],
+            "jurusan_list": jurusan_list,
+        })
+
+    result = {
+        "items": items,
+        "total": total_records,
+        "page": page,
+        "limit": limit,
+        "total_pages": total_pages,
+        "summary": summary,
+    }
+    with _cache_lock:
+        _formasi_cache[formasi_cache_key] = result
+        if len(_formasi_cache) > _MAX_FORMASI_CACHE:
+            _formasi_cache.popitem(last=False)
+    return result
 
 
 @app.get("/api/formasi-batch")
@@ -1172,275 +1578,338 @@ def get_top_analytics(
             _analytics_cache.move_to_end(cache_key)
             return cached
 
-    ensure_database_ready()
-    _ensure_analytics_summary_tables()
+    conn = get_read_connection()
+    cur = conn.cursor()
+    use_fast = _check_fast_index(conn)
+    if not use_fast:
+        _ensure_analytics_summary_tables()
 
     any_filter = any([
         q_s, jurusan_s, jurusan_id_i, jenjang_s, kat_s, ins_id_i,
         jenis_s, gaji_min_i, gaji_max_i, max_rasio_f, keketatan_s, zero_b
     ])
 
-    conn = None
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    if not any_filter and (use_fast or _analytics_tables_ready):
+        base_stats = _get_stats_data()
+        cur.execute(
+            """
+            SELECT jurusan_id, nama_jurusan, jenjang, total_formasi, total_kuota, total_pelamar, avg_gaji_max
+            FROM agg_top_jurusan
+            ORDER BY total_kuota DESC, total_formasi DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        top_jurusan_rows = cur.fetchall()
 
-        if not any_filter and _analytics_tables_ready:
-            base_stats = _get_stats_data()
+        cur.execute(
+            """
+            SELECT instansi_id, nama_instansi, kategori_instansi, total_formasi, total_kuota, total_pelamar, avg_gaji_max
+            FROM agg_top_instansi
+            ORDER BY total_kuota DESC, total_formasi DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        top_instansi_rows = cur.fetchall()
+
+        total_filtered_formasi = base_stats["total_formasi"]
+        total_filtered_instansi = base_stats["total_instansi"]
+        instansi_by_kategori = base_stats["instansi_by_kategori"]
+        keketatan_stats = base_stats["keketatan_stats"]
+        golongan_stats = base_stats["golongan_stats"]
+    elif use_fast:
+        ins_mem = _get_instansi_mem_map(conn)
+        fast_where, fast_params, is_empty = _build_fast_fidx_clause(
+            cur,
+            q=q_s,
+            jurusan=jurusan_s,
+            jurusan_id=jurusan_id_i,
+            jenjang=jenjang_s,
+            kategori_instansi=kat_s,
+            instansi_id=ins_id_i,
+            jenis_formasi=jenis_s,
+            gaji_min=gaji_min_i,
+            gaji_max=gaji_max_i,
+            max_rasio=max_rasio_f,
+            status_keketatan=keketatan_s,
+            zero_applicant_only=zero_b,
+        )
+        if is_empty:
+            f_rows = []
+        else:
             cur.execute(
-                """
+                f"""
+                SELECT rid, ins_id, kat_id, kuota, pelamar, gmax, kek_id, gol
+                FROM f_idx fi
+                {fast_where}
+                """,
+                fast_params,
+            )
+            f_rows = cur.fetchall()
+
+        total_filtered_formasi = len(f_rows)
+        ins_agg: Dict[int, List[Any]] = {}
+        kek_agg: Dict[str, List[int]] = {}
+        gol_agg: Dict[str, List[int]] = {}
+        kat_ins_sets: Dict[str, set] = {}
+
+        for r in f_rows:
+            ins_id = r[1]
+            ins_nm, kat_nm = ins_mem.get(ins_id, ("-", _ID_TO_KAT.get(r[2], "Kabupaten/Kota")))
+            kuota = r[3]
+            pelamar = r[4]
+            gmax = r[5]
+            st_kek = _ID_TO_KEK.get(r[6], "Moderat")
+            gol = r[7]
+
+            ia = ins_agg.get(ins_id)
+            if ia is None:
+                ins_agg[ins_id] = [ins_id, ins_nm, kat_nm, 1, kuota, pelamar, gmax]
+            else:
+                ia[3] += 1
+                ia[4] += kuota
+                ia[5] += pelamar
+                ia[6] += gmax
+
+            ka = kek_agg.get(st_kek)
+            if ka is None:
+                kek_agg[st_kek] = [1, kuota, pelamar]
+            else:
+                ka[0] += 1
+                ka[1] += kuota
+                ka[2] += pelamar
+
+            ga = gol_agg.get(gol)
+            if ga is None:
+                gol_agg[gol] = [1, kuota, pelamar]
+            else:
+                ga[0] += 1
+                ga[1] += kuota
+                ga[2] += pelamar
+
+            s_set = kat_ins_sets.get(kat_nm)
+            if s_set is None:
+                kat_ins_sets[kat_nm] = {ins_id}
+            else:
+                s_set.add(ins_id)
+
+        sorted_ins = sorted(ins_agg.values(), key=lambda x: (-x[4], -x[3]))[:limit]
+        top_instansi_rows = [
+            {
+                "instansi_id": x[0],
+                "nama_instansi": x[1],
+                "kategori_instansi": x[2],
+                "total_formasi": x[3],
+                "total_kuota": x[4],
+                "total_pelamar": x[5],
+                "avg_gaji_max": int(round(x[6] / x[3])) if x[3] else 0,
+            }
+            for x in sorted_ins
+        ]
+        keketatan_stats = [
+            {"status": k, "count": v[0], "kuota": v[1], "pelamar": v[2]}
+            for k, v in kek_agg.items()
+        ]
+        golongan_stats = [
+            {"golongan": k, "count": v[0], "kuota": v[1], "pelamar": v[2]}
+            for k, v in sorted(gol_agg.items(), key=lambda kv: -kv[1][0])
+        ]
+        instansi_by_kategori = {k: len(s) for k, s in kat_ins_sets.items()}
+        total_filtered_instansi = sum(instansi_by_kategori.values())
+
+        has_non_jurusan_filter = any([
+            q_s, kat_s, ins_id_i, jenis_s, gaji_min_i, gaji_max_i, max_rasio_f, keketatan_s, zero_b
+        ])
+        if not has_non_jurusan_filter and not jurusan_id_i:
+            j_conds = []
+            j_p: List[Any] = []
+            if jenjang_s:
+                j_conds.append("jenjang = ?")
+                j_p.append(jenjang_s)
+            if jurusan_s:
+                for tok in _parse_jurusan_tokens(jurusan_s):
+                    j_conds.append("nama_jurusan LIKE ?")
+                    j_p.append(f"%{tok}%")
+            jw = ("WHERE " + " AND ".join(j_conds)) if j_conds else ""
+            j_p.append(limit)
+            cur.execute(
+                f"""
                 SELECT jurusan_id, nama_jurusan, jenjang, total_formasi, total_kuota, total_pelamar, avg_gaji_max
                 FROM agg_top_jurusan
+                {jw}
                 ORDER BY total_kuota DESC, total_formasi DESC
                 LIMIT ?
                 """,
-                (limit,),
+                j_p,
             )
             top_jurusan_rows = cur.fetchall()
-
-            cur.execute(
-                """
-                SELECT instansi_id, nama_instansi, kategori_instansi, total_formasi, total_kuota, total_pelamar, avg_gaji_max
-                FROM agg_top_instansi
-                ORDER BY total_kuota DESC, total_formasi DESC
-                LIMIT ?
-                """,
-                (limit,),
-            )
-            top_instansi_rows = cur.fetchall()
-
-            total_filtered_formasi = base_stats["total_formasi"]
-            total_filtered_instansi = base_stats["total_instansi"]
-            instansi_by_kategori = base_stats["instansi_by_kategori"]
-            keketatan_stats = base_stats["keketatan_stats"]
-            golongan_stats = base_stats["golongan_stats"]
+        elif total_filtered_formasi == 0:
+            top_jurusan_rows = []
         else:
-            full_where, full_params, _ = build_filter_clause(
-                q=q_s,
-                jurusan=jurusan_s,
-                jurusan_id=jurusan_id_i,
-                jenjang=jenjang_s,
-                kategori_instansi=kat_s,
-                instansi_id=ins_id_i,
-                jenis_formasi=jenis_s,
-                gaji_min=gaji_min_i,
-                gaji_max=gaji_max_i,
-                max_rasio=max_rasio_f,
-                status_keketatan=keketatan_s,
-                zero_applicant_only=zero_b,
-            )
+            j_extra_conds = []
+            j_extra_params: List[Any] = []
+            if jenjang_s:
+                j_extra_conds.append("j.jenjang = ?")
+                j_extra_params.append(jenjang_s)
+            if jurusan_s and not jurusan_id_i:
+                for tok in _parse_jurusan_tokens(jurusan_s):
+                    j_extra_conds.append("j.nama_jurusan LIKE ?")
+                    j_extra_params.append(f"%{tok}%")
+            j_where = ("WHERE " + " AND ".join(j_extra_conds)) if j_extra_conds else ""
 
-            # Single-pass scan of filtered formations computes Top Instansi + all 3 breakdown charts at once
+            cur.execute("CREATE TEMP TABLE IF NOT EXISTS _tmp_flt_rid (rid INT PRIMARY KEY, kuota INT, pelamar INT, gmax INT)")
+            cur.execute("DELETE FROM _tmp_flt_rid")
+            cur.executemany(
+                "INSERT INTO _tmp_flt_rid VALUES (?, ?, ?, ?)",
+                [(r[0], r[3], r[4], r[5]) for r in f_rows],
+            )
             cur.execute(
                 f"""
                 SELECT
-                    f.formasi_id,
-                    f.instansi_id,
-                    i.nama_instansi,
-                    i.kategori_instansi,
-                    f.jumlah_formasi,
-                    f.jumlah_pelamar,
-                    f.gaji_max,
-                    f.status_keketatan,
-                    f.golongan_awal
-                FROM formasi f
-                INNER JOIN instansi i ON f.instansi_id = i.instansi_id
-                {full_where}
+                    j.jurusan_id,
+                    j.nama_jurusan,
+                    j.jenjang,
+                    COUNT(t.rid) AS total_formasi,
+                    COALESCE(SUM(t.kuota), 0) AS total_kuota,
+                    COALESCE(SUM(t.pelamar), 0) AS total_pelamar,
+                    CAST(ROUND(COALESCE(AVG(t.gmax), 0)) AS INTEGER) AS avg_gaji_max
+                FROM _tmp_flt_rid t
+                INNER JOIN fj_fast fj ON fj.rid = t.rid
+                INNER JOIN jurusan j ON j.jurusan_id = fj.jid
+                {j_where}
+                GROUP BY j.jurusan_id
+                ORDER BY
+                    CASE WHEN ? IS NOT NULL AND j.jurusan_id = ? THEN 0 ELSE 1 END ASC,
+                    total_kuota DESC,
+                    total_formasi DESC
+                LIMIT ?
                 """,
-                full_params,
+                j_extra_params + [jurusan_id_i, jurusan_id_i, limit],
             )
-            f_rows = cur.fetchall()
-            total_filtered_formasi = len(f_rows)
-
-            ins_agg: Dict[int, List[Any]] = {}
-            kek_agg: Dict[str, List[int]] = {}
-            gol_agg: Dict[str, List[int]] = {}
-            kat_ins_sets: Dict[str, set] = {}
-
-            for r in f_rows:
-                ins_id = r[1]
-                ins_nm = r[2]
-                kat = r[3] or "Lainnya"
-                kuota = r[4] or 0
-                pelamar = r[5] or 0
-                gmax = r[6] or 0
-                st_kek = r[7] or "Moderat"
-                gol = r[8] or "-"
-
-                ia = ins_agg.get(ins_id)
-                if ia is None:
-                    ins_agg[ins_id] = [ins_id, ins_nm, kat, 1, kuota, pelamar, gmax]
-                else:
-                    ia[3] += 1
-                    ia[4] += kuota
-                    ia[5] += pelamar
-                    ia[6] += gmax
-
-                ka = kek_agg.get(st_kek)
-                if ka is None:
-                    kek_agg[st_kek] = [1, kuota, pelamar]
-                else:
-                    ka[0] += 1
-                    ka[1] += kuota
-                    ka[2] += pelamar
-
-                ga = gol_agg.get(gol)
-                if ga is None:
-                    gol_agg[gol] = [1, kuota, pelamar]
-                else:
-                    ga[0] += 1
-                    ga[1] += kuota
-                    ga[2] += pelamar
-
-                s_set = kat_ins_sets.get(kat)
-                if s_set is None:
-                    kat_ins_sets[kat] = {ins_id}
-                else:
-                    s_set.add(ins_id)
-
-            sorted_ins = sorted(ins_agg.values(), key=lambda x: (-x[4], -x[3]))[:limit]
-            top_instansi_rows = [
-                {
-                    "instansi_id": x[0],
-                    "nama_instansi": x[1],
-                    "kategori_instansi": x[2],
-                    "total_formasi": x[3],
-                    "total_kuota": x[4],
-                    "total_pelamar": x[5],
-                    "avg_gaji_max": int(round(x[6] / x[3])) if x[3] else 0,
-                }
-                for x in sorted_ins
-            ]
-
-            keketatan_stats = [
-                {"status": k, "count": v[0], "kuota": v[1], "pelamar": v[2]}
-                for k, v in kek_agg.items()
-            ]
-            golongan_stats = [
-                {"golongan": k, "count": v[0], "kuota": v[1], "pelamar": v[2]}
-                for k, v in sorted(gol_agg.items(), key=lambda kv: -kv[1][0])
-            ]
-            instansi_by_kategori = {k: len(s) for k, s in kat_ins_sets.items()}
-            total_filtered_instansi = sum(instansi_by_kategori.values())
-
-            # Fast path for Top Jurusan when only text/tier filter is active (no formation-level filter)
-            has_non_jurusan_filter = any([
-                q_s, kat_s, ins_id_i, jenis_s, gaji_min_i, gaji_max_i, max_rasio_f, keketatan_s, zero_b
-            ])
-            if not has_non_jurusan_filter and not jurusan_id_i and _analytics_tables_ready:
-                j_conds = []
-                j_p: List[Any] = []
-                if jenjang_s:
-                    j_conds.append("jenjang = ?")
-                    j_p.append(jenjang_s)
-                if jurusan_s:
-                    for tok in _parse_jurusan_tokens(jurusan_s):
-                        j_conds.append("nama_jurusan LIKE ?")
-                        j_p.append(f"%{tok}%")
-                jw = ("WHERE " + " AND ".join(j_conds)) if j_conds else ""
-                j_p.append(limit)
-                cur.execute(
-                    f"""
-                    SELECT jurusan_id, nama_jurusan, jenjang, total_formasi, total_kuota, total_pelamar, avg_gaji_max
-                    FROM agg_top_jurusan
-                    {jw}
-                    ORDER BY total_kuota DESC, total_formasi DESC
-                    LIMIT ?
-                    """,
-                    j_p,
-                )
-                top_jurusan_rows = cur.fetchall()
-            elif total_filtered_formasi == 0:
-                top_jurusan_rows = []
+            top_jurusan_rows = cur.fetchall()
+    else:
+        full_where, full_params, _ = build_filter_clause(
+            q=q_s,
+            jurusan=jurusan_s,
+            jurusan_id=jurusan_id_i,
+            jenjang=jenjang_s,
+            kategori_instansi=kat_s,
+            instansi_id=ins_id_i,
+            jenis_formasi=jenis_s,
+            gaji_min=gaji_min_i,
+            gaji_max=gaji_max_i,
+            max_rasio=max_rasio_f,
+            status_keketatan=keketatan_s,
+            zero_applicant_only=zero_b,
+        )
+        cur.execute(
+            f"""
+            SELECT
+                f.formasi_id,
+                f.instansi_id,
+                i.nama_instansi,
+                i.kategori_instansi,
+                f.jumlah_formasi,
+                f.jumlah_pelamar,
+                f.gaji_max,
+                f.status_keketatan,
+                f.golongan_awal
+            FROM formasi f
+            INNER JOIN instansi i ON f.instansi_id = i.instansi_id
+            {full_where}
+            """,
+            full_params,
+        )
+        f_rows = cur.fetchall()
+        total_filtered_formasi = len(f_rows)
+        ins_agg = {}
+        kek_agg = {}
+        gol_agg = {}
+        kat_ins_sets = {}
+        for r in f_rows:
+            ins_id, ins_nm, kat, kuota, pelamar, gmax, st_kek, gol = (
+                r[1], r[2], r[3] or "Lainnya", r[4] or 0, r[5] or 0, r[6] or 0, r[7] or "Moderat", r[8] or "-"
+            )
+            ia = ins_agg.get(ins_id)
+            if ia is None:
+                ins_agg[ins_id] = [ins_id, ins_nm, kat, 1, kuota, pelamar, gmax]
             else:
-                j_extra_conds = []
-                j_extra_params: List[Any] = []
-                if jenjang_s:
-                    j_extra_conds.append("j.jenjang = ?")
-                    j_extra_params.append(jenjang_s)
-                if jurusan_s and not jurusan_id_i:
-                    for tok in _parse_jurusan_tokens(jurusan_s):
-                        j_extra_conds.append("j.nama_jurusan LIKE ?")
-                        j_extra_params.append(f"%{tok}%")
-                j_where = ("WHERE " + " AND ".join(j_extra_conds)) if j_extra_conds else ""
+                ia[3] += 1; ia[4] += kuota; ia[5] += pelamar; ia[6] += gmax
+            ka = kek_agg.get(st_kek)
+            if ka is None:
+                kek_agg[st_kek] = [1, kuota, pelamar]
+            else:
+                ka[0] += 1; ka[1] += kuota; ka[2] += pelamar
+            ga = gol_agg.get(gol)
+            if ga is None:
+                gol_agg[gol] = [1, kuota, pelamar]
+            else:
+                ga[0] += 1; ga[1] += kuota; ga[2] += pelamar
+            kat_ins_sets.setdefault(kat, set()).add(ins_id)
 
-                cur.execute("CREATE TEMP TABLE IF NOT EXISTS _tmp_flt (fid TEXT PRIMARY KEY, kuota INT, pelamar INT, gmax INT)")
-                cur.execute("DELETE FROM _tmp_flt")
-                cur.executemany(
-                    "INSERT INTO _tmp_flt VALUES (?, ?, ?, ?)",
-                    [(r[0], r[4] or 0, r[5] or 0, r[6] or 0) for r in f_rows],
-                )
-                cur.execute(
-                    f"""
-                    SELECT
-                        j.jurusan_id,
-                        j.nama_jurusan,
-                        j.jenjang,
-                        COUNT(t.fid) AS total_formasi,
-                        COALESCE(SUM(t.kuota), 0) AS total_kuota,
-                        COALESCE(SUM(t.pelamar), 0) AS total_pelamar,
-                        CAST(ROUND(COALESCE(AVG(t.gmax), 0)) AS INTEGER) AS avg_gaji_max
-                    FROM _tmp_flt t
-                    INNER JOIN formasi_jurusan fj ON fj.formasi_id = t.fid
-                    INNER JOIN jurusan j ON j.jurusan_id = fj.jurusan_id
-                    {j_where}
-                    GROUP BY j.jurusan_id
-                    ORDER BY
-                        CASE WHEN ? IS NOT NULL AND j.jurusan_id = ? THEN 0 ELSE 1 END ASC,
-                        total_kuota DESC,
-                        total_formasi DESC
-                    LIMIT ?
-                    """,
-                    j_extra_params + [jurusan_id_i, jurusan_id_i, limit],
-                )
-                top_jurusan_rows = cur.fetchall()
-
-        top_jurusan = [
+        sorted_ins = sorted(ins_agg.values(), key=lambda x: (-x[4], -x[3]))[:limit]
+        top_instansi_rows = [
             {
-                "jurusan_id": r["jurusan_id"],
-                "nama_jurusan": r["nama_jurusan"],
-                "jenjang": r["jenjang"],
-                "total_formasi": r["total_formasi"] or 0,
-                "total_kuota": r["total_kuota"] or 0,
-                "total_pelamar": r["total_pelamar"] or 0,
-                "avg_gaji_max": int(r["avg_gaji_max"] or 0),
+                "instansi_id": x[0],
+                "nama_instansi": x[1],
+                "kategori_instansi": x[2],
+                "total_formasi": x[3],
+                "total_kuota": x[4],
+                "total_pelamar": x[5],
+                "avg_gaji_max": int(round(x[6] / x[3])) if x[3] else 0,
             }
-            for r in top_jurusan_rows
+            for x in sorted_ins
         ]
+        keketatan_stats = [{"status": k, "count": v[0], "kuota": v[1], "pelamar": v[2]} for k, v in kek_agg.items()]
+        golongan_stats = [{"golongan": k, "count": v[0], "kuota": v[1], "pelamar": v[2]} for k, v in sorted(gol_agg.items(), key=lambda kv: -kv[1][0])]
+        instansi_by_kategori = {k: len(s) for k, s in kat_ins_sets.items()}
+        total_filtered_instansi = sum(instansi_by_kategori.values())
+        top_jurusan_rows = []
 
-        top_instansi = [
-            {
-                "instansi_id": r["instansi_id"],
-                "nama_instansi": r["nama_instansi"],
-                "kategori_instansi": r["kategori_instansi"],
-                "total_formasi": r["total_formasi"] or 0,
-                "total_kuota": r["total_kuota"] or 0,
-                "total_pelamar": r["total_pelamar"] or 0,
-                "avg_gaji_max": int(r["avg_gaji_max"] or 0),
-            }
-            for r in top_instansi_rows
-        ]
-
-        result = {
-            "is_filtered": bool(any_filter),
-            "total_formasi": total_filtered_formasi,
-            "total_instansi": total_filtered_instansi,
-            "instansi_by_kategori": instansi_by_kategori,
-            "keketatan_stats": keketatan_stats,
-            "golongan_stats": golongan_stats,
-            "top_jurusan": top_jurusan,
-            "top_instansi": top_instansi,
+    top_jurusan = [
+        {
+            "jurusan_id": r["jurusan_id"],
+            "nama_jurusan": r["nama_jurusan"],
+            "jenjang": r["jenjang"],
+            "total_formasi": r["total_formasi"] or 0,
+            "total_kuota": r["total_kuota"] or 0,
+            "total_pelamar": r["total_pelamar"] or 0,
+            "avg_gaji_max": int(r["avg_gaji_max"] or 0),
         }
+        for r in top_jurusan_rows
+    ]
 
-        with _cache_lock:
-            _analytics_cache[cache_key] = result
-            if len(_analytics_cache) > _MAX_ANALYTICS_CACHE:
-                _analytics_cache.popitem(last=False)
+    top_instansi = [
+        {
+            "instansi_id": r["instansi_id"],
+            "nama_instansi": r["nama_instansi"],
+            "kategori_instansi": r["kategori_instansi"],
+            "total_formasi": r["total_formasi"] or 0,
+            "total_kuota": r["total_kuota"] or 0,
+            "total_pelamar": r["total_pelamar"] or 0,
+            "avg_gaji_max": int(r["avg_gaji_max"] or 0),
+        }
+        for r in top_instansi_rows
+    ]
 
-        return result
-    finally:
-        if conn is not None:
-            conn.close()
+    result = {
+        "is_filtered": bool(any_filter),
+        "total_formasi": total_filtered_formasi,
+        "total_instansi": total_filtered_instansi,
+        "instansi_by_kategori": instansi_by_kategori,
+        "keketatan_stats": keketatan_stats,
+        "golongan_stats": golongan_stats,
+        "top_jurusan": top_jurusan,
+        "top_instansi": top_instansi,
+    }
+
+    with _cache_lock:
+        _analytics_cache[cache_key] = result
+        if len(_analytics_cache) > _MAX_ANALYTICS_CACHE:
+            _analytics_cache.popitem(last=False)
+
+    return result
 
 
 @app.get("/api/formasi/{formasi_id}")

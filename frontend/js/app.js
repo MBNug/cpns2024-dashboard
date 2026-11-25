@@ -62,6 +62,18 @@
   let currentDetailInstansi = '';
   let currentDetailRegulasi = '';
   const loadedFormasiMap = new Map();
+  const formasiClientCache = new Map();
+  const jurusanSuggestCache = new Map();
+  const topAnalyticsClientCache = new Map();
+
+  function setBoundedCache(map, key, val, maxEntries = 80) {
+    if (map.has(key)) map.delete(key);
+    map.set(key, val);
+    if (map.size > maxEntries) {
+      const oldest = map.keys().next().value;
+      map.delete(oldest);
+    }
+  }
   let tableViewMode = window.innerWidth < 768 ? 'cards' : 'table';
   let userForcedViewMode = false;
   let lastLoadedItems = [];
@@ -492,6 +504,15 @@
     const iBox = document.getElementById('analytics-top-instansi-bars');
     if (!jBox || !iBox) return;
 
+    if (topAnalyticsClientCache.has(sig)) {
+      const cachedTop = topAnalyticsClientCache.get(sig);
+      lastTopAnalyticsSignature = sig;
+      activeAnalyticsSnapshot = cachedTop;
+      renderTopAnalyticsCharts(cachedTop);
+      renderAnalyticsCards(cachedTop);
+      return;
+    }
+
     if (topAnalyticsAbortController) topAnalyticsAbortController.abort();
     const controller = new AbortController();
     topAnalyticsAbortController = controller;
@@ -507,6 +528,7 @@
       });
       if (!resp.ok) throw new Error(`Top analytics failed (${resp.status})`);
       const data = await resp.json();
+      setBoundedCache(topAnalyticsClientCache, sig, data, 40);
       lastTopAnalyticsSignature = sig;
       activeAnalyticsSnapshot = data;
       renderTopAnalyticsCharts(data);
@@ -842,68 +864,79 @@
   // =========================================================================
   // 3. FORMATION TABLE & MOBILE CARDS
   // =========================================================================
-  async function loadFormasiTable() {
-    const spinner = document.getElementById('table-loading-spinner');
+  function renderFormasiPayload(data) {
     const tableBody = document.getElementById('table-body');
     const emptyState = document.getElementById('table-empty-state');
+    const matchCountEl = document.getElementById('filter-total-count');
+    if (matchCountEl) matchCountEl.textContent = Number(data.total || 0).toLocaleString('id-ID');
+    updateDynamicSummary(data.summary, data.total);
+
+    if (!data.items || data.items.length === 0) {
+      lastLoadedItems = [];
+      tableBody.innerHTML = '';
+      const cardsContainer = document.getElementById('mobile-cards-container');
+      if (cardsContainer) cardsContainer.innerHTML = '';
+      emptyState.classList.remove('is-hidden');
+      document.getElementById('desktop-table-wrapper').classList.add('is-hidden');
+      if (cardsContainer) cardsContainer.classList.add('is-hidden');
+      renderPagination(0, 1, state.limit, 1);
+      return;
+    }
+
+    emptyState.classList.add('is-hidden');
+    data.items.forEach(it => loadedFormasiMap.set(String(it.formasi_id), it));
+    lastLoadedItems = data.items;
+    lastLoadedStartIdx = (data.page - 1) * data.limit + 1;
+    applyTableViewVisibility();
+    renderTableRows(lastLoadedItems, lastLoadedStartIdx);
+    renderMobileCards(lastLoadedItems, lastLoadedStartIdx);
+    renderPagination(data.total, data.page, data.limit, data.total_pages);
+  }
+
+  async function loadFormasiTable() {
+    const spinner = document.getElementById('table-loading-spinner');
 
     if (tableAbortController) tableAbortController.abort();
-    const controller = new AbortController();
-    tableAbortController = controller;
-
-    if (spinner) spinner.classList.remove('is-hidden');
     syncStateToUrl();
     loadTopAnalyticsIfOpen();
 
-    try {
-      const params = new URLSearchParams();
-      if (state.q) params.set('q', state.q);
-      if (state.jurusan_id) {
-        params.set('jurusan_id', state.jurusan_id);
-      } else if (state.jurusan) {
-        params.set('jurusan', state.jurusan);
-      }
-      if (state.jenjang !== 'ALL') params.set('jenjang', state.jenjang);
-      if (state.kategori_instansi !== 'ALL') params.set('kategori_instansi', state.kategori_instansi);
-      if (state.instansi_id !== 'ALL') params.set('instansi_id', state.instansi_id);
-      if (state.jenis_formasi !== 'ALL') params.set('jenis_formasi', state.jenis_formasi);
-      if (state.status_keketatan !== 'ALL') params.set('status_keketatan', state.status_keketatan);
-      if (state.zero_applicant_only) params.set('zero_applicant_only', 'true');
-      if (state.gaji_min > 0) params.set('gaji_min', state.gaji_min);
-      params.set('sort_by', state.sort_by);
-      params.set('page', state.page);
-      params.set('limit', state.limit);
+    const params = new URLSearchParams();
+    if (state.q) params.set('q', state.q);
+    if (state.jurusan_id) {
+      params.set('jurusan_id', state.jurusan_id);
+    } else if (state.jurusan) {
+      params.set('jurusan', state.jurusan);
+    }
+    if (state.jenjang !== 'ALL') params.set('jenjang', state.jenjang);
+    if (state.kategori_instansi !== 'ALL') params.set('kategori_instansi', state.kategori_instansi);
+    if (state.instansi_id !== 'ALL') params.set('instansi_id', state.instansi_id);
+    if (state.jenis_formasi !== 'ALL') params.set('jenis_formasi', state.jenis_formasi);
+    if (state.status_keketatan !== 'ALL') params.set('status_keketatan', state.status_keketatan);
+    if (state.zero_applicant_only) params.set('zero_applicant_only', 'true');
+    if (state.gaji_min > 0) params.set('gaji_min', state.gaji_min);
+    params.set('sort_by', state.sort_by);
+    params.set('page', state.page);
+    params.set('limit', state.limit);
 
-      const resp = await fetch(`${API_BASE}/api/formasi?${params.toString()}`, {
+    const qs = params.toString();
+    if (formasiClientCache.has(qs)) {
+      if (spinner) spinner.classList.add('is-hidden');
+      renderFormasiPayload(formasiClientCache.get(qs));
+      return;
+    }
+
+    const controller = new AbortController();
+    tableAbortController = controller;
+    if (spinner) spinner.classList.remove('is-hidden');
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/formasi?${qs}`, {
         signal: controller.signal
       });
       if (!resp.ok) throw new Error(`Table fetch failed (${resp.status})`);
       const data = await resp.json();
-
-      const matchCountEl = document.getElementById('filter-total-count');
-      if (matchCountEl) matchCountEl.textContent = Number(data.total || 0).toLocaleString('id-ID');
-      updateDynamicSummary(data.summary, data.total);
-
-      if (!data.items || data.items.length === 0) {
-        lastLoadedItems = [];
-        tableBody.innerHTML = '';
-        const cardsContainer = document.getElementById('mobile-cards-container');
-        if (cardsContainer) cardsContainer.innerHTML = '';
-        emptyState.classList.remove('is-hidden');
-        document.getElementById('desktop-table-wrapper').classList.add('is-hidden');
-        if (cardsContainer) cardsContainer.classList.add('is-hidden');
-        renderPagination(0, 1, state.limit, 1);
-        return;
-      }
-
-      emptyState.classList.add('is-hidden');
-      data.items.forEach(it => loadedFormasiMap.set(String(it.formasi_id), it));
-      lastLoadedItems = data.items;
-      lastLoadedStartIdx = (data.page - 1) * data.limit + 1;
-      applyTableViewVisibility();
-      renderTableRows(lastLoadedItems, lastLoadedStartIdx);
-      renderMobileCards(lastLoadedItems, lastLoadedStartIdx);
-      renderPagination(data.total, data.page, data.limit, data.total_pages);
+      setBoundedCache(formasiClientCache, qs, data, 80);
+      renderFormasiPayload(data);
     } catch (err) {
       if (err.name === 'AbortError') return;
       console.error('Error loading formasi table:', err);
@@ -1951,6 +1984,44 @@
 
     const inputQ = document.getElementById('filter-q');
     const btnClearQ = document.getElementById('btn-clear-q');
+    const inputJurusan = document.getElementById('filter-jurusan-input');
+    const btnClearJurusan = document.getElementById('btn-clear-jurusan');
+    const listJurusan = document.getElementById('jurusan-autocomplete-list');
+
+    function renderJurusanSuggestions(items) {
+      listJurusan.innerHTML = '';
+      if (items.length === 0) {
+        listJurusan.innerHTML = '<div class="autocomplete-empty">Tidak ada program studi ditemukan</div>';
+      } else {
+        items.forEach(it => {
+          const div = document.createElement('div');
+          div.className = 'autocomplete-item';
+          const countMeta = it.total_formasi
+            ? `<span class="mono" style="font-size:0.75rem;color:var(--color-text-muted);white-space:nowrap;">${Number(it.total_formasi).toLocaleString('id-ID')}</span>`
+            : '';
+          div.innerHTML = `
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(it.nama_jurusan)}">${escapeHtml(it.nama_jurusan)}</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;">
+              ${countMeta}
+              <span class="field-badge">${escapeHtml(it.jenjang)}</span>
+            </span>
+          `;
+          div.addEventListener('click', () => {
+            inputJurusan.value = it.nama_jurusan;
+            state.jurusan = it.nama_jurusan;
+            state.jurusan_id = it.jurusan_id;
+            state.page = 1;
+            listJurusan.classList.add('is-hidden');
+            btnClearJurusan.classList.remove('is-hidden');
+            updateActiveChips();
+            loadFormasiTable();
+          });
+          listJurusan.appendChild(div);
+        });
+      }
+      listJurusan.classList.remove('is-hidden');
+    }
+
     inputQ.addEventListener(
       'input',
       debounce(e => {
@@ -1960,7 +2031,7 @@
         syncControlsFromState();
         updateActiveChips();
         loadFormasiTable();
-      }, 280)
+      }, 140)
     );
     btnClearQ.addEventListener('click', () => {
       inputQ.value = '';
@@ -1971,10 +2042,6 @@
       updateActiveChips();
       loadFormasiTable();
     });
-
-    const inputJurusan = document.getElementById('filter-jurusan-input');
-    const btnClearJurusan = document.getElementById('btn-clear-jurusan');
-    const listJurusan = document.getElementById('jurusan-autocomplete-list');
 
     inputJurusan.addEventListener(
       'input',
@@ -1987,10 +2054,20 @@
 
         if (jurusanAbortController) jurusanAbortController.abort();
 
+        // Fire table filter immediately in parallel (never wait on autocomplete RTT!)
+        updateActiveChips();
+        loadFormasiTable();
+
         if (term.length < 2) {
           listJurusan.classList.add('is-hidden');
-          updateActiveChips();
-          loadFormasiTable();
+          return;
+        }
+
+        const params = new URLSearchParams({ q: term, limit: '35' });
+        if (state.jenjang !== 'ALL') params.set('jenjang', state.jenjang);
+        const sugKey = params.toString();
+        if (jurusanSuggestCache.has(sugKey)) {
+          renderJurusanSuggestions(jurusanSuggestCache.get(sugKey));
           return;
         }
 
@@ -1998,52 +2075,18 @@
         jurusanAbortController = controller;
 
         try {
-          const params = new URLSearchParams({ q: term, limit: '35' });
-          if (state.jenjang !== 'ALL') params.set('jenjang', state.jenjang);
-          const r = await fetch(`${API_BASE}/api/filters/jurusan?${params.toString()}`, {
+          const r = await fetch(`${API_BASE}/api/filters/jurusan?${sugKey}`, {
             signal: controller.signal
           });
           if (!r.ok) return;
           const items = await r.json();
-
-          listJurusan.innerHTML = '';
-          if (items.length === 0) {
-            listJurusan.innerHTML = '<div class="autocomplete-empty">Tidak ada program studi ditemukan</div>';
-          } else {
-            items.forEach(it => {
-              const div = document.createElement('div');
-              div.className = 'autocomplete-item';
-              const countMeta = it.total_formasi
-                ? `<span class="mono" style="font-size:0.75rem;color:var(--color-text-muted);white-space:nowrap;">${Number(it.total_formasi).toLocaleString('id-ID')}</span>`
-                : '';
-              div.innerHTML = `
-                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(it.nama_jurusan)}">${escapeHtml(it.nama_jurusan)}</span>
-                <span style="display:inline-flex;align-items:center;gap:6px;flex-shrink:0;">
-                  ${countMeta}
-                  <span class="field-badge">${escapeHtml(it.jenjang)}</span>
-                </span>
-              `;
-              div.addEventListener('click', () => {
-                inputJurusan.value = it.nama_jurusan;
-                state.jurusan = it.nama_jurusan;
-                state.jurusan_id = it.jurusan_id;
-                state.page = 1;
-                listJurusan.classList.add('is-hidden');
-                btnClearJurusan.classList.remove('is-hidden');
-                updateActiveChips();
-                loadFormasiTable();
-              });
-              listJurusan.appendChild(div);
-            });
-          }
-          listJurusan.classList.remove('is-hidden');
+          setBoundedCache(jurusanSuggestCache, sugKey, items, 80);
+          renderJurusanSuggestions(items);
         } catch (err) {
           if (err.name === 'AbortError') return;
           console.error('Error autocompleting jurusan:', err);
         }
-        updateActiveChips();
-        loadFormasiTable();
-      }, 240)
+      }, 140)
     );
 
     btnClearJurusan.addEventListener('click', () => {
