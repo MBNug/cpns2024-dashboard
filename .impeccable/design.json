@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-25T08:58:34+07:00",
+  "title": "Design System: Portal Data Formasi CPNS 2024",
+  "extensions": {
+    "colorMeta": {
+      "sky-action": {
+        "role": "primary",
+        "displayName": "Deep Sky Action",
+        "canonical": "#0369a1",
+        "tonalRamp": ["#082f49", "#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#38bdf8", "#bae6fd"]
+      },
+      "sky-action-hover": {
+        "role": "primary",
+        "displayName": "Sky Action Hover",
+        "canonical": "#0284c7",
+        "tonalRamp": ["#082f49", "#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#7dd3fc", "#e0f2fe"]
+      },
+      "sky-ink-dark": {
+        "role": "primary",
+        "displayName": "Luminous Sky Ink (Dark)",
+        "canonical": "#38bdf8",
+        "tonalRamp": ["#082f49", "#075985", "#0369a1", "#0284c7", "#38bdf8", "#7dd3fc", "#bae6fd", "#f0f9ff"]
+      },
+      "obsidian-canvas": {
+        "role": "neutral",
+        "displayName": "Obsidian Canvas (Dark)",
+        "canonical": "#0b0f17",
+        "tonalRamp": ["#080b11", "#0b0f17", "#111722", "#171f2e", "#1f293b", "#334155", "#94a3b8", "#f1f5f9"]
+      },
+      "obsidian-recessed": {
+        "role": "neutral",
+        "displayName": "Recessed Well (Dark)",
+        "canonical": "#080b11",
+        "tonalRamp": ["#05070c", "#080b11", "#0b0f17", "#111722", "#1d2739", "#334155", "#94a3b8", "#e2e8f0"]
+      },
+      "slate-surface": {
+        "role": "neutral",
+        "displayName": "Matte Slate Surface (Dark)",
+        "canonical": "#111722",
+        "tonalRamp": ["#080b11", "#0b0f17", "#111722", "#171f2e", "#1d2739", "#2d3b54", "#94a3b8", "#f1f5f9"]
+      },
+      "slate-elevated": {
+        "role": "neutral",
+        "displayName": "Elevated Slate (Dark)",
+        "canonical": "#171f2e",
+        "tonalRamp": ["#0b0f17", "#111722", "#171f2e", "#1d2739", "#2d3b54", "#475569", "#cbd5e1", "#f8fafc"]
+      },
+      "hairline-subtle": {
+        "role": "neutral",
+        "displayName": "Subtle Hairline (Dark)",
+        "canonical": "#1f293b",
+        "tonalRamp": ["#0b0f17", "#111722", "#1f293b", "#2d3b54", "#3e5070", "#64748b", "#94a3b8", "#e2e8f0"]
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Strong Hairline (Dark)",
+        "canonical": "#2d3b54",
+        "tonalRamp": ["#0b0f17", "#171f2e", "#1f293b", "#2d3b54", "#3e5070", "#64748b", "#cbd5e1", "#f1f5f9"]
+      },
+      "ink-primary": {
+        "role": "neutral",
+        "displayName": "Primary Slate-White Ink",
+        "canonical": "#f1f5f9",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9"]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Slate Ink",
+        "canonical": "#cbd5e1",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#8b9bb4", "#94a3b8", "#cbd5e1", "#f1f5f9"]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Slate Ink",
+        "canonical": "#94a3b8",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"]
+      },
+      "ink-placeholder": {
+        "role": "neutral",
+        "displayName": "Accessible Placeholder Slate",
+        "canonical": "#8b9bb4",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#8b9bb4", "#cbd5e1", "#e2e8f0"]
+      },
+      "light-canvas": {
+        "role": "neutral",
+        "displayName": "Slate-Alabaster Canvas (Light)",
+        "canonical": "#f4f7fb",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#edf2f7", "#f4f7fb"]
+      },
+      "light-recessed": {
+        "role": "neutral",
+        "displayName": "Recessed Well (Light)",
+        "canonical": "#edf2f7",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#dbe3ee", "#edf2f7", "#f8fafc"]
+      },
+      "light-surface": {
+        "role": "neutral",
+        "displayName": "Crisp Ledger White (Light)",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#edf2f7", "#f8fafc", "#ffffff"]
+      },
+      "light-hairline": {
+        "role": "neutral",
+        "displayName": "Cool Slate Hairline (Light)",
+        "canonical": "#dbe3ee",
+        "tonalRamp": ["#1e293b", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#dbe3ee", "#edf2f7", "#f8fafc"]
+      },
+      "light-ink-primary": {
+        "role": "neutral",
+        "displayName": "Deep Slate Ink (Light)",
+        "canonical": "#0f172a",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#f1f5f9"]
+      },
+      "light-ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Slate Ink (Light)",
+        "canonical": "#475569",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"]
+      },
+      "status-loose-dark": {
+        "role": "semantic",
+        "displayName": "Loose Competition Emerald (Dark)",
+        "canonical": "#34d399",
+        "tonalRamp": ["#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#6ee7b7", "#d1fae5"]
+      },
+      "status-loose-light": {
+        "role": "semantic",
+        "displayName": "Loose Competition Emerald (Light)",
+        "canonical": "#047857",
+        "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#a7f3d0"]
+      },
+      "status-mod-dark": {
+        "role": "semantic",
+        "displayName": "Moderate & Indicative Amber (Dark)",
+        "canonical": "#fbbf24",
+        "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fde68a"]
+      },
+      "status-mod-light": {
+        "role": "semantic",
+        "displayName": "Moderate & Indicative Amber (Light)",
+        "canonical": "#92400e",
+        "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fde68a"]
+      },
+      "status-tight-dark": {
+        "role": "semantic",
+        "displayName": "Tight Competition Rose (Dark)",
+        "canonical": "#fb7185",
+        "tonalRamp": ["#4c0519", "#881337", "#9f1239", "#be123c", "#e11d48", "#f43f5e", "#fb7185", "#fecdd3"]
+      },
+      "status-tight-light": {
+        "role": "semantic",
+        "displayName": "Tight Competition Rose (Light)",
+        "canonical": "#be123c",
+        "tonalRamp": ["#4c0519", "#881337", "#9f1239", "#be123c", "#e11d48", "#f43f5e", "#fb7185", "#fecdd3"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Documentation hero heading on /sumber-data." },
+      "headline": { "displayName": "Headline (H1)", "purpose": "Primary workspace masthead title." },
+      "title": { "displayName": "Section Title (H2)", "purpose": "Workbench, ledger, modal, and reference section headers." },
+      "body": { "displayName": "Body Copy", "purpose": "Regulatory notes, methodology prose, and disclaimers (54ch-58ch)." },
+      "label": { "displayName": "UI Label & Badge", "purpose": "Form labels, table headers, major tags, and status badges (>=12px)." },
+      "mono": { "displayName": "Tabular Numerals", "purpose": "Quotas, applicant counts, ratios, currency, and schema identifiers." }
+    },
+    "shadows": [
+      { "name": "shadow-popover", "value": "0 12px 28px -6px rgba(3, 7, 15, 0.78)", "purpose": "Floating autocomplete dropdowns and toast notifications." },
+      { "name": "shadow-dialog", "value": "0 24px 56px -12px rgba(2, 5, 12, 0.86)", "purpose": "Modal dialogs over dimmed backdrop." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Exponential ease-out for modal entrance, drawer reveal, and sticky header scroll." },
+      { "name": "duration-fast", "value": "150ms", "purpose": "Hover, border, theme, and chip state transitions." },
+      { "name": "duration-base", "value": "240ms", "purpose": "Modal dialog entrance and analytics drawer reveal." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "High-contrast sky-cyan action button for CSV export, formation detail inspection, and Tako.id creator CTA.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"7 10 12 15 17 10\"/><line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\"/></svg><span>Unduh CSV</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; background: #0369a1; border: 1px solid rgba(125, 211, 252, 0.24); color: #f8fafc; font-family: Figtree, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 150ms ease, transform 100ms ease; } .ds-btn-primary:hover { background: #0284c7; color: #ffffff; } .ds-btn-primary:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }"
+    },
+    {
+      "name": "Support Me Spotlight Pill",
+      "kind": "button",
+      "refersTo": "button-support-pill",
+      "description": "Catchy yet palette-harmonious rounded pill CTA in the top navigation bar across both Dark and Light modes.",
+      "html": "<a class=\"ds-support-pill\" href=\"#\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"#38bdf8\" stroke=\"#38bdf8\" stroke-width=\"1.5\"><path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"/></svg><span>Support Me</span></a>",
+      "css": ".ds-support-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: linear-gradient(180deg, rgba(14, 165, 233, 0.24) 0%, rgba(3, 105, 161, 0.34) 100%); border: 1px solid rgba(56, 189, 248, 0.54); color: #e0f2fe; font-family: Figtree, sans-serif; font-size: 12px; font-weight: 700; text-decoration: none; transition: transform 150ms ease, background 150ms ease; } .ds-support-pill:hover { transform: translateY(-1px); background: linear-gradient(180deg, rgba(14, 165, 233, 0.34) 0%, rgba(2, 132, 199, 0.44) 100%); }"
+    },
+    {
+      "name": "Search & Autocomplete Input",
+      "kind": "input",
+      "refersTo": "input-control",
+      "description": "Theme-aware search input with leading SVG icon and WCAG AA accessible placeholder.",
+      "html": "<div class=\"ds-input-wrap\"><svg class=\"ds-input-icon\" width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-input\" type=\"text\" placeholder=\"Ketik jurusan (cth: Hukum, Informatika)...\" /></div>",
+      "css": ".ds-input-wrap { position: relative; display: flex; align-items: center; max-width: 340px; } .ds-input-icon { position: absolute; left: 10px; color: #94a3b8; pointer-events: none; } .ds-input { width: 100%; background: var(--color-input-bg, #080b11); border: 1px solid var(--color-border-strong, #2d3b54); border-radius: 8px; padding: 7px 10px 7px 32px; color: var(--color-text-primary, #f1f5f9); font-family: Figtree, sans-serif; font-size: 13px; } .ds-input::placeholder { color: var(--color-text-placeholder, #8b9bb4); }"
+    },
+    {
+      "name": "Competition Status Badges",
+      "kind": "chip",
+      "refersTo": "button-secondary",
+      "description": "Semantic data-only pills encoding zero-applicant/loose, moderate, and tight competition ratios.",
+      "html": "<div class=\"ds-badge-row\"><span class=\"ds-badge ds-loose\">0 Pelamar Â· 100%</span><span class=\"ds-badge ds-mod\">Moderat Â· 41.3%</span><span class=\"ds-badge ds-tight\">Ketat Â· 4.5%</span></div>",
+      "css": ".ds-badge-row { display: flex; flex-wrap: wrap; gap: 8px; font-family: Figtree, sans-serif; } .ds-badge { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 9999px; font-size: 12px; font-weight: 600; } .ds-loose { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(52, 211, 153, 0.34); color: #34d399; } .ds-mod { background: rgba(245, 158, 11, 0.11); border: 1px solid rgba(251, 191, 36, 0.32); color: #fbbf24; } .ds-tight { background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(251, 113, 133, 0.34); color: #fb7185; }"
+    },
+    {
+      "name": "Formation Ledger Row Card",
+      "kind": "card",
+      "refersTo": "panel-workbench",
+      "description": "Single-layer hairline-divided mobile ledger item with Figtree major tags and tabular-nums metrics.",
+      "html": "<article class=\"ds-ledger-item\"><div class=\"ds-top\"><strong class=\"ds-role\">DOKUMENTALIS HUKUM</strong><span class=\"ds-scope\">Pusat</span></div><div class=\"ds-tags\"><span class=\"ds-tag\">D-III KOMPUTER DAN INFORMATIKA</span></div><div class=\"ds-metrics\"><span>2.949\u00a0Kursi / 3.021</span><span>Rp\u00a02,5\u00a0Jt â€“ Rp\u00a08,2\u00a0Jt</span></div></article>",
+      "css": ".ds-ledger-item { padding: 12px 14px; background: var(--color-bg-surface, #111722); border-top: 1px solid var(--color-border-subtle, #1f293b); border-bottom: 1px solid var(--color-border-subtle, #1f293b); font-family: Figtree, sans-serif; color: var(--color-text-primary, #f1f5f9); display: flex; flex-direction: column; gap: 8px; } .ds-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; } .ds-role { font-size: 14px; font-weight: 600; } .ds-scope { padding: 3px 8px; border-radius: 9999px; background: rgba(56, 189, 248, 0.11); border: 1px solid rgba(56, 189, 248, 0.34); color: #38bdf8; font-size: 12px; font-weight: 600; } .ds-tag { display: inline-block; padding: 4px 8px; border-radius: 4px; background: var(--color-bg-recessed, #080b11); border: 1px solid var(--color-border-subtle, #1f293b); font-size: 12px; font-weight: 500; } .ds-metrics { display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--color-border-subtle, #1f293b); font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Dual-Light Analytical Ledger",
+    "overview": "Portal Data Formasi CPNS 2024 is an independent high-density analytical workspace for applicants comparing 111,921 civil-service formations, real qualified applicant counts (jumlah_ms), and PP No. 5 Tahun 2024 net compensation scenarios across desktop and mobile screens. The interface defaults to a calm Nocturnal Obsidian-Slate palette for evening study and switches instantaneously without flash into a glare-controlled Daylight Slate-Alabaster ledger for bright daytime use.\n\nRather than burying search tools under hero banners, rainbow glows, or nested cards, the opening viewport immediately presents the national dataset strip, 12-column search workbench, and verified formation rows. Creator appreciation (Support Me header pill and the bottom QRIS + Tako.id spotlight) stands out through pill geometry, subtle sky-tinted spotlight washes, and crisp contrast that harmonize naturally with both Dark and Light modes without clashing colors or aggressive blinking effects.",
+    "keyCharacteristics": [
+      "Zero-FOUC Dark and Light theme architecture maintaining WCAG AA (>= 5.0:1) contrast across every foreground, placeholder, and semantic badge in both modes.",
+      "Single sky-cyan interactive and creator-spotlight voice paired with three strictly semantic competition-status tones (loose/zero-applicant, moderate/indicative, tight/deduction).",
+      "Self-hosted Figtree UI typography paired with JetBrains Mono (tabular-nums) reserved strictly for counts, ratios, currency, UUIDs, and SQL identifiers.",
+      "Single-layer containers divided by 1px hairlinesâ€”never cards nested inside cards."
+    ],
+    "rules": [
+      {
+        "name": "The One Interactive Voice Rule",
+        "body": "Non-destructive interactive controls, active toggles, and the Support Me spotlight stay within the Sky-Slate family (<= 10% chromatic area) so neither Dark nor Light mode suffers from clashing accent hues.",
+        "section": "colors"
+      },
+      {
+        "name": "The Semantic Data-Only Rule",
+        "body": "Emerald, Amber, and Rose encode quantitative meaning only: 0 Pelamar and loose ratios, moderate ratios and indicative Tukin notices, and tight competition or mandatory payroll deductions.",
+        "section": "colors"
+      },
+      {
+        "name": "The Data-Only Monospace Rule",
+        "body": "Reserve JetBrains Mono strictly for numbers, currency, formulas, UUIDs, and schema fields; keep academic program names (.major-tag) in Figtree.",
+        "section": "typography"
+      },
+      {
+        "name": "The 12px Functional Floor Rule",
+        "body": "Functional UI labels, badges, and table headers never drop below 12px, and prose paragraphs (<p>) never drop below 14px.",
+        "section": "typography"
+      },
+      {
+        "name": "The Single-Layer Container Rule",
+        "body": "Never place bordered cards inside bordered cards; subdivide interiors using 1px hairlines (border-top, border-right, border-bottom).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do verify every new token and component in both data-theme=\"dark\" and data-theme=\"light\" at >= 4.5:1 contrast, keeping dark badges behind white-fill logos like tako_logo.svg.",
+      "Do right-align numeric columns (.col-num) with JetBrains Mono tabular-nums and non-breaking currency spaces.",
+      "Do keep Support Me visually inviting through pill shape and harmonious sky-tinted spotlight washes rather than clashing off-palette colors."
+    ],
+    "donts": [
+      "Don't use emerald for buttons or figures unrelated to 0 Pelamar or Sangat Longgar competition states.",
+      "Don't use emoji glyphs, blinking notification dots, shimmer sweeps, gradient text, eyebrow kickers, or nested bordered cards."
+    ]
+  }
+}

@@ -49,14 +49,18 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 
 _db_lock = threading.Lock()
 _indexes_ensured = False
+_analytics_build_lock = threading.Lock()
+_analytics_tables_ready = False
 
 _cache_lock = threading.Lock()
 _stats_cache: Optional[Dict[str, Any]] = None
 _filters_cache: Optional[Dict[str, Any]] = None
 _summary_cache: "OrderedDict[Tuple[Any, ...], Dict[str, Any]]" = OrderedDict()
 _formasi_cache: "OrderedDict[Tuple[Any, ...], Dict[str, Any]]" = OrderedDict()
+_analytics_cache: "OrderedDict[Tuple[Any, ...], Dict[str, Any]]" = OrderedDict()
 _MAX_SUMMARY_CACHE = 512
 _MAX_FORMASI_CACHE = 256
+_MAX_ANALYTICS_CACHE = 256
 
 COMPOSITE_INDEX_STATEMENTS = (
     "CREATE INDEX IF NOT EXISTS idx_formasi_kuota_gaji ON formasi(jumlah_formasi DESC, gaji_max DESC)",
@@ -68,17 +72,126 @@ COMPOSITE_INDEX_STATEMENTS = (
 
 
 def clear_caches() -> None:
-    """Clear in-memory caches for /api/stats, /api/filters, and /api/formasi."""
+    """Clear in-memory caches for /api/stats, /api/filters, /api/formasi, and /api/analytics."""
     global _stats_cache, _filters_cache
     with _cache_lock:
         _stats_cache = None
         _filters_cache = None
         _summary_cache.clear()
         _formasi_cache.clear()
+        _analytics_cache.clear()
+
+
+def _ensure_analytics_summary_tables() -> None:
+    """Materialize lightweight national Top Jurusan & Top Instansi tables once without blocking cold boot."""
+    global _analytics_tables_ready
+    if _analytics_tables_ready:
+        return
+
+    with _analytics_build_lock:
+        if _analytics_tables_ready:
+            return
+        conn = None
+        try:
+            conn = sqlite3.connect(str(DB_PATH), timeout=30.0, check_same_thread=False)
+            cur = conn.cursor()
+            has_j = cur.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='agg_top_jurusan'"
+            ).fetchone()
+            has_i = cur.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='agg_top_instansi'"
+            ).fetchone()
+
+            if has_j and has_i:
+                _analytics_tables_ready = True
+                return
+
+            f_map = {
+                r[0]: (r[1] or 0, r[2] or 0, r[3] or 0)
+                for r in cur.execute(
+                    "SELECT formasi_id, jumlah_formasi, jumlah_pelamar, gaji_max FROM formasi"
+                )
+            }
+
+            from collections import defaultdict
+            j_cnt: Dict[int, int] = defaultdict(int)
+            j_kuota: Dict[int, int] = defaultdict(int)
+            j_pelamar: Dict[int, int] = defaultdict(int)
+            j_gaji_sum: Dict[int, int] = defaultdict(int)
+
+            for f_id, j_id in cur.execute("SELECT formasi_id, jurusan_id FROM formasi_jurusan"):
+                fdata = f_map.get(f_id)
+                if fdata is not None:
+                    j_cnt[j_id] += 1
+                    j_kuota[j_id] += fdata[0]
+                    j_pelamar[j_id] += fdata[1]
+                    j_gaji_sum[j_id] += fdata[2]
+
+            j_rows = []
+            for j_id, nama, jenjang in cur.execute("SELECT jurusan_id, nama_jurusan, jenjang FROM jurusan"):
+                cnt = j_cnt.get(j_id, 0)
+                if cnt > 0:
+                    j_rows.append((
+                        j_id,
+                        nama,
+                        jenjang,
+                        cnt,
+                        j_kuota[j_id],
+                        j_pelamar[j_id],
+                        int(round(j_gaji_sum[j_id] / cnt)),
+                    ))
+
+            cur.execute("DROP TABLE IF EXISTS agg_top_jurusan")
+            cur.execute("""
+                CREATE TABLE agg_top_jurusan (
+                    jurusan_id INTEGER PRIMARY KEY,
+                    nama_jurusan TEXT,
+                    jenjang TEXT,
+                    total_formasi INTEGER,
+                    total_kuota INTEGER,
+                    total_pelamar INTEGER,
+                    avg_gaji_max INTEGER
+                )
+            """)
+            cur.executemany("INSERT INTO agg_top_jurusan VALUES (?, ?, ?, ?, ?, ?, ?)", j_rows)
+            cur.execute("CREATE INDEX idx_agg_jurusan_kuota ON agg_top_jurusan(total_kuota DESC, total_formasi DESC)")
+            cur.execute("CREATE INDEX idx_agg_jurusan_jenjang ON agg_top_jurusan(jenjang, total_kuota DESC)")
+
+            cur.execute("DROP TABLE IF EXISTS agg_top_instansi")
+            cur.execute("""
+                CREATE TABLE agg_top_instansi AS
+                SELECT
+                    i.instansi_id,
+                    i.nama_instansi,
+                    i.kategori_instansi,
+                    COUNT(f.formasi_id) AS total_formasi,
+                    COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota,
+                    COALESCE(SUM(f.jumlah_pelamar), 0) AS total_pelamar,
+                    CAST(ROUND(COALESCE(AVG(f.gaji_max), 0)) AS INTEGER) AS avg_gaji_max
+                FROM instansi i
+                INNER JOIN formasi f ON i.instansi_id = f.instansi_id
+                GROUP BY i.instansi_id
+            """)
+            cur.execute("CREATE INDEX idx_agg_instansi_kuota ON agg_top_instansi(total_kuota DESC, total_formasi DESC)")
+            cur.execute("CREATE INDEX idx_agg_instansi_kat ON agg_top_instansi(kategori_instansi, total_kuota DESC)")
+            conn.commit()
+            _analytics_tables_ready = True
+        except sqlite3.OperationalError:
+            pass
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+def _deferred_warm_analytics() -> None:
+    """Delay background summary-table materialization by 5s so cold-start initial page requests get 100% CPU."""
+    import time
+    time.sleep(5.0)
+    _ensure_analytics_summary_tables()
 
 
 def _ensure_composite_indexes() -> None:
-    """Configure WAL mode once and create composite indexes on formasi if the database is writable."""
+    """Configure WAL mode once, create composite indexes, and schedule deferred analytics table warmup."""
     global _indexes_ensured
     if _indexes_ensured:
         return
@@ -96,6 +209,7 @@ def _ensure_composite_indexes() -> None:
         if conn is not None:
             conn.close()
     _indexes_ensured = True
+    threading.Thread(target=_deferred_warm_analytics, daemon=True).start()
 
 
 def ensure_database_ready():
@@ -274,6 +388,23 @@ def _get_stats_data() -> Dict[str, Any]:
                 for r in cur.fetchall()
             ]
 
+            # Formations by Golongan Awal / Jenjang Pendidikan
+            cur.execute("""
+                SELECT golongan_awal, COUNT(*) as cnt, SUM(jumlah_formasi) as kuota, SUM(jumlah_pelamar) as pelamar
+                FROM formasi
+                GROUP BY golongan_awal
+                ORDER BY cnt DESC
+            """)
+            golongan_stats = [
+                {
+                    "golongan": r["golongan_awal"],
+                    "count": r["cnt"],
+                    "kuota": r["kuota"],
+                    "pelamar": r["pelamar"],
+                }
+                for r in cur.fetchall()
+            ]
+
             # Formations by Status Keketatan
             cur.execute("""
                 SELECT status_keketatan, COUNT(*) as cnt, SUM(jumlah_formasi) as kuota, SUM(jumlah_pelamar) as pelamar
@@ -304,6 +435,7 @@ def _get_stats_data() -> Dict[str, Any]:
                 "total_jurusan": tot_jurusan,
                 "instansi_by_kategori": instansi_by_kategori,
                 "jenis_formasi_stats": jenis_formasi_stats,
+                "golongan_stats": golongan_stats,
                 "keketatan_stats": keketatan_stats,
                 "gaji_median_min": median_min,
                 "gaji_median_max": median_max,
@@ -385,42 +517,97 @@ def get_filter_options(response: Response):
     return _get_filters_data()
 
 
+_JURUSAN_TOKEN_ALIASES = {
+    "S1": "S-1",
+    "S2": "S-2",
+    "S3": "S-3",
+    "D1": "D-I",
+    "D-1": "D-I",
+    "D2": "D-II",
+    "D-2": "D-II",
+    "D3": "D-III",
+    "D-3": "D-III",
+    "D4": "D-IV",
+    "D-4": "D-IV",
+}
+
+
+def _parse_jurusan_tokens(raw_q: Optional[str]) -> List[str]:
+    if not raw_q or not raw_q.strip():
+        return []
+    tokens = []
+    for part in raw_q.strip().upper().split():
+        tokens.append(_JURUSAN_TOKEN_ALIASES.get(part, part))
+    return tokens
+
+
 @app.get("/api/filters/jurusan")
 def autocomplete_jurusan(
     q: str = Query("", description="Keyword search for major name"),
     jenjang: Optional[str] = Query(None, description="Optional tier filter"),
-    limit: int = Query(25, ge=1, le=100)
+    limit: int = Query(35, ge=1, le=100)
 ):
-    """Searchable autocomplete endpoint for majors (jurusan)."""
+    """Searchable autocomplete endpoint for majors ranked by formation count instead of prefix alphabet."""
+    ensure_database_ready()
     conn = None
     try:
         conn = get_db_connection()
         cur = conn.cursor()
 
         conditions = []
-        params = []
+        params: List[Any] = []
 
-        if q.strip():
-            conditions.append("nama_jurusan LIKE ?")
-            params.append(f"%{q.strip().upper()}%")
+        for tok in _parse_jurusan_tokens(q):
+            conditions.append("j.nama_jurusan LIKE ?")
+            params.append(f"%{tok}%")
 
         if jenjang and jenjang != "ALL":
-            conditions.append("jenjang = ?")
+            conditions.append("j.jenjang = ?")
             params.append(jenjang)
 
         where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
-        query = f"""
-            SELECT jurusan_id, nama_jurusan, jenjang
-            FROM jurusan
-            {where_clause}
-            ORDER BY nama_jurusan ASC
-            LIMIT ?
-        """
+        has_agg = bool(
+            _analytics_tables_ready
+            or cur.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='agg_top_jurusan'"
+            ).fetchone()
+        )
+
+        if has_agg:
+            query = f"""
+                SELECT
+                    j.jurusan_id,
+                    j.nama_jurusan,
+                    j.jenjang,
+                    COALESCE(a.total_formasi, 0) AS total_formasi
+                FROM jurusan j
+                LEFT JOIN agg_top_jurusan a ON a.jurusan_id = j.jurusan_id
+                {where_clause}
+                ORDER BY COALESCE(a.total_formasi, 0) DESC, j.nama_jurusan ASC
+                LIMIT ?
+            """
+        else:
+            query = f"""
+                SELECT
+                    j.jurusan_id,
+                    j.nama_jurusan,
+                    j.jenjang,
+                    (SELECT COUNT(*) FROM formasi_jurusan fj WHERE fj.jurusan_id = j.jurusan_id) AS total_formasi
+                FROM jurusan j
+                {where_clause}
+                ORDER BY total_formasi DESC, j.nama_jurusan ASC
+                LIMIT ?
+            """
         params.append(limit)
 
         cur.execute(query, params)
         return [
-            {"jurusan_id": r["jurusan_id"], "nama_jurusan": r["nama_jurusan"], "jenjang": r["jenjang"]}
+            {
+                "jurusan_id": r["jurusan_id"],
+                "nama_jurusan": r["nama_jurusan"],
+                "jenjang": r["jenjang"],
+                "total_formasi": r["total_formasi"] or 0,
+            }
             for r in cur.fetchall()
         ]
     finally:
@@ -565,8 +752,9 @@ def build_filter_clause(
             j_conds.append("fj.jurusan_id = ?")
             params.append(jurusan_id_int)
         elif jurusan_str:
-            j_conds.append("j.nama_jurusan LIKE ?")
-            params.append(f"%{jurusan_str.upper()}%")
+            for tok in _parse_jurusan_tokens(jurusan_str):
+                j_conds.append("j.nama_jurusan LIKE ?")
+                params.append(f"%{tok}%")
         if jenjang_str and jenjang_str != "ALL":
             j_conds.append("j.jenjang = ?")
             params.append(jenjang_str)
@@ -927,6 +1115,332 @@ def get_formasi_batch(
         })
 
     return {"items": items}
+
+
+@app.get("/api/analytics/top")
+def get_top_analytics(
+    q: Optional[str] = None,
+    jurusan: Optional[str] = None,
+    jurusan_id: Optional[int] = None,
+    jenjang: Optional[str] = None,
+    kategori_instansi: Optional[str] = None,
+    instansi_id: Optional[int] = None,
+    jenis_formasi: Optional[str] = None,
+    gaji_min: Optional[int] = None,
+    gaji_max: Optional[int] = None,
+    max_rasio: Optional[float] = None,
+    status_keketatan: Optional[str] = None,
+    zero_applicant_only: bool = False,
+    limit: int = Query(10, ge=1, le=25),
+):
+    """
+    Lazy-loaded Top N Majors and Top N Agencies for the collapsible analytics drawer.
+    Uses precomputed summary tables + LRU cache for <2ms default responses.
+    """
+    q_s = _clean_str(q)
+    jurusan_s = _clean_str(jurusan)
+    jurusan_id_i = _clean_int(jurusan_id)
+    jenjang_s = _clean_str(jenjang)
+    if jenjang_s == "ALL":
+        jenjang_s = None
+    kat_s = _clean_str(kategori_instansi)
+    if kat_s == "ALL":
+        kat_s = None
+    ins_id_i = _clean_int(instansi_id)
+    jenis_s = _clean_str(jenis_formasi)
+    if jenis_s == "ALL":
+        jenis_s = None
+    gaji_min_i = _clean_int(gaji_min)
+    if gaji_min_i is not None and gaji_min_i <= 0:
+        gaji_min_i = None
+    gaji_max_i = _clean_int(gaji_max)
+    if gaji_max_i is not None and gaji_max_i <= 0:
+        gaji_max_i = None
+    max_rasio_f = _clean_float(max_rasio)
+    keketatan_s = _clean_str(status_keketatan)
+    if keketatan_s == "ALL":
+        keketatan_s = None
+    zero_b = _clean_bool(zero_applicant_only)
+
+    cache_key = (
+        q_s, jurusan_s, jurusan_id_i, jenjang_s, kat_s, ins_id_i,
+        jenis_s, gaji_min_i, gaji_max_i, max_rasio_f, keketatan_s, zero_b, limit
+    )
+    with _cache_lock:
+        cached = _analytics_cache.get(cache_key)
+        if cached is not None:
+            _analytics_cache.move_to_end(cache_key)
+            return cached
+
+    ensure_database_ready()
+    _ensure_analytics_summary_tables()
+
+    any_filter = any([
+        q_s, jurusan_s, jurusan_id_i, jenjang_s, kat_s, ins_id_i,
+        jenis_s, gaji_min_i, gaji_max_i, max_rasio_f, keketatan_s, zero_b
+    ])
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        if not any_filter and _analytics_tables_ready:
+            base_stats = _get_stats_data()
+            cur.execute(
+                """
+                SELECT jurusan_id, nama_jurusan, jenjang, total_formasi, total_kuota, total_pelamar, avg_gaji_max
+                FROM agg_top_jurusan
+                ORDER BY total_kuota DESC, total_formasi DESC
+                LIMIT ?
+                """,
+                (limit,),
+            )
+            top_jurusan_rows = cur.fetchall()
+
+            cur.execute(
+                """
+                SELECT instansi_id, nama_instansi, kategori_instansi, total_formasi, total_kuota, total_pelamar, avg_gaji_max
+                FROM agg_top_instansi
+                ORDER BY total_kuota DESC, total_formasi DESC
+                LIMIT ?
+                """,
+                (limit,),
+            )
+            top_instansi_rows = cur.fetchall()
+
+            total_filtered_formasi = base_stats["total_formasi"]
+            total_filtered_instansi = base_stats["total_instansi"]
+            instansi_by_kategori = base_stats["instansi_by_kategori"]
+            keketatan_stats = base_stats["keketatan_stats"]
+            golongan_stats = base_stats["golongan_stats"]
+        else:
+            full_where, full_params, _ = build_filter_clause(
+                q=q_s,
+                jurusan=jurusan_s,
+                jurusan_id=jurusan_id_i,
+                jenjang=jenjang_s,
+                kategori_instansi=kat_s,
+                instansi_id=ins_id_i,
+                jenis_formasi=jenis_s,
+                gaji_min=gaji_min_i,
+                gaji_max=gaji_max_i,
+                max_rasio=max_rasio_f,
+                status_keketatan=keketatan_s,
+                zero_applicant_only=zero_b,
+            )
+
+            # Single-pass scan of filtered formations computes Top Instansi + all 3 breakdown charts at once
+            cur.execute(
+                f"""
+                SELECT
+                    f.formasi_id,
+                    f.instansi_id,
+                    i.nama_instansi,
+                    i.kategori_instansi,
+                    f.jumlah_formasi,
+                    f.jumlah_pelamar,
+                    f.gaji_max,
+                    f.status_keketatan,
+                    f.golongan_awal
+                FROM formasi f
+                INNER JOIN instansi i ON f.instansi_id = i.instansi_id
+                {full_where}
+                """,
+                full_params,
+            )
+            f_rows = cur.fetchall()
+            total_filtered_formasi = len(f_rows)
+
+            ins_agg: Dict[int, List[Any]] = {}
+            kek_agg: Dict[str, List[int]] = {}
+            gol_agg: Dict[str, List[int]] = {}
+            kat_ins_sets: Dict[str, set] = {}
+
+            for r in f_rows:
+                ins_id = r[1]
+                ins_nm = r[2]
+                kat = r[3] or "Lainnya"
+                kuota = r[4] or 0
+                pelamar = r[5] or 0
+                gmax = r[6] or 0
+                st_kek = r[7] or "Moderat"
+                gol = r[8] or "-"
+
+                ia = ins_agg.get(ins_id)
+                if ia is None:
+                    ins_agg[ins_id] = [ins_id, ins_nm, kat, 1, kuota, pelamar, gmax]
+                else:
+                    ia[3] += 1
+                    ia[4] += kuota
+                    ia[5] += pelamar
+                    ia[6] += gmax
+
+                ka = kek_agg.get(st_kek)
+                if ka is None:
+                    kek_agg[st_kek] = [1, kuota, pelamar]
+                else:
+                    ka[0] += 1
+                    ka[1] += kuota
+                    ka[2] += pelamar
+
+                ga = gol_agg.get(gol)
+                if ga is None:
+                    gol_agg[gol] = [1, kuota, pelamar]
+                else:
+                    ga[0] += 1
+                    ga[1] += kuota
+                    ga[2] += pelamar
+
+                s_set = kat_ins_sets.get(kat)
+                if s_set is None:
+                    kat_ins_sets[kat] = {ins_id}
+                else:
+                    s_set.add(ins_id)
+
+            sorted_ins = sorted(ins_agg.values(), key=lambda x: (-x[4], -x[3]))[:limit]
+            top_instansi_rows = [
+                {
+                    "instansi_id": x[0],
+                    "nama_instansi": x[1],
+                    "kategori_instansi": x[2],
+                    "total_formasi": x[3],
+                    "total_kuota": x[4],
+                    "total_pelamar": x[5],
+                    "avg_gaji_max": int(round(x[6] / x[3])) if x[3] else 0,
+                }
+                for x in sorted_ins
+            ]
+
+            keketatan_stats = [
+                {"status": k, "count": v[0], "kuota": v[1], "pelamar": v[2]}
+                for k, v in kek_agg.items()
+            ]
+            golongan_stats = [
+                {"golongan": k, "count": v[0], "kuota": v[1], "pelamar": v[2]}
+                for k, v in sorted(gol_agg.items(), key=lambda kv: -kv[1][0])
+            ]
+            instansi_by_kategori = {k: len(s) for k, s in kat_ins_sets.items()}
+            total_filtered_instansi = sum(instansi_by_kategori.values())
+
+            # Fast path for Top Jurusan when only text/tier filter is active (no formation-level filter)
+            has_non_jurusan_filter = any([
+                q_s, kat_s, ins_id_i, jenis_s, gaji_min_i, gaji_max_i, max_rasio_f, keketatan_s, zero_b
+            ])
+            if not has_non_jurusan_filter and not jurusan_id_i and _analytics_tables_ready:
+                j_conds = []
+                j_p: List[Any] = []
+                if jenjang_s:
+                    j_conds.append("jenjang = ?")
+                    j_p.append(jenjang_s)
+                if jurusan_s:
+                    for tok in _parse_jurusan_tokens(jurusan_s):
+                        j_conds.append("nama_jurusan LIKE ?")
+                        j_p.append(f"%{tok}%")
+                jw = ("WHERE " + " AND ".join(j_conds)) if j_conds else ""
+                j_p.append(limit)
+                cur.execute(
+                    f"""
+                    SELECT jurusan_id, nama_jurusan, jenjang, total_formasi, total_kuota, total_pelamar, avg_gaji_max
+                    FROM agg_top_jurusan
+                    {jw}
+                    ORDER BY total_kuota DESC, total_formasi DESC
+                    LIMIT ?
+                    """,
+                    j_p,
+                )
+                top_jurusan_rows = cur.fetchall()
+            elif total_filtered_formasi == 0:
+                top_jurusan_rows = []
+            else:
+                j_extra_conds = []
+                j_extra_params: List[Any] = []
+                if jenjang_s:
+                    j_extra_conds.append("j.jenjang = ?")
+                    j_extra_params.append(jenjang_s)
+                if jurusan_s and not jurusan_id_i:
+                    for tok in _parse_jurusan_tokens(jurusan_s):
+                        j_extra_conds.append("j.nama_jurusan LIKE ?")
+                        j_extra_params.append(f"%{tok}%")
+                j_where = ("WHERE " + " AND ".join(j_extra_conds)) if j_extra_conds else ""
+
+                cur.execute("CREATE TEMP TABLE IF NOT EXISTS _tmp_flt (fid TEXT PRIMARY KEY, kuota INT, pelamar INT, gmax INT)")
+                cur.execute("DELETE FROM _tmp_flt")
+                cur.executemany(
+                    "INSERT INTO _tmp_flt VALUES (?, ?, ?, ?)",
+                    [(r[0], r[4] or 0, r[5] or 0, r[6] or 0) for r in f_rows],
+                )
+                cur.execute(
+                    f"""
+                    SELECT
+                        j.jurusan_id,
+                        j.nama_jurusan,
+                        j.jenjang,
+                        COUNT(t.fid) AS total_formasi,
+                        COALESCE(SUM(t.kuota), 0) AS total_kuota,
+                        COALESCE(SUM(t.pelamar), 0) AS total_pelamar,
+                        CAST(ROUND(COALESCE(AVG(t.gmax), 0)) AS INTEGER) AS avg_gaji_max
+                    FROM _tmp_flt t
+                    INNER JOIN formasi_jurusan fj ON fj.formasi_id = t.fid
+                    INNER JOIN jurusan j ON j.jurusan_id = fj.jurusan_id
+                    {j_where}
+                    GROUP BY j.jurusan_id
+                    ORDER BY
+                        CASE WHEN ? IS NOT NULL AND j.jurusan_id = ? THEN 0 ELSE 1 END ASC,
+                        total_kuota DESC,
+                        total_formasi DESC
+                    LIMIT ?
+                    """,
+                    j_extra_params + [jurusan_id_i, jurusan_id_i, limit],
+                )
+                top_jurusan_rows = cur.fetchall()
+
+        top_jurusan = [
+            {
+                "jurusan_id": r["jurusan_id"],
+                "nama_jurusan": r["nama_jurusan"],
+                "jenjang": r["jenjang"],
+                "total_formasi": r["total_formasi"] or 0,
+                "total_kuota": r["total_kuota"] or 0,
+                "total_pelamar": r["total_pelamar"] or 0,
+                "avg_gaji_max": int(r["avg_gaji_max"] or 0),
+            }
+            for r in top_jurusan_rows
+        ]
+
+        top_instansi = [
+            {
+                "instansi_id": r["instansi_id"],
+                "nama_instansi": r["nama_instansi"],
+                "kategori_instansi": r["kategori_instansi"],
+                "total_formasi": r["total_formasi"] or 0,
+                "total_kuota": r["total_kuota"] or 0,
+                "total_pelamar": r["total_pelamar"] or 0,
+                "avg_gaji_max": int(r["avg_gaji_max"] or 0),
+            }
+            for r in top_instansi_rows
+        ]
+
+        result = {
+            "is_filtered": bool(any_filter),
+            "total_formasi": total_filtered_formasi,
+            "total_instansi": total_filtered_instansi,
+            "instansi_by_kategori": instansi_by_kategori,
+            "keketatan_stats": keketatan_stats,
+            "golongan_stats": golongan_stats,
+            "top_jurusan": top_jurusan,
+            "top_instansi": top_instansi,
+        }
+
+        with _cache_lock:
+            _analytics_cache[cache_key] = result
+            if len(_analytics_cache) > _MAX_ANALYTICS_CACHE:
+                _analytics_cache.popitem(last=False)
+
+        return result
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 @app.get("/api/formasi/{formasi_id}")

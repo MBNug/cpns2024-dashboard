@@ -31,3 +31,12 @@ README_INTERNAL.md
 Thumbs.db
 .vscode/
 .idea/
+
+# Impeccable transient artifacts & local config
+.impeccable/questions/
+.impeccable/mocks/
+.impeccable/review*/
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.agent/
+
