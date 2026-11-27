@@ -1,8 +1,14 @@
-"""FastAPI router and read-only SQLite layer for CPNS 2026 (KepmenPANRB No. 675/2026).
+"""FastAPI router and read-only SQLite layer for CPNS 2026 verified decrees.
+
+Sources currently ingested:
+- Kementerian Keuangan (KepmenPANRB No. 675/2026)
+- Badan Siber dan Sandi Negara (Pengumuman No. PENG.102/2026 / KepmenPANRB No. 676/2026)
+- Kejaksaan Agung (KepmenPANRB No. 638/2026 — verified partial attachment pages)
 
 Strictly enforces the no-hallucination rule: fields absent from published 2026 decrees
-(jumlah_pelamar, jenis_formasi, rasio_kompetisi, peluang_lolos_pct, status_keketatan,
-gaji_min, gaji_max) remain null/empty until official SSCASN 2026 data is available.
+(jumlah_pelamar, rasio_kompetisi, peluang_lolos_pct, status_keketatan, gaji_min, gaji_max,
+and jenis_formasi on decrees without pathway breakdown) remain null/empty until official
+SSCASN 2026 data is available.
 """
 
 from __future__ import annotations
@@ -10,6 +16,7 @@ from __future__ import annotations
 import csv
 import gzip
 import io
+import json
 import math
 import shutil
 import sqlite3
@@ -28,9 +35,13 @@ DATA_DIR = (
 DB_PATH = DATA_DIR / "cpns2026.db"
 DB_GZ_PATH = DATA_DIR / "cpns2026.db.gz"
 RAW_CSV_PATH = DATA_DIR / "raw_cpns_2026.csv"
+AUDIT_JSON_PATH = DATA_DIR / "drive_audit_2026.json"
 
 # PP No. 5 Tahun 2024 MKG 0 Gaji Pokok (100%) mapped from education tier strictly for reference THP simulation
 GOLONGAN_STATUTORY: list[tuple[str, str, int, str]] = [
+    ("SPESIALIS", "III/c", 3026400, "Dokter Subspesialis / S-3 (PP No. 5/2024 Gol. III/c MKG 0)"),
+    ("PROFESI", "III/b", 2903600, "Profesi (PP No. 5/2024 Gol. III/b MKG 0)"),
+    ("S-2", "III/b", 2903600, "S-2 / Magister (PP No. 5/2024 Gol. III/b MKG 0)"),
     ("D-IV/S-1", "III/a", 2785700, "S-1 / D-IV (PP No. 5/2024 Gol. III/a MKG 0)"),
     ("D-III", "II/c", 2485900, "D-III (PP No. 5/2024 Gol. II/c MKG 0)"),
     ("SMA/SMK", "II/a", 2184000, "SMA / SMK / Sederajat (PP No. 5/2024 Gol. II/a MKG 0)"),
@@ -226,6 +237,28 @@ def get_stats_2026() -> dict[str, Any]:
                 mid = vals[len(vals) // 2]
                 med_min, med_max = mid[0], mid[1]
 
+        instansi_summary = [
+            dict(r)
+            for r in cur.execute(
+                """
+                SELECT
+                    i.instansi_id,
+                    i.instansi_nm,
+                    COUNT(*) AS formasi_count,
+                    COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
+                FROM instansi i
+                JOIN formasi f ON f.instansi_id = i.instansi_id
+                GROUP BY i.instansi_id, i.instansi_nm
+                ORDER BY total_kuota DESC, i.instansi_nm ASC
+                """
+            ).fetchall()
+        ]
+        drive_audit = (
+            json.loads(AUDIT_JSON_PATH.read_text(encoding="utf-8"))
+            if AUDIT_JSON_PATH.exists()
+            else []
+        )
+
         return {
             "total_formasi_rows": row["total_formasi_rows"],
             "total_kuota": row["total_kuota"],
@@ -242,7 +275,9 @@ def get_stats_2026() -> dict[str, Any]:
             "has_applicant_data": has_applicants,
             "has_salary_data": has_salary,
             "has_jenis_formasi": has_jenis,
-            "sumber_dokumen": "KepmenPANRB No. 675 Tahun 2026 — Kementerian Keuangan TA 2026 (19 Nov 2026)",
+            "instansi_summary": instansi_summary,
+            "drive_audit": drive_audit,
+            "sumber_dokumen": "SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejagung) • SE Kemenkes HK.02.02 (Syarat STR)",
         }
     finally:
         conn.close()
@@ -257,18 +292,39 @@ def get_filters_2026() -> dict[str, Any]:
             r[0]
             for r in cur.execute("SELECT DISTINCT kategori_instansi FROM instansi ORDER BY kategori_instansi").fetchall()
         ]
-        instansi = [
-            r[0]
-            for r in cur.execute("SELECT DISTINCT instansi_nm FROM instansi ORDER BY instansi_nm").fetchall()
-        ]
-        unit_eselon1 = [
-            {"unit_eselon1": r[0], "formasi_count": r[1], "total_kuota": r[2]}
+        instansi_summary = [
+            dict(r)
             for r in cur.execute(
                 """
-                SELECT unit_eselon1, COUNT(*) AS cnt, COALESCE(SUM(jumlah_formasi), 0) AS kuota
-                FROM formasi
-                GROUP BY unit_eselon1
-                ORDER BY kuota DESC, unit_eselon1 ASC
+                SELECT
+                    i.instansi_id,
+                    i.instansi_nm,
+                    COUNT(*) AS formasi_count,
+                    COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota,
+                    COUNT(f.jumlah_formasi) AS known_kuota_cnt
+                FROM instansi i
+                JOIN formasi f ON f.instansi_id = i.instansi_id
+                GROUP BY i.instansi_id, i.instansi_nm
+                ORDER BY total_kuota DESC, formasi_count DESC, i.instansi_nm ASC
+                """
+            ).fetchall()
+        ]
+        instansi = [x["instansi_nm"] for x in instansi_summary]
+        unit_eselon1 = [
+            {
+                "unit_eselon1": r[0],
+                "formasi_count": r[1],
+                "total_kuota": r[2],
+                "instansi_nm": r[3],
+                "known_kuota_cnt": r[4],
+            }
+            for r in cur.execute(
+                """
+                SELECT f.unit_eselon1, COUNT(*) AS cnt, COALESCE(SUM(f.jumlah_formasi), 0) AS kuota, i.instansi_nm, COUNT(f.jumlah_formasi) AS known_kuota_cnt
+                FROM formasi f
+                JOIN instansi i ON i.instansi_id = f.instansi_id
+                GROUP BY f.unit_eselon1, i.instansi_nm
+                ORDER BY kuota DESC, cnt DESC, f.unit_eselon1 ASC
                 """
             ).fetchall()
         ]
@@ -277,13 +333,13 @@ def get_filters_2026() -> dict[str, Any]:
             for r in cur.execute("SELECT DISTINCT jenjang FROM formasi ORDER BY jenjang").fetchall()
         ]
         jabatan = [
-            {"jabatan_nm": r[0], "formasi_count": r[1], "total_kuota": r[2]}
+            {"jabatan_nm": r[0], "formasi_count": r[1], "total_kuota": r[2], "known_kuota_cnt": r[3]}
             for r in cur.execute(
                 """
-                SELECT jabatan_nm, COUNT(*) AS cnt, COALESCE(SUM(jumlah_formasi), 0) AS kuota
+                SELECT jabatan_nm, COUNT(*) AS cnt, COALESCE(SUM(jumlah_formasi), 0) AS kuota, COUNT(jumlah_formasi) AS known_kuota_cnt
                 FROM formasi
                 GROUP BY jabatan_nm
-                ORDER BY kuota DESC, jabatan_nm ASC
+                ORDER BY kuota DESC, cnt DESC, jabatan_nm ASC
                 """
             ).fetchall()
         ]
@@ -312,6 +368,7 @@ def get_filters_2026() -> dict[str, Any]:
         return {
             "kategori": kategori,
             "instansi": instansi,
+            "instansi_summary": instansi_summary,
             "unit_eselon1": unit_eselon1,
             "jenjang": jenjang,
             "jabatan": jabatan,
@@ -396,12 +453,13 @@ def list_formasi_2026(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=20, ge=1, le=100),
 ) -> dict[str, Any]:
+    default_order = "CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC"
     sort_map = {
-        "no_urut": "f.no_urut ASC",
-        "kuota_desc": "f.jumlah_formasi DESC, f.no_urut ASC",
-        "kuota_asc": "f.jumlah_formasi ASC, f.no_urut ASC",
-        "jabatan_asc": "f.jabatan_nm ASC, f.jumlah_formasi DESC, f.no_urut ASC",
-        "eselon1_asc": "f.unit_eselon1 ASC, f.jumlah_formasi DESC, f.no_urut ASC",
+        "no_urut": default_order,
+        "kuota_desc": "f.jumlah_formasi DESC, " + default_order,
+        "kuota_asc": "f.jumlah_formasi ASC, " + default_order,
+        "jabatan_asc": "f.jabatan_nm ASC, f.jumlah_formasi DESC, " + default_order,
+        "eselon1_asc": "f.unit_eselon1 ASC, f.jumlah_formasi DESC, " + default_order,
         "rasio_asc": "CASE WHEN f.rasio_kompetisi IS NULL THEN 1 ELSE 0 END ASC, f.rasio_kompetisi ASC, f.jumlah_formasi DESC",
         "peluang_desc": "CASE WHEN f.peluang_lolos_pct IS NULL THEN 1 ELSE 0 END ASC, f.peluang_lolos_pct DESC, f.jumlah_formasi DESC",
         "gaji_desc": "CASE WHEN f.gaji_max IS NULL THEN 1 ELSE 0 END ASC, f.gaji_max DESC, f.jumlah_formasi DESC",
@@ -480,7 +538,7 @@ def get_formasi_batch_2026(ids: str = Query(default="")) -> list[dict[str, Any]]
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
             WHERE f.formasi_id IN ({placeholders})
-            ORDER BY f.no_urut ASC
+            ORDER BY CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC
             """,
             id_list,
         ).fetchall()
@@ -668,6 +726,24 @@ def get_top_analytics_2026(
             ).fetchall()
         ]
 
+        instansi_dist = [
+            dict(r)
+            for r in cur.execute(
+                f"""
+                SELECT
+                    i.instansi_nm,
+                    COUNT(*) AS formasi_count,
+                    COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
+                FROM formasi f
+                JOIN instansi i ON i.instansi_id = f.instansi_id
+                WHERE {where_sql}
+                GROUP BY i.instansi_id, i.instansi_nm
+                ORDER BY total_kuota DESC, i.instansi_nm ASC
+                """,
+                params,
+            ).fetchall()
+        ]
+
         return {
             "total_rows": agg["total_rows"] or 0,
             "total_kuota": agg["total_kuota"] or 0,
@@ -678,6 +754,7 @@ def get_top_analytics_2026(
             "jenjang_dist": jenjang_dist,
             "keketatan_dist": keketatan_dist,
             "kategori_dist": kategori_dist,
+            "instansi_dist": instansi_dist,
         }
     finally:
         conn.close()
@@ -728,7 +805,7 @@ def export_csv_2026(
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
             WHERE {where_sql}
-            ORDER BY f.no_urut ASC
+            ORDER BY CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC
             """,
             params,
         ).fetchall()
@@ -748,7 +825,7 @@ def export_csv_2026(
         return StreamingResponse(
             io.BytesIO(csv_bytes),
             media_type="text/csv; charset=utf-8",
-            headers={"Content-Disposition": 'attachment; filename="cpns2026_kemenkeu_filtered.csv"'},
+            headers={"Content-Disposition": 'attachment; filename="cpns2026_filtered.csv"'},
         )
     finally:
         conn.close()

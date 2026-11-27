@@ -34,6 +34,21 @@ DB_PATH = DATA_DIR / "cpns2026.db"
 DB_GZ_PATH = DATA_DIR / "cpns2026.db.gz"
 CSV_PATH = DATA_DIR / "raw_cpns_2026.csv"
 VERIFIED_JSON_PATH = DATA_DIR / "kemenkeu_2026_verified.json"
+ALL_VERIFIED_JSON_PATH = DATA_DIR / "cpns_2026_verified.json"
+AUDIT_JSON_PATH = DATA_DIR / "drive_audit_2026.json"
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from extra_sources_2026 import (  # noqa: E402
+    DRIVE_AUDIT_SUMMARY,
+    EXTRA_INSTANSI,
+    get_bssn_rows,
+    get_kejagung_rows,
+    get_kemenkes_str_rows,
+    get_sscasn_live_rows,
+)
 
 SUMBER_DOKUMEN = (
     "KepmenPANRB No. 675 Tahun 2026 — Penetapan Kebutuhan PNS Kementerian Keuangan TA 2026 "
@@ -424,9 +439,12 @@ def clean_pend(raw: str, no: int) -> str:
 
 def extract_jenjang_tier(pend: str) -> str:
     up = pend.upper()
-    has_s1 = "S-1" in up or "D-IV" in up or "KEUANGAN DAN PERBANKAN" in up
-    has_d3 = "D-III" in up
-    has_sma = "SMA/" in up or "SMK" in up
+    has_spec = "SUBSPESIALIS" in up or "SPESIALIS" in up or bool(re.search(r"\bS-?3\b", up))
+    has_prof = "PROFESI" in up or "NERS" in up or "DOKTER" in up or "APOTEKER" in up
+    has_s2 = bool(re.search(r"\bS-?2\b|\bMAGISTER\b", up))
+    has_s1 = bool(re.search(r"\bS-?1\b|\bD-?IV\b|\bDIPLOMA\s+IV\b|\bSARJANA\s+TERAPAN\b", up)) or "KEUANGAN DAN PERBANKAN" in up
+    has_d3 = bool(re.search(r"\bD-?III\b|\bDIPLOMA\s+III\b|\bDIPLOMA\s+KEPERAWATAN\b|\bAKADEMI\b", up))
+    has_sma = "SMA/" in up or "SMA " in up or "MADRASAH ALIYAH" in up or "SMK" in up
     tiers = []
     if has_sma:
         tiers.append("SMA/SMK")
@@ -434,6 +452,12 @@ def extract_jenjang_tier(pend: str) -> str:
         tiers.append("D-III")
     if has_s1:
         tiers.append("D-IV/S-1")
+    if has_s2:
+        tiers.append("S-2")
+    if has_prof:
+        tiers.append("Profesi")
+    if has_spec:
+        tiers.append("Spesialis/Subspesialis")
     return " / ".join(tiers) if tiers else "Lainnya"
 
 
@@ -442,7 +466,7 @@ def extract_unit_eselon1(unit: str) -> str:
     if len(segs) >= 2:
         raw = segs[1]
         # Clean Title Case for clean UI filters/charts while keeping acronyms legible
-        return raw.title().replace("Dan", "dan")
+        return re.sub(r"\bDan\b", "dan", raw.title())
     return "Kementerian Keuangan"
 
 
@@ -482,14 +506,61 @@ def main():
                 "sumber_dokumen": SUMBER_DOKUMEN,
             })
 
-    assert len(rows) == 374, f"Expected 374 rows, got {len(rows)}"
-    assert sum(r["jumlah_formasi"] for r in rows) == 1915, "Total alokasi must be 1915!"
+    assert len(rows) == 374, f"Expected 374 Kemenkeu rows, got {len(rows)}"
+    assert sum(r["jumlah_formasi"] for r in rows) == 1915, "Total Kemenkeu alokasi must be 1915!"
+
+    VERIFIED_JSON_PATH.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    bssn_rows = get_bssn_rows(extract_jenjang_tier)
+    kejagung_rows = get_kejagung_rows(extract_jenjang_tier)
+    assert len(bssn_rows) == 2 and sum(r["jumlah_formasi"] for r in bssn_rows) == 200
+    assert len(kejagung_rows) == 94 and sum(r["jumlah_formasi"] for r in kejagung_rows) == 175
+
+    sscasn_csv = DATA_DIR / "sscasn_2026_live.csv"
+    sscasn_rows = get_sscasn_live_rows(extract_jenjang_tier, sscasn_csv)
+    kemenkes_rows = get_kemenkes_str_rows(extract_jenjang_tier, DATA_DIR / "kemenkes_str_tables.json")
+    live_agencies = {r["instansi_nm"].strip().lower() for r in sscasn_rows}
+
+    # Precedence rule: live SSCASN rows automatically supersede pre-release decree/SE rows
+    # for the same agency so no agency is ever double-counted.
+    decree_rows = [
+        r for r in (rows + bssn_rows + kejagung_rows + kemenkes_rows)
+        if r["instansi_nm"].strip().lower() not in live_agencies
+    ]
+    combined_raw = decree_rows + sscasn_rows
+    deduped_rows = []
+    seen_natural_keys: set[tuple] = set()
+    seen_ids: set[str] = set()
+    for r in combined_raw:
+        # Include (sumber_dokumen, no_urut) so consecutive sequential decree rows (e.g. Kemenkeu NO 1 & 2)
+        # remain distinct, while re-ingesting an already loaded agency/decree raises immediately.
+        nat_key = (
+            r["instansi_id"],
+            r["sumber_dokumen"],
+            r["no_urut"],
+            r["unit_eselon1"],
+            r["jabatan_nm"],
+            r["lokasi_nm"],
+            r["jenis_formasi"] or "",
+            r["pendidikan_nm"],
+        )
+        if nat_key in seen_natural_keys or r["formasi_id"] in seen_ids:
+            raise RuntimeError(f"Duplicate formasi detected during build: {r['formasi_id']} / {nat_key}")
+        seen_natural_keys.add(nat_key)
+        seen_ids.add(r["formasi_id"])
+        deduped_rows.append(r)
+
+    rows = deduped_rows
+    assert len(kemenkes_rows) == 49
+    assert len(rows) == 570, f"Expected 570 combined verified rows, got {len(rows)}"
+    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 3242, "Total combined alokasi must be 3242!"
 
     # Sanity audit prints
     uw = Counter(w.rstrip(",") for r in rows for w in r["lokasi_nm"].split() if w != "|")
     weird_u = [(w, c) for w, c in uw.items() if re.search(r"[^A-Z0-9/\-\(\)&]", w) or any(ch in w for ch in "0123456789")]
     print("Non-alpha tokens in lokasi_nm:", weird_u)
-    print("Unique unit_eselon1:", Counter(r["unit_eselon1"] for r in rows).most_common())
+    print("Instansi breakdown:", Counter(r["instansi_id"] for r in rows).most_common())
+    print("Unique unit_eselon1:", len(Counter(r["unit_eselon1"] for r in rows)))
     print("Unique jenjang:", Counter(r["jenjang"] for r in rows).most_common())
     print("Distinct pend strings:", len(Counter(r["pendidikan_nm"] for r in rows)))
 
@@ -506,7 +577,8 @@ def main():
         for r in rows:
             writer.writerow({k: ("" if r[k] is None else r[k]) for k in csv_fields})
 
-    VERIFIED_JSON_PATH.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
+    ALL_VERIFIED_JSON_PATH.write_text(json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8")
+    AUDIT_JSON_PATH.write_text(json.dumps(DRIVE_AUDIT_SUMMARY, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # Build clean 3NF SQLite database
     if DB_PATH.exists():
@@ -535,13 +607,13 @@ def main():
 
         CREATE TABLE formasi (
             formasi_id TEXT PRIMARY KEY,
-            no_urut INTEGER NOT NULL UNIQUE,
+            no_urut INTEGER NOT NULL,
             instansi_id TEXT NOT NULL,
             unit_eselon1 TEXT NOT NULL,
             jabatan_nm TEXT NOT NULL,
             lokasi_nm TEXT NOT NULL,
             jenis_formasi TEXT,
-            jumlah_formasi INTEGER NOT NULL,
+            jumlah_formasi INTEGER,
             jumlah_pelamar INTEGER,
             rasio_kompetisi REAL,
             peluang_lolos_pct REAL,
@@ -570,11 +642,7 @@ def main():
         """
     )
 
-    cur.execute(
-        """
-        INSERT INTO instansi (instansi_id, instansi_nm, kategori_instansi, tukin_min, tukin_max, tukin_sumber)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """,
+    instansi_rows = [
         (
             "KEMENKEU",
             "Kementerian Keuangan",
@@ -583,6 +651,14 @@ def main():
             46950000,
             "Perpres No. 156/2014 (Tukin Resmi Terverifikasi Kemenkeu — Simulasi Acuan)",
         ),
+        *EXTRA_INSTANSI,
+    ]
+    cur.executemany(
+        """
+        INSERT INTO instansi (instansi_id, instansi_nm, kategori_instansi, tukin_min, tukin_max, tukin_sumber)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        instansi_rows,
     )
 
     jurusan_cache: dict[str, int] = {}
@@ -611,8 +687,8 @@ def main():
             """,
             (
                 r["formasi_id"], r["no_urut"], r["instansi_id"], r["unit_eselon1"],
-                r["jabatan_nm"], r["lokasi_nm"], None, r["jumlah_formasi"],
-                None, None, None, None, None, None,
+                r["jabatan_nm"], r["lokasi_nm"], r["jenis_formasi"], r["jumlah_formasi"],
+                None, None, None, None, r["gaji_min"], r["gaji_max"],
                 r["pendidikan_nm"], r["jenjang"], r["sumber_dokumen"],
             ),
         )

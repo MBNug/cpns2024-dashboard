@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPNS 2026 Explorer — Penetapan Kebutuhan Awal (KepmenPANRB No. 675/2026)</title>
-  <meta name="description" content="Eksplorasi formasi awal CPNS 2026 berdasarkan KepmenPANRB Nomor 675 Tahun 2026 (Kementerian Keuangan: 374 baris formasi, 1.915 alokasi). Data transparan tanpa estimasi fiktif." />
+  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (5 Instansi Terverifikasi)</title>
+  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (BPK) serta dokumen resmi Kemenkeu, BSSN, Kejaksaan Agung (parsial), dan acuan kualifikasi STR Kemenkes (570 baris, 3.242 kursi teralokasi)." />
   <link rel="icon" type="image/svg+xml" href="/static/tako_logo.svg" />
   <link rel="stylesheet" href="/static/css/app.css?v=20261125d" />
   <script>
@@ -104,7 +104,7 @@
         <span id="kpi-total-pelamar" class="ticker-value">—</span>
       </div>
       <div class="ticker-divider" aria-hidden="true"></div>
-      <div class="ticker-metric ticker-metric-desktop" title="Rentang gaji BKN belum dipublikasikan">
+      <div class="ticker-metric ticker-metric-desktop" title="Median Gaji BKN dari formasi SSCASN 2026 yang sudah dirilis">
         <span class="ticker-label">Gaji BKN</span>
         <span id="kpi-median-gaji" class="ticker-value">—</span>
       </div>
@@ -113,8 +113,8 @@
         <span class="ticker-label">Rasio</span>
         <span id="kpi-avg-rasio" class="ticker-value">—</span>
       </div>
-      <a href="#section-sumber-data" class="badge badge-accent" title="Klik untuk melihat dokumen sumber resmi">
-        <span>KepmenPANRB No. 675/2026 • Kemenkeu</span>
+      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejaksaan Agung) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
+        <span id="kpi-source-badge">5 Instansi Resmi • 2026</span>
       </a>
     </section>
 
@@ -131,7 +131,7 @@
               <strong id="telemetry-filtered-kuota">0</strong> kursi alokasi
             </span>
             <span class="telemetry-item telemetry-desktop-only">
-              Instansi aktif: <strong>Kementerian Keuangan (Pusat)</strong>
+              Instansi aktif: <strong id="telemetry-active-instansi">Semua Instansi Pusat Terverifikasi</strong>
             </span>
           </div>
         </div>
@@ -199,18 +199,28 @@
 
         <div class="field-group col-span-3">
           <div class="field-label-row">
-            <label for="filter-eselon1" class="field-label">Unit Eselon I (Kemenkeu)</label>
-            <span id="badge-eselon1-count" class="field-hint">13 unit</span>
+            <label for="filter-instansi" class="field-label">Instansi Pemerintah</label>
+            <span id="badge-instansi-count" class="field-hint">5 instansi</span>
+          </div>
+          <select id="filter-instansi" class="control-select">
+            <option value="">Semua Instansi</option>
+          </select>
+        </div>
+
+        <div class="field-group col-span-3">
+          <div class="field-label-row">
+            <label for="filter-eselon1" class="field-label">Unit Eselon I / Satuan</label>
+            <span id="badge-eselon1-count" class="field-hint">57 unit</span>
           </div>
           <select id="filter-eselon1" class="control-select">
             <option value="">Semua Unit Eselon I</option>
           </select>
         </div>
 
-        <div class="field-group col-span-3">
+        <div class="field-group col-span-3 field-secondary">
           <div class="field-label-row">
             <label for="filter-jabatan" class="field-label">Nama Jabatan</label>
-            <span class="field-hint">8 jabatan</span>
+            <span id="badge-jabatan-count" class="field-hint">58 jabatan</span>
           </div>
           <select id="filter-jabatan" class="control-select">
             <option value="">Semua Jabatan</option>
@@ -222,7 +232,7 @@
             <label for="filter-lokasi" class="field-label">Unit / Kota Penempatan</label>
           </div>
           <div class="input-wrap">
-            <input type="text" id="filter-lokasi" class="control-input has-clear-btn" placeholder="Contoh: KANWIL, TANJUNG BALAI, BPPK..." autocomplete="off" />
+            <input type="text" id="filter-lokasi" class="control-input has-clear-btn" placeholder="Contoh: BEA DAN CUKAI, KEJAKSAAN NEGERI, JAKARTA..." autocomplete="off" />
             <button type="button" id="btn-clear-lokasi" class="input-clear-btn hidden" aria-label="Hapus lokasi">×</button>
           </div>
         </div>
@@ -233,6 +243,15 @@
           </div>
           <select id="filter-jenjang" class="control-select">
             <option value="">Semua Jenjang</option>
+          </select>
+        </div>
+
+        <div class="field-group col-span-2 field-secondary" title="Filter jalur formasi terisi untuk penetapan yang merinci jalur (mis. BSSN: Umum & Disabilitas)">
+          <div class="field-label-row">
+            <label for="filter-jenis-formasi" class="field-label">Jalur Formasi</label>
+          </div>
+          <select id="filter-jenis-formasi" class="control-select">
+            <option value="">Semua Jalur</option>
           </select>
         </div>
 
@@ -248,34 +267,12 @@
             <option value="20">>= 20 kursi</option>
           </select>
         </div>
-
-        <div class="field-group col-span-3 field-secondary">
-          <div class="field-label-row">
-            <label for="filter-sort" class="field-label">Urutkan</label>
-          </div>
-          <select id="filter-sort" class="control-select">
-            <option value="no_urut">No. Urut Kepmen (1 → 374)</option>
-            <option value="kuota_desc">Alokasi Terbanyak</option>
-            <option value="kuota_asc">Alokasi Terkecil</option>
-            <option value="jabatan_asc">Jabatan (A → Z)</option>
-            <option value="eselon1_asc">Unit Eselon I (A → Z)</option>
-          </select>
-        </div>
-
-        <div class="field-group col-span-2 field-secondary" title="KepmenPANRB No. 675/2026 belum memecah Jalur Formasi (Umum/Cumlaude/Disabilitas)">
-          <div class="field-label-row">
-            <label for="filter-jenis-formasi" class="field-label">Jalur Formasi</label>
-          </div>
-          <select id="filter-jenis-formasi" class="control-select" disabled style="opacity: 0.58; cursor: not-allowed;">
-            <option value="">— Belum rilis</option>
-          </select>
-        </div>
       </div>
 
       <!-- Quick Presets + Bookmarks -->
       <div class="workbench-footer">
         <div class="quick-presets-cluster">
-          <button type="button" class="preset-chip is-active" data-preset="all">Semua (374)</button>
+          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (570)</button>
           <button type="button" class="preset-chip" data-preset="sma">Lulusan SMA/SMK</button>
           <button type="button" class="preset-chip" data-preset="s1">Lulusan S-1 / D-IV</button>
           <button type="button" class="preset-chip mobile-secondary-presets" data-preset="d3">Lulusan D-III</button>
@@ -286,7 +283,7 @@
         </div>
 
         <span class="field-hint">
-          Kolom <strong>Pelamar</strong>, <strong>Jalur</strong>, <strong>Keketatan</strong>, dan <strong>Gaji BKN</strong> sengaja dikosongkan (<span class="inline-code">—</span>) hingga SSCASN 2026 merilis data resmi.
+          Kolom <strong>Pelamar</strong>, <strong>Keketatan</strong>, dan <strong>Gaji BKN</strong> sengaja dikosongkan (<span class="inline-code">—</span>) hingga SSCASN 2026 merilis data resmi.
         </span>
       </div>
 
@@ -309,7 +306,7 @@
 
           <div class="analytics-column">
             <div class="analytics-col-header">
-              <h2 style="font-size: 0.875rem; font-weight: 700;">Unit Eselon I Kementerian Keuangan</h2>
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Unit Eselon I / Satuan Kerja (Top 13)</h2>
               <span class="analytics-col-meta">Klik untuk filter</span>
             </div>
             <div id="chart-top-eselon1" class="top-chart-list"></div>
@@ -319,8 +316,8 @@
         <div class="analytics-dist-tier">
           <div class="analytics-column">
             <div class="analytics-col-header">
-              <h2 style="font-size: 0.875rem; font-weight: 700;">Sebaran 8 Nama Jabatan</h2>
-              <span class="analytics-col-meta">Total 1.915 kursi</span>
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Sebaran Nama Jabatan (Top 10)</h2>
+              <span id="analytics-jabatan-meta" class="analytics-col-meta">Klik untuk filter</span>
             </div>
             <div id="chart-top-jabatan" class="dist-list"></div>
           </div>
@@ -360,6 +357,17 @@
         </div>
 
         <div class="ledger-controls">
+          <div class="page-size-group">
+            <label for="filter-sort">Urutkan:</label>
+            <select id="filter-sort" class="page-size-select">
+              <option value="no_urut" selected>Urutan Dokumen</option>
+              <option value="kuota_desc">Alokasi Terbanyak</option>
+              <option value="kuota_asc">Alokasi Terkecil</option>
+              <option value="jabatan_asc">Jabatan (A → Z)</option>
+              <option value="eselon1_asc">Unit Eselon I (A → Z)</option>
+            </select>
+          </div>
+
           <div class="segmented-toggle" role="group" aria-label="Mode tampilan">
             <button type="button" id="btn-view-table" class="segmented-btn is-active" aria-pressed="true">Tabel</button>
             <button type="button" id="btn-view-cards" class="segmented-btn" aria-pressed="false">Kartu</button>
@@ -438,32 +446,30 @@
 
       <div class="reference-split">
         <div class="reference-col">
-          <h3>Dokumen Sumber Terverifikasi</h3>
+          <h3>Sumber Data Masuk ke Database (570 Baris / 3.242 Kursi)</h3>
           <p class="prose-measure">
-            Data kebutuhan TA 2026 saat ini diekstrak dari scan lampiran keputusan resmi yang telah beredar untuk Kementerian Keuangan dan diverifikasi ulang terhadap jumlah total lembar lampiran.
+            Seluruh entri diambil langsung dari API resmi SSCASN BKN yang mulai tayang dan dokumen resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
           </p>
           <ul class="spec-list">
-            <li><span>Dasar Penetapan</span><strong>KepmenPANRB Nomor 675 Tahun 2026</strong></li>
-            <li><span>Tanggal Ditetapkan</span><strong>Jakarta, 19 November 2026 (Rini Widyantini)</strong></li>
-            <li><span>Instansi &amp; Kategori</span><strong>Kementerian Keuangan • Pusat (Tenaga Teknis)</strong></li>
-            <li><span>Cakupan Lampiran</span><strong>35 halaman (374 nomor urut, 8 jabatan)</strong></li>
-            <li><span>Total Alokasi Terverifikasi</span><strong>1.915 kebutuhan CPNS</strong></li>
-            <li><span>Status Portal SSCASN 2026</span><strong>Belum rilis rincian pelamar, jalur, &amp; gaji resmi</strong></li>
+            <li><span>Badan Pemeriksa Keuangan (SSCASN Live)</span><strong>51 baris / 952 kursi (Umum, Disabilitas, Papua • Gaji BKN Rp 13–19 jt)</strong></li>
+            <li><span>Kementerian Keuangan (KepmenPANRB 675/2026)</span><strong>374 baris / 1.915 kursi (19 Nov 2026 • lengkap 35 hal. lampiran)</strong></li>
+            <li><span>Badan Siber &amp; Sandi Negara (PENG.102/2026)</span><strong>2 baris / 200 kursi (KepmenPANRB 676/2026 • 196 Umum + 4 Disabilitas)</strong></li>
+            <li><span>Kejaksaan Agung (KepmenPANRB 638/2026 Parsial)</span><strong>94 baris / 175 kursi (Hal. 1, 2, 8, 9, 10, 69 dari 69 • tidak direka)</strong></li>
+            <li><span>Kementerian Kesehatan (SE HK.02.02/F/4023/2026)</span><strong>49 kelompok JF Kesehatan (30 jabatan • syarat pendidikan &amp; STR, kuota <span class="inline-code">—</span>)</strong></li>
           </ul>
         </div>
 
         <div class="reference-col">
-          <h3>Kolom Tersedia vs. Sengaja Dikosongkan (<span class="inline-code">—</span>)</h3>
+          <h3>Deduplikasi &amp; Transparansi Kolom Kosong (<span class="inline-code">—</span>)</h3>
           <p class="prose-measure">
-            Untuk menghindari angka halusinasi (<em>no-hallucination policy</em>), hanya field yang eksplisit tercantum dalam KepmenPANRB No. 675/2026 yang diisi ke database.
+            Setiap sumber diaudit silang SHA-256 dan kunci natural; field yang belum ada pada sumber tetap dibiarkan <span class="inline-code">NULL</span> (<span class="inline-code">—</span>).
           </p>
           <ul class="spec-list">
-            <li><span>Nomor Urut, Jabatan, &amp; Alokasi CPNS</span><strong>Terisi 100% (374/374 baris)</strong></li>
-            <li><span>Unit Penempatan &amp; Unit Eselon I</span><strong>Terisi 100% (13 Eselon I Kemenkeu)</strong></li>
-            <li><span>Kualifikasi Pendidikan &amp; Jenjang</span><strong>Terisi 100% (101 program studi terindeks)</strong></li>
-            <li><span>Jalur Formasi (Umum/Cumlaude/Disabilitas)</span><strong>Kosong (<span class="inline-code">—</span>) — belum dirinci</strong></li>
-            <li><span>Jumlah Pelamar, Rasio, &amp; Keketatan</span><strong>Kosong (<span class="inline-code">—</span>) — SSCASN belum buka</strong></li>
-            <li><span>Gaji BKN (<span class="inline-code">gaji_min</span>/<span class="inline-code">gaji_max</span>)</span><strong>Kosong (<span class="inline-code">—</span>) — menanti pengumuman resmi</strong></li>
+            <li><span><span class="inline-code">CPNS_Kemenkeu.pdf</span> (39 hal.)</span><strong>Dilewati (Duplikat 100%) — 39/39 gambar identik dengan KepmenPANRB 675/2026</strong></li>
+            <li><span><span class="inline-code">CPNS_Polri.pdf</span> (Paparan Canva 24 Nov 2026)</span><strong>Dilewati — paparan estimasi 750 kursi tanpa kolom pendidikan/lokasi &amp; ketidakcocokan baris Keuangan/Kepegawaian</strong></li>
+            <li><span>Kuota Kementerian Kesehatan (<span class="inline-code">SE HK.02.02</span>)</span><strong>Dikosongkan (<span class="inline-code">—</span>) sesuai sumber karena hanya mengatur syarat prodi &amp; STR</strong></li>
+            <li><span>Gaji Resmi BKN (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada 51 baris BPK (SSCASN); <span class="inline-code">—</span> pada instansi berbasis PDF/SE</strong></li>
+            <li><span>Jumlah Pelamar, Rasio &amp; Keketatan</span><strong>Tetap <span class="inline-code">NULL</span> (<span class="inline-code">—</span>) di seluruh 570 baris hingga statistik pelamar dibuka</strong></li>
           </ul>
         </div>
       </div>
@@ -476,8 +482,8 @@
           <span>Catatan Penting Penggunaan Data Awal CPNS 2026</span>
         </div>
         <ul class="disclaimer-list">
-          <li>Data pada halaman ini baru mencakup <strong>Kementerian Keuangan</strong> (KepmenPANRB No. 675 Tahun 2026). Instansi pusat dan daerah lainnya akan ditambahkan setelah surat penetapan atau API SSCASN 2026 tersedia.</li>
-          <li><strong>Simulasi Estimasi THP</strong> di jendela Detail Formasi memakai acuan regulasi resmi statutori (Gaji Pokok 80% CPNS PP No. 5/2024 + Tukin Kemenkeu Perpres No. 156/2014), <em>bukan</em> data rentang gaji BKN SSCASN 2026.</li>
+          <li>Jika instansi yang sama nantinya merilis rincian resmi di portal live <strong>SSCASN BKN</strong> (<span class="inline-code">api-rekrutmen.bkn.go.id/portal/api/spf</span>), data SSCASN otomatis menggantikan catatan pra-rilis tanpa menduplikasi baris.</li>
+          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, dan No. 109/2016 Kemenkes), terpisah dari kolom <strong>Gaji BKN</strong> resmi pada SSCASN.</li>
         </ul>
       </div>
     </section>
@@ -523,7 +529,7 @@
 
   <footer class="site-footer">
     <div class="container-wide footer-inner">
-      <div>SSCASN Explorer • Portal Data Awal CPNS 2026 (KepmenPANRB No. 675/2026 • Kementerian Keuangan)</div>
+      <div>SSCASN Explorer • Portal Data Awal CPNS 2026 (BPK Live SSCASN, Kemenkeu, BSSN, Kejaksaan Agung Parsial &amp; Syarat STR Kemenkes)</div>
       <div class="footer-links">
         <a href="/">Arsip CPNS 2024</a>
         <a href="/sumber-data">Dokumentasi Metodologi</a>
@@ -572,7 +578,7 @@
           <div class="modal-kpi-cell">
             <span class="modal-kpi-lbl">Sumber Penetapan</span>
             <span id="detail-kpi-no" class="modal-kpi-val">—</span>
-            <span class="modal-kpi-sub">KepmenPANRB No. 675/2026</span>
+            <span id="detail-kpi-sumber" class="modal-kpi-sub">—</span>
           </div>
         </div>
 
@@ -583,7 +589,7 @@
           </div>
           <div>
             <div class="metric-pair-label">Jalur Formasi</div>
-            <div id="detail-jenis" style="font-weight: 600;">— (Belum rilis SSCASN)</div>
+            <div id="detail-jenis" style="font-weight: 600;">—</div>
           </div>
           <div>
             <div class="metric-pair-label">Unit Penempatan Lengkap</div>
@@ -606,7 +612,7 @@
             <div>
               <h3 style="font-size: 0.9rem; font-weight: 700;">Simulasi Referensi Regulasi (Opsional — Bukan Gaji Resmi BKN 2026)</h3>
               <p class="muted-note" style="font-size: 0.75rem; margin: 2px 0 0;">
-                Karena Gaji BKN pada SSCASN 2026 belum rilis (<span class="inline-code">—</span>), simulator ini hanya menghitung acuan PP No. 5/2024 + Perpres Tukin Kemenkeu No. 156/2014.
+                Karena Gaji BKN pada SSCASN 2026 belum rilis (<span class="inline-code">—</span>), simulator ini hanya menghitung acuan PP No. 5/2024 + <span id="sim-tukin-source-note">Perpres Tukin Instansi</span>.
               </p>
             </div>
             <span id="thp-golongan-pill" class="badge badge-accent">Gol. —</span>
@@ -640,7 +646,7 @@
               <div class="slip-col-title">Komponen Penghasilan Acuan</div>
               <div class="slip-line"><span>Gaji Pokok (PP No. 5/2024)</span><strong id="slip-gapok" class="num">—</strong></div>
               <div class="slip-line"><span>Tunjangan Keluarga &amp; Beras</span><strong id="slip-tunj-keluarga" class="num">—</strong></div>
-              <div class="slip-line"><span>Tukin Kemenkeu (Perpres 156/2014)</span><strong id="slip-tukin" class="num">—</strong></div>
+              <div class="slip-line"><span id="slip-tukin-label">Tukin Instansi (Regulasi Acuan)</span><strong id="slip-tukin" class="num">—</strong></div>
               <div class="slip-total-line"><span>Estimasi Kotor Regulasi</span><strong id="slip-kotor" class="num">—</strong></div>
             </div>
             <div class="slip-col">
@@ -683,6 +689,6 @@
     <span id="toast-message"></span>
   </div>
 
-  <script src="/static/js/cpns2026.js?v=20261127a"></script>
+  <script src="/static/js/cpns2026.js?v=20261127c"></script>
 </body>
 </html>

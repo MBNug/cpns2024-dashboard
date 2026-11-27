@@ -18,11 +18,13 @@
     totalPages: 1,
     totalKuotaFiltered: 0,
     q: '',
+    instansi: '',
     jurusan: '',
     eselon1: '',
     jabatan: '',
     lokasi: '',
     jenjang: '',
+    jenis_formasi: '',
     min_kuota: '',
     sort_by: 'no_urut',
     only_saved: false,
@@ -58,6 +60,17 @@
   function formatRp(val) {
     if (val === null || val === undefined || Number.isNaN(Number(val))) return '—';
     return 'Rp ' + Math.round(Number(val)).toLocaleString('id-ID');
+  }
+
+  function formatQuota(val) {
+    if (val === null || val === undefined || Number.isNaN(Number(val))) return '—';
+    return formatInt(val) + ' kursi';
+  }
+
+  function formatSalaryRange(minVal, maxVal) {
+    if (!minVal || minVal <= 0) return '—';
+    if (maxVal && maxVal > minVal) return formatRp(minVal) + ' – ' + formatRp(maxVal);
+    return formatRp(minVal);
   }
 
   function showToast(msg, tone) {
@@ -150,11 +163,13 @@
   function buildActiveQueryParams() {
     return {
       q: state.q,
+      instansi: state.instansi,
       jurusan: state.jurusan,
       eselon1: state.eselon1,
       jabatan: state.jabatan,
       lokasi: state.lokasi,
       jenjang: state.jenjang,
+      jenis_formasi: state.jenis_formasi,
       min_kuota: state.min_kuota,
       sort_by: state.sort_by,
     };
@@ -167,8 +182,17 @@
       state.hasSalaryData = !!d.has_salary_data;
       $('kpi-total-rows').textContent = formatInt(d.total_formasi_rows);
       $('kpi-total-kuota').textContent = formatInt(d.total_kuota) + ' kursi';
-      $('kpi-total-instansi').textContent = formatInt(d.distinct_instansi) + ' (Kemenkeu)';
+      $('kpi-total-instansi').textContent = formatInt(d.distinct_instansi) + ' instansi';
       $('kpi-total-pelamar').textContent = d.has_applicant_data ? formatInt(d.total_pelamar) : '—';
+      if ($('btn-preset-all')) {
+        $('btn-preset-all').textContent = 'Semua (' + formatInt(d.total_formasi_rows) + ')';
+      }
+      if ($('analytics-jabatan-meta')) {
+        $('analytics-jabatan-meta').textContent = 'Total ' + formatInt(d.total_kuota) + ' kursi';
+      }
+      if ($('telemetry-active-instansi') && !state.instansi) {
+        $('telemetry-active-instansi').textContent = 'Semua Instansi (' + formatInt(d.distinct_instansi) + ' K/L)';
+      }
       $('kpi-median-gaji').textContent =
         d.has_salary_data && d.median_gaji_min
           ? formatRp(d.median_gaji_min)
@@ -183,6 +207,29 @@
   async function loadFilters() {
     try {
       const f = await apiGet('/filters');
+      const instSel = $('filter-instansi');
+      if (instSel) {
+        const curInst = instSel.value;
+        const instList = f.instansi_summary || (f.instansi || []).map((nm) => ({ instansi_nm: nm, total_kuota: null }));
+        instSel.innerHTML = '<option value="">Semua Instansi (' + instList.length + ')</option>';
+        instList.forEach((item) => {
+          const opt = document.createElement('option');
+          opt.value = item.instansi_nm;
+          if (item.known_kuota_cnt === 0) {
+            opt.textContent = item.instansi_nm + ' (' + formatInt(item.formasi_count) + ' baris • kuota —)';
+          } else {
+            opt.textContent = item.total_kuota !== null
+              ? item.instansi_nm + ' (' + formatInt(item.total_kuota) + ' kursi)'
+              : item.instansi_nm;
+          }
+          instSel.appendChild(opt);
+        });
+        instSel.value = curInst;
+        if ($('badge-instansi-count')) {
+          $('badge-instansi-count').textContent = instList.length + ' instansi';
+        }
+      }
+
       const eselSel = $('filter-eselon1');
       if (eselSel) {
         const cur = eselSel.value;
@@ -190,7 +237,9 @@
         f.unit_eselon1.forEach((item) => {
           const opt = document.createElement('option');
           opt.value = item.unit_eselon1;
-          opt.textContent = item.unit_eselon1 + ' (' + formatInt(item.total_kuota) + ' kursi)';
+          opt.textContent = item.known_kuota_cnt === 0
+            ? item.unit_eselon1 + ' (' + formatInt(item.formasi_count) + ' baris • kuota —)'
+            : item.unit_eselon1 + ' (' + formatInt(item.total_kuota) + ' kursi)';
           eselSel.appendChild(opt);
         });
         eselSel.value = cur;
@@ -206,10 +255,15 @@
         f.jabatan.forEach((item) => {
           const opt = document.createElement('option');
           opt.value = item.jabatan_nm;
-          opt.textContent = item.jabatan_nm + ' (' + formatInt(item.total_kuota) + ')';
+          opt.textContent = item.known_kuota_cnt === 0
+            ? item.jabatan_nm + ' (' + formatInt(item.formasi_count) + ' • kuota —)'
+            : item.jabatan_nm + ' (' + formatInt(item.total_kuota) + ')';
           jabSel.appendChild(opt);
         });
         jabSel.value = cur;
+        if ($('badge-jabatan-count')) {
+          $('badge-jabatan-count').textContent = f.jabatan.length + ' jabatan';
+        }
       }
 
       const jenjSel = $('filter-jenjang');
@@ -223,6 +277,30 @@
           jenjSel.appendChild(opt);
         });
         jenjSel.value = cur;
+      }
+
+      const jenisSel = $('filter-jenis-formasi');
+      if (jenisSel) {
+        const curJenis = jenisSel.value;
+        const jList = f.jenis_formasi || [];
+        if (f.has_jenis_formasi && jList.length) {
+          jenisSel.disabled = false;
+          jenisSel.style.opacity = '';
+          jenisSel.style.cursor = '';
+          jenisSel.innerHTML = '<option value="">Semua Jalur</option>';
+          jList.forEach((jf) => {
+            const opt = document.createElement('option');
+            opt.value = jf;
+            opt.textContent = jf;
+            jenisSel.appendChild(opt);
+          });
+          jenisSel.value = curJenis;
+        } else {
+          jenisSel.disabled = true;
+          jenisSel.style.opacity = '0.58';
+          jenisSel.style.cursor = 'not-allowed';
+          jenisSel.innerHTML = '<option value="">— Belum rilis</option>';
+        }
       }
     } catch (err) {
       showToast('Gagal memuat daftar filter CPNS 2026.', 'warn');
@@ -275,7 +353,7 @@
       if (p === 'saved') {
         active = state.only_saved;
       } else if (!state.only_saved) {
-        if (p === 'all' && !state.jenjang && !state.min_kuota && !state.eselon1 && !state.jabatan && !state.jurusan && !state.q && !state.lokasi) {
+        if (p === 'all' && !state.instansi && !state.jenjang && !state.jenis_formasi && !state.min_kuota && !state.eselon1 && !state.jabatan && !state.jurusan && !state.q && !state.lokasi) {
           active = true;
         } else if (p === 'sma' && state.jenjang === 'SMA/SMK') {
           active = true;
@@ -299,12 +377,17 @@
     const chips = [];
     if (state.only_saved) chips.push({ key: 'saved', label: 'Mode: Tersimpan (' + state.bookmarks.length + ')' });
     if (state.q) chips.push({ key: 'q', label: 'Cari: "' + state.q + '"' });
+    if (state.instansi) chips.push({ key: 'instansi', label: 'Instansi: ' + state.instansi });
     if (state.jurusan) chips.push({ key: 'jurusan', label: 'Prodi: ' + state.jurusan });
     if (state.eselon1) chips.push({ key: 'eselon1', label: 'Unit: ' + state.eselon1 });
     if (state.jabatan) chips.push({ key: 'jabatan', label: 'Jabatan: ' + state.jabatan });
     if (state.lokasi) chips.push({ key: 'lokasi', label: 'Penempatan: ' + state.lokasi });
     if (state.jenjang) chips.push({ key: 'jenjang', label: 'Jenjang: ' + state.jenjang });
+    if (state.jenis_formasi) chips.push({ key: 'jenis_formasi', label: 'Jalur: ' + state.jenis_formasi });
     if (state.min_kuota) chips.push({ key: 'min_kuota', label: 'Alokasi >= ' + state.min_kuota });
+    if ($('telemetry-active-instansi')) {
+      $('telemetry-active-instansi').textContent = state.instansi || 'Semua Instansi Terverifikasi';
+    }
 
     if (!chips.length) {
       bar.classList.add('hidden');
@@ -443,13 +526,15 @@
     tbody.innerHTML = state.currentItems
       .map((item) => {
         const saved = state.bookmarks.includes(item.formasi_id);
-        const pelamarSub =
-          item.jumlah_pelamar !== null && item.jumlah_pelamar !== undefined
-            ? formatInt(item.jumlah_pelamar) + ' pelamar'
-            : 'Pelamar: —';
+        const hasQuota = item.jumlah_formasi !== null && item.jumlah_formasi !== undefined;
+        const pelamarSub = !hasQuota
+          ? 'Kuota belum rilis'
+          : (item.jumlah_pelamar !== null && item.jumlah_pelamar !== undefined
+              ? formatInt(item.jumlah_pelamar) + ' pelamar'
+              : 'Pelamar: —');
         const gajiHtml =
           item.gaji_min && item.gaji_min > 0
-            ? '<div class="salary-range">' + formatRp(item.gaji_min) + '</div>'
+            ? '<div class="salary-range">' + formatSalaryRange(item.gaji_min, item.gaji_max) + '</div><div class="salary-sub" style="color:var(--color-accent-ink);">Resmi BKN</div>'
             : '<div class="salary-range" style="color:var(--color-text-muted);">—</div><div class="salary-sub">Belum rilis</div>';
         const jalurHtml = item.jenis_formasi
           ? '<span class="badge badge-accent">' + escapeHtml(item.jenis_formasi) + '</span>'
@@ -492,8 +577,8 @@
           '</td>' +
           '<td class="col-num">' +
           '<div class="quota-num">' +
-          formatInt(item.jumlah_formasi) +
-          ' kursi</div>' +
+          formatQuota(item.jumlah_formasi) +
+          '</div>' +
           '<div class="applicant-num">' +
           escapeHtml(pelamarSub) +
           '</div>' +
@@ -563,13 +648,13 @@
           '<div>' +
           '<div class="formation-card-metrics">' +
           '<div><div class="metric-pair-label">Alokasi CPNS</div><div class="metric-pair-val">' +
-          formatInt(item.jumlah_formasi) +
-          ' kursi</div></div>' +
+          formatQuota(item.jumlah_formasi) +
+          '</div></div>' +
           '<div><div class="metric-pair-label">Pelamar / Rasio</div><div class="metric-pair-val">' +
           (item.jumlah_pelamar !== null ? formatInt(item.jumlah_pelamar) : '— (Belum rilis)') +
           '</div></div>' +
           '<div><div class="metric-pair-label">Gaji BKN</div><div class="metric-pair-val">' +
-          (item.gaji_min > 0 ? formatRp(item.gaji_min) : '—') +
+          formatSalaryRange(item.gaji_min, item.gaji_max) +
           '</div></div>' +
           '<div style="display:flex;align-items:flex-end;justify-content:flex-end;">' +
           '<button type="button" class="btn btn-secondary btn-sm" data-open-detail="' +
@@ -819,17 +904,26 @@
       $('modal-detail-title').textContent = item.jabatan_nm;
       $('modal-detail-sub').textContent = item.instansi_nm + ' • ' + item.unit_eselon1;
 
-      $('detail-kpi-kuota').textContent = formatInt(item.jumlah_formasi) + ' kursi';
+      $('detail-kpi-kuota').textContent = formatQuota(item.jumlah_formasi);
       $('detail-kpi-rasio').textContent =
         item.jumlah_pelamar !== null ? formatInt(item.jumlah_pelamar) + ' (' + item.rasio_kompetisi + ')' : '—';
-      $('detail-kpi-gaji').textContent = item.gaji_min > 0 ? formatRp(item.gaji_min) : '—';
-      $('detail-kpi-no').textContent = 'No. ' + item.no_urut + ' / 374';
+      $('detail-kpi-gaji').textContent = formatSalaryRange(item.gaji_min, item.gaji_max);
+      $('detail-kpi-no').textContent = 'No. ' + item.no_urut;
+      if ($('detail-kpi-sumber')) {
+        $('detail-kpi-sumber').textContent = item.sumber_dokumen || '—';
+      }
 
       $('detail-eselon1').textContent = item.unit_eselon1;
-      $('detail-jenis').textContent = item.jenis_formasi || '— (Belum dirilis SSCASN)';
+      $('detail-jenis').textContent = item.jenis_formasi || '— (Tidak dirinci pada dokumen)';
       $('detail-lokasi').textContent = item.lokasi_nm;
       $('detail-jenjang').textContent = item.jenjang;
       $('thp-golongan-pill').textContent = 'Gol. ' + item.golongan_kode + ' (Acuan PP 5/2024)';
+      if ($('sim-tukin-source-note')) {
+        $('sim-tukin-source-note').textContent = item.tukin_sumber || 'Perpres Tukin Instansi';
+      }
+      if ($('slip-tukin-label')) {
+        $('slip-tukin-label').textContent = 'Tukin ' + (item.instansi_nm || 'Instansi') + ' (Acuan)';
+      }
 
       const cloud = $('detail-majors-cloud');
       cloud.innerHTML = (item.jurusan_list || [])
@@ -902,12 +996,12 @@
         rowHtml('Unit Penempatan', (it) => escapeHtml(it.lokasi_nm)) +
         rowHtml('Jenjang', (it) => '<span class="badge badge-accent">' + escapeHtml(it.jenjang) + '</span>') +
         rowHtml('Kualifikasi Pendidikan', (it) => escapeHtml(it.pendidikan_nm)) +
-        rowHtml('Alokasi CPNS', (it) => '<strong class="num">' + formatInt(it.jumlah_formasi) + ' kursi</strong>') +
+        rowHtml('Alokasi CPNS', (it) => '<strong class="num">' + formatQuota(it.jumlah_formasi) + '</strong>') +
         rowHtml('Jalur Formasi', (it) => (it.jenis_formasi ? escapeHtml(it.jenis_formasi) : '<span class="muted-note">— (Belum rilis)</span>')) +
         rowHtml('Jumlah Pelamar', (it) => (it.jumlah_pelamar !== null ? formatInt(it.jumlah_pelamar) : '<span class="muted-note">— (Belum rilis)</span>')) +
-        rowHtml('Gaji BKN (SSCASN)', (it) => (it.gaji_min > 0 ? formatRp(it.gaji_min) : '<span class="muted-note">— (Belum rilis)</span>')) +
+        rowHtml('Gaji BKN (SSCASN)', (it) => (it.gaji_min > 0 ? '<span class="num">' + formatSalaryRange(it.gaji_min, it.gaji_max) + '</span>' : '<span class="muted-note">— (Belum rilis)</span>')) +
         rowHtml('Simulasi Gapok CPNS 80%', (it) => '<span class="num">' + formatRp(it.gapok_cpns_80) + ' (Gol. ' + escapeHtml(it.golongan_kode) + ')</span>') +
-        rowHtml('Tukin Kemenkeu (Regulasi)', (it) => '<span class="num">' + formatRp(it.tukin_min) + ' – ' + formatRp(it.tukin_max) + '</span>') +
+        rowHtml('Tukin Instansi (Regulasi)', (it) => (it.tukin_min && it.tukin_max ? '<span class="num">' + formatRp(it.tukin_min) + ' – ' + formatRp(it.tukin_max) + '</span>' : '<span class="muted-note">—</span>')) +
         '</tbody></table></div>';
     } catch (e) {
       body.innerHTML = '<div class="empty-state"><p class="empty-desc">Gagal memuat data perbandingan.</p></div>';
@@ -927,20 +1021,24 @@
     state.page = 1;
     state.only_saved = false;
     state.q = '';
+    state.instansi = '';
     state.jurusan = '';
     state.eselon1 = '';
     state.jabatan = '';
     state.lokasi = '';
     state.jenjang = '';
+    state.jenis_formasi = '';
     state.min_kuota = '';
     state.sort_by = 'no_urut';
 
     $('filter-q').value = '';
+    if ($('filter-instansi')) $('filter-instansi').value = '';
     $('filter-jurusan').value = '';
     $('filter-eselon1').value = '';
     $('filter-jabatan').value = '';
     $('filter-lokasi').value = '';
     $('filter-jenjang').value = '';
+    if ($('filter-jenis-formasi')) $('filter-jenis-formasi').value = '';
     $('filter-min-kuota').value = '';
     $('filter-sort').value = 'no_urut';
     loadFormasiTable();
@@ -1056,6 +1154,14 @@
       }
     });
 
+    if ($('filter-instansi')) {
+      $('filter-instansi').addEventListener('change', (e) => {
+        state.instansi = e.target.value;
+        state.only_saved = false;
+        state.page = 1;
+        loadFormasiTable();
+      });
+    }
     $('filter-eselon1').addEventListener('change', (e) => {
       state.eselon1 = e.target.value;
       state.only_saved = false;
@@ -1074,6 +1180,14 @@
       state.page = 1;
       loadFormasiTable();
     });
+    if ($('filter-jenis-formasi')) {
+      $('filter-jenis-formasi').addEventListener('change', (e) => {
+        state.jenis_formasi = e.target.value;
+        state.only_saved = false;
+        state.page = 1;
+        loadFormasiTable();
+      });
+    }
     $('filter-min-kuota').addEventListener('change', (e) => {
       state.min_kuota = e.target.value;
       state.only_saved = false;
@@ -1119,11 +1233,13 @@
       const key = btn.getAttribute('data-clear-key');
       if (key === 'saved') state.only_saved = false;
       else if (key === 'q') { state.q = ''; $('filter-q').value = ''; }
+      else if (key === 'instansi') { state.instansi = ''; if ($('filter-instansi')) $('filter-instansi').value = ''; }
       else if (key === 'jurusan') { state.jurusan = ''; $('filter-jurusan').value = ''; }
       else if (key === 'eselon1') { state.eselon1 = ''; $('filter-eselon1').value = ''; }
       else if (key === 'jabatan') { state.jabatan = ''; $('filter-jabatan').value = ''; }
       else if (key === 'lokasi') { state.lokasi = ''; $('filter-lokasi').value = ''; }
       else if (key === 'jenjang') { state.jenjang = ''; $('filter-jenjang').value = ''; }
+      else if (key === 'jenis_formasi') { state.jenis_formasi = ''; if ($('filter-jenis-formasi')) $('filter-jenis-formasi').value = ''; }
       else if (key === 'min_kuota') { state.min_kuota = ''; $('filter-min-kuota').value = ''; }
       state.page = 1;
       loadFormasiTable();

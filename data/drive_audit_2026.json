@@ -1,0 +1,56 @@
+[
+  {
+    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf",
+    "status": "ingested_sscasn_live",
+    "instansi": "Badan Pemeriksa Keuangan",
+    "referensi": "SSCASN BKN Resmi TA 2026 (Seleksi CASN Nasional 2026 • 27 Nov 2026)",
+    "rows_ingested": 51,
+    "kuota_ingested": 952,
+    "catatan": "Data resmi langsung portal SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis)."
+  },
+  {
+    "file_name": "CPNS_BSSN.pdf",
+    "status": "ingested",
+    "instansi": "Badan Siber dan Sandi Negara",
+    "referensi": "PENG.102/BSSN/SU/KP.02.01/11/2026 (KepmenPANRB No. 676/2026)",
+    "rows_ingested": 2,
+    "kuota_ingested": 200,
+    "catatan": "Lampiran I lengkap (196 Umum + 4 Disabilitas)."
+  },
+  {
+    "file_name": "CPNS_KEJAKSAAN_AGUNG.pdf",
+    "status": "ingested_partial",
+    "instansi": "Kejaksaan Agung",
+    "referensi": "KepmenPANRB No. 638/2026 (11 Nov 2026)",
+    "rows_ingested": 94,
+    "kuota_ingested": 175,
+    "catatan": "PDF yang diunggah hanya berisi 6 dari 69 halaman lampiran (hal. 1, 2, 8, 9, 10, 69 dari total 1.660 kursi nasional). Baris hilang tidak direka."
+  },
+  {
+    "file_name": "CPNS_Kemenkes_Info_STR_.pdf",
+    "status": "ingested_no_quota",
+    "instansi": "Kementerian Kesehatan",
+    "referensi": "SE Dirjen SDMK No. HK.02.02/F/4023/2026 (22 Okt 2026)",
+    "rows_ingested": 49,
+    "kuota_ingested": 0,
+    "catatan": "Dimasukkan sesuai data dokumen persyaratan kualifikasi & STR bagi 30 Jabatan Fungsional Kesehatan (49 kelompok kategori/STR); kolom kuota dibiarkan kosong (NULL/—) karena tidak ada penetapan alokasi."
+  },
+  {
+    "file_name": "CPNS_Kemenkeu.pdf",
+    "status": "skipped_duplicate",
+    "instansi": "Kementerian Keuangan",
+    "referensi": "KepmenPANRB No. 675/2026 (19 Nov 2026)",
+    "rows_ingested": 0,
+    "kuota_ingested": 0,
+    "catatan": "Duplikat 100% (39/39 hash JPEG identik) dengan dokumen Kemenkeu yang sudah masuk (374 baris / 1.915 kursi). Dilewati agar tidak ganda."
+  },
+  {
+    "file_name": "CPNS_Polri.pdf",
+    "status": "skipped_incomplete_draft",
+    "instansi": "Kepolisian Negara Republik Indonesia",
+    "referensi": "Paparan Canva Persiapan (24 Nov 2026, merujuk KepmenPANRB No. 653/2026)",
+    "rows_ingested": 0,
+    "kuota_ingested": 0,
+    "catatan": "Paparan estimasi 750 formasi tanpa kolom kualifikasi pendidikan & lokasi penempatan; panel Keuangan/Kepegawaian memiliki 16 jabatan vs 17 angka & angka teratas tumpang tindih sehingga tidak dimasukkan ke tabel terverifikasi."
+  }
+]
