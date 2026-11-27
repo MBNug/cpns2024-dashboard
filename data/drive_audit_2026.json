@@ -27,13 +27,13 @@
     "catatan": "Lampiran I & II lengkap: 21 kelompok jabatan/rumpun di 554 baris unit penempatan (Umum & Penyandang Disabilitas) beserta kualifikasi pendidikan dan kisaran penghasilan resmi Rp 7,7–11,5 jt."
   },
   {
-    "file_name": "Kemenkum.pdf",
-    "status": "ingested",
+    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenkum.pdf",
+    "status": "ingested_sscasn_live",
     "instansi": "Kementerian Hukum",
-    "referensi": "Pengumuman Kemenkum No. SEK.2-KP.02.01-326 (KepmenPANRB No. 647/2026, 27 Nov 2026)",
-    "rows_ingested": 45,
+    "referensi": "SSCASN BKN Live + Pengumuman Kemenkum No. SEK.2-KP.02.01-326 (KepmenPANRB No. 647/2026)",
+    "rows_ingested": 53,
     "kuota_ingested": 1297,
-    "catatan": "Lampiran lengkap 15 jabatan (45 baris alokasi jalur: 1.219 Umum, 26 Putra/Putri Lulusan Terbaik, 26 Penyandang Disabilitas, 26 Orang Asli Papua) pada Unit Pusat, Kantor Wilayah, dan Balai Pelatihan Hukum. Gaji resmi & pelamar belum dicantumkan sehingga dibiarkan NULL."
+    "catatan": "Data resmi SSCASN BKN Live lengkap 53 baris penempatan (Unit Utama, Kantor Wilayah, Ditjen KI, Ditjen PP, BPSDM/Poltek Pengayoman) dengan total 1.297 kursi identik pengumuman (1.219 Umum, 26 Lulusan Terbaik, 26 Disabilitas, 26 Putra/Putri Papua) beserta Gaji Resmi BKN Rp 5,3–9,8 jt. Menggantikan Kemenkum.pdf pra-rilis tanpa duplikasi."
   },
   {
     "file_name": "Mahkamah Agung.pdf",
