@@ -481,9 +481,19 @@ class Cpns2026DashboardTests(unittest.TestCase):
             self.assertLessEqual(skd["min"], skd["median"])
             self.assertLessEqual(skd["median"], skd["max"])
 
-        # Non-covered 2024 agency row must stay None (zero hallucination)
-        r_pemda = self.client.get("/api/formasi", params={"limit": 1, "kategori_instansi": "Kabupaten/Kota"}).json()
-        other_fid = r_pemda["items"][0]["formasi_id"]
+        # Non-covered 2024 agency row (INS-0206 DIY, auth-gated) must stay None (zero hallucination)
+        c24_ro = sqlite3.connect(f"file:{DB_PATH.parent / 'cpns2024.db'}?mode=ro", uri=True)
+        try:
+            diy_id = c24_ro.execute(
+                "SELECT instansi_id FROM instansi WHERE kode_instansi = ?",
+                ("INS-0206",),
+            ).fetchone()[0]
+        finally:
+            c24_ro.close()
+        r_unpub = self.client.get("/api/formasi", params={"limit": 1, "instansi_id": diy_id}).json()
+        self.assertGreater(len(r_unpub["items"]), 0)
+        self.assertEqual(r_unpub["items"][0]["instansi_id"], diy_id)
+        other_fid = r_unpub["items"][0]["formasi_id"]
         self.assertIsNone(self.client.get(f"/api/formasi/{other_fid}").json().get("nilai_2024"))
 
 

@@ -64,14 +64,15 @@ _has_fast_index = False
 _instansi_mem_map: Optional[Dict[int, Tuple[str, str]]] = None
 _scores_2024_lock = threading.Lock()
 _scores_2024_by_fid: Optional[Dict[str, Dict[str, Any]]] = None
+_scores_2024_table_exists: Optional[bool] = None
 
 
 def _get_scores_2024_map() -> Dict[str, Dict[str, Any]]:
-    """Lazy-load verified 2024 exam score stats keyed by cpns2024.db formasi_id."""
+    """Fallback lazy-loader for legacy JSON 2024 score stats when SQLite table is absent."""
     global _scores_2024_by_fid
     if _scores_2024_by_fid is not None:
         return _scores_2024_by_fid
-    with _scores_2024_lock:
+    with _cache_lock:
         if _scores_2024_by_fid is not None:
             return _scores_2024_by_fid
         scores_path = DATA_DIR / "scores_2024_6instansi.json"
@@ -97,6 +98,68 @@ def _get_scores_2024_map() -> Dict[str, Dict[str, Any]]:
                     }
         _scores_2024_by_fid = mapping
         return _scores_2024_by_fid
+
+
+def _has_scores_2024_table(cur: sqlite3.Cursor) -> bool:
+    global _scores_2024_table_exists
+    if _scores_2024_table_exists is not None:
+        return _scores_2024_table_exists
+    with _scores_2024_lock:
+        if _scores_2024_table_exists is not None:
+            return _scores_2024_table_exists
+        row = cur.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='formasi_scores_2024'"
+        ).fetchone()
+        _scores_2024_table_exists = row is not None
+        return _scores_2024_table_exists
+
+
+def _score_bucket(n: Any, mn: Any, p25: Any, med: Any, p75: Any, mx: Any, mean: Any) -> Dict[str, Any]:
+    return {
+        "n": int(n or 0),
+        "min": mn,
+        "p25": p25,
+        "median": med,
+        "p75": p75,
+        "max": mx,
+        "mean": mean,
+    }
+
+
+def _get_scores_2024_for_formasi(cur: sqlite3.Cursor, formasi_id: str) -> Optional[Dict[str, Any]]:
+    """Fetch verified 2024 exam score stats for one formasi via O(1) SQLite PK lookup."""
+    if _has_scores_2024_table(cur):
+        r = cur.execute(
+            """
+            SELECT
+                ss.instansi_kode,
+                fs.peserta_skb, fs.hadir_skb, fs.n_lulus, fs.jenis_formasi,
+                fs.na_n, fs.na_min, fs.na_p25, fs.na_median, fs.na_p75, fs.na_max, fs.na_mean,
+                fs.skd_n, fs.skd_min, fs.skd_p25, fs.skd_median, fs.skd_p75, fs.skd_max, fs.skd_mean,
+                fs.skb_n, fs.skb_min, fs.skb_p25, fs.skb_median, fs.skb_p75, fs.skb_max, fs.skb_mean,
+                fs.skd_skb_n, fs.skd_skb_min, fs.skd_skb_p25, fs.skd_skb_median, fs.skd_skb_p75, fs.skd_skb_max, fs.skd_skb_mean,
+                ss.sumber
+            FROM formasi_scores_2024 fs
+            JOIN scores_2024_sources ss ON ss.source_id = fs.source_id
+            WHERE fs.formasi_id = ?
+            """,
+            (formasi_id,),
+        ).fetchone()
+        if not r:
+            return None
+        return {
+            "instansi_kode": r[0],
+            "peserta_skb": r[1],
+            "hadir_skb": r[2],
+            "n_lulus": r[3],
+            "jenis_formasi": r[4],
+            "nilai_akhir_lulus": _score_bucket(r[5], r[6], r[7], r[8], r[9], r[10], r[11]),
+            "skd_lulus": _score_bucket(r[12], r[13], r[14], r[15], r[16], r[17], r[18]),
+            "skb_lulus": _score_bucket(r[19], r[20], r[21], r[22], r[23], r[24], r[25]),
+            "skd_peserta_skb": _score_bucket(r[26], r[27], r[28], r[29], r[30], r[31], r[32]),
+            "sumber": r[33],
+        }
+    return _get_scores_2024_map().get(formasi_id)
 
 _KAT_TO_ID = {"Pusat": 0, "Provinsi": 1, "Kabupaten/Kota": 2}
 _ID_TO_KAT = {0: "Pusat", 1: "Provinsi", 2: "Kabupaten/Kota"}
@@ -555,6 +618,23 @@ def _get_stats_data() -> Dict[str, Any]:
             median_min = get_median_salary(cur, "gaji_min")
             median_max = get_median_salary(cur, "gaji_max")
 
+            scores_2024_formasi = 0
+            scores_2024_agencies = 0
+            if _has_scores_2024_table(cur):
+                sc_row = cur.execute(
+                    """
+                    SELECT COUNT(*), COUNT(DISTINCT f.instansi_id)
+                    FROM formasi_scores_2024 fs
+                    JOIN formasi f ON f.formasi_id = fs.formasi_id
+                    """
+                ).fetchone()
+                scores_2024_formasi = int((sc_row[0] if sc_row else 0) or 0)
+                scores_2024_agencies = int((sc_row[1] if sc_row else 0) or 0)
+            else:
+                legacy_map = _get_scores_2024_map()
+                scores_2024_formasi = len(legacy_map)
+                scores_2024_agencies = len({v.get("instansi_kode") for v in legacy_map.values() if v.get("instansi_kode")})
+
             result = {
                 "total_formasi": tot_formasi,
                 "total_kuota": tot_kuota,
@@ -571,6 +651,8 @@ def _get_stats_data() -> Dict[str, Any]:
                 "gaji_median_max": median_max,
                 "gaji_avg_min": avg_min,
                 "gaji_avg_max": avg_max,
+                "scores_2024_formasi": scores_2024_formasi,
+                "scores_2024_agencies": scores_2024_agencies,
             }
             _stats_cache = result
             return result
@@ -2038,7 +2120,7 @@ def get_formasi_detail(formasi_id: str):
             "gaji_pokok_100": full_100,
             "pendidikan_raw": row["pendidikan_raw"],
             "majors": majors,
-            "nilai_2024": _get_scores_2024_map().get(row["formasi_id"]),
+            "nilai_2024": _get_scores_2024_for_formasi(cur, row["formasi_id"]),
         }
     finally:
         if conn is not None:

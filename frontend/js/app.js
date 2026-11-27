@@ -1402,7 +1402,7 @@
       badge.textContent = 'Belum tersedia';
       grid.classList.add('is-hidden');
       note.textContent =
-        'Data nilai SKD–SKB CPNS 2024 belum tersedia untuk instansi ini (baru mencakup 6 instansi CPNS 2026: BSSN, Kejagung, BPKP, Kemenkeu, Kemenkes, BPK).';
+        'Data nilai SKD–SKB CPNS 2024 belum tersedia untuk instansi atau formasi ini pada arsip lampiran resmi yang terhimpun.';
       return;
     }
 

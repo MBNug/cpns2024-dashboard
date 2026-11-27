@@ -726,9 +726,10 @@ def _load_scores_2024_raw_map() -> dict[str, dict]:
     import json
     from pathlib import Path
 
+    all_raw_path = Path(r"D:\AG Files\cpns2026-scraper\data\parsed\scores_2024_all_raw.json")
     raw_path = Path(r"D:\AG Files\cpns2026-scraper\data\parsed\scores_2024_6instansi_raw.json")
     summary_path = Path(__file__).resolve().parents[1] / "data" / "scores_2024_6instansi.json"
-    src = raw_path if raw_path.exists() else summary_path
+    src = all_raw_path if all_raw_path.exists() else (raw_path if raw_path.exists() else summary_path)
     if not src.exists():
         return {}
     payload = json.loads(src.read_text(encoding="utf-8"))
