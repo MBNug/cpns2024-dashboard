@@ -618,7 +618,7 @@ def main():
 
         CREATE TABLE jurusan (
             jurusan_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            jurusan_nm TEXT NOT NULL UNIQUE,
+            jurusan_nm TEXT NOT NULL UNIQUE COLLATE NOCASE,
             jenjang TEXT NOT NULL
         );
 
@@ -704,18 +704,39 @@ def main():
         instansi_rows,
     )
 
+    # Collapse case-insensitive major variants (e.g. "S-1 INFORMATIKA" + "S-1 Informatika")
+    variants_by_key: dict[str, Counter[str]] = {}
+    for row in rows:
+        for tok in row["pendidikan_nm"].split(" | "):
+            clean = " ".join(tok.split())
+            if clean:
+                variants_by_key.setdefault(clean.upper(), Counter())[clean] += 1
+
+    def _jurusan_rank(item: tuple[str, int]) -> tuple[int, int, int, int, str]:
+        text, freq = item
+        is_mixed = 1 if (any(c.islower() for c in text) and any(c.isupper() for c in text)) else 0
+        bad_conj = -len(re.findall(r"\b(?:Dan|Atau|Yang)\b", text))
+        return (is_mixed, bad_conj, freq, -len(text), text)
+
+    canonical_jurusan = {
+        key: max(cnt.items(), key=_jurusan_rank)[0]
+        for key, cnt in variants_by_key.items()
+    }
+
     jurusan_cache: dict[str, int] = {}
 
     def get_jurusan_id(name: str) -> int:
-        if name in jurusan_cache:
-            return jurusan_cache[name]
+        key = " ".join(name.split()).upper()
+        if key in jurusan_cache:
+            return jurusan_cache[key]
+        canon = canonical_jurusan.get(key, " ".join(name.split()))
         cur.execute(
             "INSERT OR IGNORE INTO jurusan (jurusan_nm, jenjang) VALUES (?, ?)",
-            (name, extract_jenjang_tier(name)),
+            (canon, extract_jenjang_tier(canon)),
         )
-        cur.execute("SELECT jurusan_id FROM jurusan WHERE jurusan_nm = ?", (name,))
+        cur.execute("SELECT jurusan_id FROM jurusan WHERE UPPER(jurusan_nm) = ?", (key,))
         jid = cur.fetchone()[0]
-        jurusan_cache[name] = jid
+        jurusan_cache[key] = jid
         return jid
 
     for r in rows:

@@ -88,6 +88,17 @@ class Cpns2026DashboardTests(unittest.TestCase):
                 """
             ).fetchone()
             self.assertEqual(non_nulls, (652, 0, 0, 0, 0, 605, 605, 49))
+
+            # Ensure jurusan catalog merges case-variants (e.g. S-1 Informatika + S-1 INFORMATIKA)
+            dup_jurusan = cur.execute(
+                """
+                SELECT UPPER(TRIM(jurusan_nm))
+                FROM jurusan
+                GROUP BY UPPER(TRIM(jurusan_nm))
+                HAVING COUNT(*) > 1
+                """
+            ).fetchall()
+            self.assertEqual(dup_jurusan, [])
         finally:
             conn.close()
 
@@ -191,6 +202,14 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_jur = self.client.get("/api/2026/filters/jurusan", params={"q": "SMA/SEDERAJAT"})
         self.assertEqual(r_jur.status_code, 200)
         self.assertTrue(any(item["jurusan_nm"] == "SMA/SEDERAJAT" for item in r_jur.json()))
+
+        r_inf = self.client.get("/api/2026/filters/jurusan", params={"q": "S-1 Informatika"})
+        self.assertEqual(r_inf.status_code, 200)
+        inf_exact = [x for x in r_inf.json() if x["jurusan_nm"].upper() == "S-1 INFORMATIKA"]
+        self.assertEqual(len(inf_exact), 1)
+        self.assertEqual(inf_exact[0]["jurusan_nm"], "S-1 Informatika")
+        self.assertEqual(inf_exact[0]["formasi_count"], 50)
+        self.assertEqual(inf_exact[0]["total_kuota"], 426)
 
         # Check Instansi filtering for BPKP, BPK (SSCASN live), BSSN, Kejaksaan Agung, and Kemenkes
         r_bpkp = self.client.get("/api/2026/formasi", params={"instansi": "Badan Pengawasan Keuangan dan Pembangunan"})

@@ -471,7 +471,7 @@ def search_jurusan_2026(
             FROM jurusan j
             JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id
             JOIN formasi f ON f.formasi_id = fj.formasi_id
-            WHERE j.jurusan_nm LIKE ?
+            WHERE UPPER(j.jurusan_nm) LIKE UPPER(?)
             GROUP BY j.jurusan_id, j.jurusan_nm
             ORDER BY total_kuota DESC, j.jurusan_nm ASC
             LIMIT ?
