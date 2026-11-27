@@ -36,6 +36,33 @@
     "catatan": "Lampiran lengkap 15 jabatan (45 baris alokasi jalur: 1.219 Umum, 26 Putra/Putri Lulusan Terbaik, 26 Penyandang Disabilitas, 26 Orang Asli Papua) pada Unit Pusat, Kantor Wilayah, dan Balai Pelatihan Hukum. Gaji resmi & pelamar belum dicantumkan sehingga dibiarkan NULL."
   },
   {
+    "file_name": "Mahkamah Agung.pdf",
+    "status": "ingested",
+    "instansi": "Mahkamah Agung RI",
+    "referensi": "Pengumuman Sekretaris MA No. 34/SEK/PENG.KP1.1.2/XI/2026 (KepmenPANRB No. 643/2026, 27 Nov 2026)",
+    "rows_ingested": 22,
+    "kuota_ingested": 4430,
+    "catatan": "Rincian lengkap 18 kode formasi / 22 baris alokasi jalur (4.321 Umum, 89 Disabilitas, 20 Putra/Putri Papua) termasuk Calon Hakim (1.600 kursi), PSTI (716), Penelaah Teknis Kebijakan (705), dan Petugas Pengamanan Persidangan (906). Gaji resmi & pelamar dibiarkan NULL."
+  },
+  {
+    "file_name": "Kemenham.pdf",
+    "status": "ingested",
+    "instansi": "Kementerian Hak Asasi Manusia",
+    "referensi": "Pengumuman Kemenham No. SEK-1143.KP.02.01 Tahun 2026 (KepmenPANRB No. 672/2026, 27 Nov 2026)",
+    "rows_ingested": 15,
+    "kuota_ingested": 1000,
+    "catatan": "Lampiran I & II lengkap: 8 jabatan / 15 baris jalur (895 Umum, 25 Disabilitas, 10 Cum Laude, 70 Putra/Putri Papua) beserta rentang penghasilan resmi Rp 5,3–9,4 jt per bulan."
+  },
+  {
+    "file_name": "POLRI CPNS.pdf",
+    "status": "ingested",
+    "instansi": "Kepolisian Negara Republik Indonesia",
+    "referensi": "Pengumuman Kapolri No. Peng/33/XI/KEP./2026 (KepmenPANRB No. 653/2026, 27 Nov 2026)",
+    "rows_ingested": 633,
+    "kuota_ingested": 750,
+    "catatan": "Lampiran A resmi lengkap 131 halaman (605 nomor penempatan Polda & Mabes Polri / 633 baris jalur: 722 Umum, 15 Disabilitas, 9 Cum Laude, 4 Putra/Putri Papua). Menggantikan dek Canva 73 MB sebelumnya; gaji resmi & pelamar dibiarkan NULL."
+  },
+  {
     "file_name": "Mekanisme_CPNS_dan_Passing_Grade.pdf",
     "status": "reference_policy",
     "instansi": "Kementerian PANRB (Nasional)",

@@ -72,6 +72,30 @@ EXTRA_INSTANSI = [
         33240000,
         "Standar Tunjangan Kinerja K/L (Kementerian Koperasi / eks Kemenkop UKM — Simulasi Acuan)",
     ),
+    (
+        "MA",
+        "Mahkamah Agung RI",
+        "Pusat",
+        2531250,
+        37560000,
+        "Perpres No. 8/2020 (Tukin Resmi Terverifikasi Mahkamah Agung RI — Simulasi Acuan)",
+    ),
+    (
+        "KEMENHAM",
+        "Kementerian Hak Asasi Manusia",
+        "Pusat",
+        2531250,
+        27577500,
+        "Perpres No. 130/2017 (Tukin Resmi Terverifikasi Kemenham / eks Kemenkumham — Simulasi Acuan)",
+    ),
+    (
+        "POLRI",
+        "Kepolisian Negara Republik Indonesia",
+        "Pusat",
+        2531250,
+        24930000,
+        "Estimasi Kisaran Standar KemenPAN-RB (Polri — Simulasi Acuan)",
+    ),
 ]
 
 DRIVE_AUDIT_SUMMARY = [
@@ -110,6 +134,33 @@ DRIVE_AUDIT_SUMMARY = [
         "rows_ingested": 45,
         "kuota_ingested": 1297,
         "catatan": "Lampiran lengkap 15 jabatan (45 baris alokasi jalur: 1.219 Umum, 26 Putra/Putri Lulusan Terbaik, 26 Penyandang Disabilitas, 26 Orang Asli Papua) pada Unit Pusat, Kantor Wilayah, dan Balai Pelatihan Hukum. Gaji resmi & pelamar belum dicantumkan sehingga dibiarkan NULL.",
+    },
+    {
+        "file_name": "Mahkamah Agung.pdf",
+        "status": "ingested",
+        "instansi": "Mahkamah Agung RI",
+        "referensi": "Pengumuman Sekretaris MA No. 34/SEK/PENG.KP1.1.2/XI/2026 (KepmenPANRB No. 643/2026, 27 Nov 2026)",
+        "rows_ingested": 22,
+        "kuota_ingested": 4430,
+        "catatan": "Rincian lengkap 18 kode formasi / 22 baris alokasi jalur (4.321 Umum, 89 Disabilitas, 20 Putra/Putri Papua) termasuk Calon Hakim (1.600 kursi), PSTI (716), Penelaah Teknis Kebijakan (705), dan Petugas Pengamanan Persidangan (906). Gaji resmi & pelamar dibiarkan NULL.",
+    },
+    {
+        "file_name": "Kemenham.pdf",
+        "status": "ingested",
+        "instansi": "Kementerian Hak Asasi Manusia",
+        "referensi": "Pengumuman Kemenham No. SEK-1143.KP.02.01 Tahun 2026 (KepmenPANRB No. 672/2026, 27 Nov 2026)",
+        "rows_ingested": 15,
+        "kuota_ingested": 1000,
+        "catatan": "Lampiran I & II lengkap: 8 jabatan / 15 baris jalur (895 Umum, 25 Disabilitas, 10 Cum Laude, 70 Putra/Putri Papua) beserta rentang penghasilan resmi Rp 5,3–9,4 jt per bulan.",
+    },
+    {
+        "file_name": "POLRI CPNS.pdf",
+        "status": "ingested",
+        "instansi": "Kepolisian Negara Republik Indonesia",
+        "referensi": "Pengumuman Kapolri No. Peng/33/XI/KEP./2026 (KepmenPANRB No. 653/2026, 27 Nov 2026)",
+        "rows_ingested": 633,
+        "kuota_ingested": 750,
+        "catatan": "Lampiran A resmi lengkap 131 halaman (605 nomor penempatan Polda & Mabes Polri / 633 baris jalur: 722 Umum, 15 Disabilitas, 9 Cum Laude, 4 Putra/Putri Papua). Menggantikan dek Canva 73 MB sebelumnya; gaji resmi & pelamar dibiarkan NULL.",
     },
     {
         "file_name": "Mekanisme_CPNS_dan_Passing_Grade.pdf",
@@ -389,6 +440,14 @@ _INSTANSI_CODE_MAP = {
     "Kementerian Hukum Republik Indonesia": "KEMENKUM",
     "Kementerian Koperasi": "KEMENKOP",
     "Kementerian Koperasi Republik Indonesia": "KEMENKOP",
+    "Mahkamah Agung": "MA",
+    "Mahkamah Agung RI": "MA",
+    "Mahkamah Agung Republik Indonesia": "MA",
+    "Sekretariat Mahkamah Agung": "MA",
+    "Kementerian Hak Asasi Manusia": "KEMENHAM",
+    "Kementerian Hak Asasi Manusia Republik Indonesia": "KEMENHAM",
+    "Kepolisian Negara Republik Indonesia": "POLRI",
+    "Polri": "POLRI",
 }
 
 _CANONICAL_INSTANSI_NM = {
@@ -400,6 +459,10 @@ _CANONICAL_INSTANSI_NM = {
     "Badan Pengawasan Keuangan dan Pembangunan Republik Indonesia": "Badan Pengawasan Keuangan dan Pembangunan",
     "Kementerian Hukum Republik Indonesia": "Kementerian Hukum",
     "Kementerian Koperasi Republik Indonesia": "Kementerian Koperasi",
+    "Mahkamah Agung": "Mahkamah Agung RI",
+    "Mahkamah Agung Republik Indonesia": "Mahkamah Agung RI",
+    "Sekretariat Mahkamah Agung": "Mahkamah Agung RI",
+    "Kementerian Hak Asasi Manusia Republik Indonesia": "Kementerian Hak Asasi Manusia",
 }
 
 SUMBER_SSCASN = (
@@ -690,6 +753,157 @@ def get_kemenkum_rows(extract_jenjang_fn, json_path) -> list[dict]:
                 "gaji_min": None,
                 "gaji_max": None,
                 "sumber_dokumen": SUMBER_KEMENKUM,
+            }
+        )
+    return rows
+
+
+SUMBER_MA = (
+    "Pengumuman Sekretaris Mahkamah Agung RI No. 34/SEK/PENG.KP1.1.2/XI/2026 — Seleksi Pengadaan PNS MA RI TA 2026 "
+    "(KepmenPANRB No. 643 Tahun 2026, 27 November 2026)"
+)
+
+SUMBER_KEMENHAM = (
+    "Pengumuman Kemenham No. SEK-1143.KP.02.01 Tahun 2026 — Pengadaan CPNS Kementerian Hak Asasi Manusia RI TA 2026 "
+    "(KepmenPANRB No. 672 Tahun 2026, 27 November 2026)"
+)
+
+SUMBER_POLRI = (
+    "Pengumuman Kapolri No. Peng/33/XI/KEP./2026 — Pengadaan CPNS di Lingkungan Polri TA 2026 "
+    "(KepmenPANRB No. 653 Tahun 2026, 27 November 2026)"
+)
+
+
+def get_ma_rows(extract_jenjang_fn, json_path) -> list[dict]:
+    """Load 22 verified Mahkamah Agung RI CPNS 2026 rows (18 formasi codes / 4,430 seats)."""
+    import json
+
+    if not json_path.exists():
+        return []
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    rows = []
+    for r in payload.get("rows", []):
+        no = int(r["no_urut"])
+        jab = re.sub(r"\s+", " ", str(r["jabatan_nm"])).strip().upper()
+        unit = re.sub(r"\s+", " ", str(r["unit_penempatan"])).strip()
+        jf = re.sub(r"\s+", " ", str(r["jenis_formasi"])).strip().upper()
+        pend_nm = " | ".join(re.sub(r"\s+", " ", p).strip() for p in str(r["pendidikan_nm"]).split("|") if p.strip())
+        if unit.startswith("Peradilan "):
+            eselon1 = unit.split("(")[0].strip()
+        else:
+            eselon1 = "Mahkamah Agung dan Badan Peradilan di Bawahnya"
+        rows.append(
+            {
+                "no_urut": no,
+                "formasi_id": str(r["formasi_id"]).strip(),
+                "instansi_id": "MA",
+                "instansi_nm": "Mahkamah Agung RI",
+                "kategori_instansi": "Pusat",
+                "unit_eselon1": eselon1,
+                "jabatan_nm": jab,
+                "pendidikan_nm": pend_nm,
+                "jenjang": extract_jenjang_fn(pend_nm),
+                "jumlah_formasi": int(r["jumlah_formasi"]),
+                "lokasi_nm": f"MAHKAMAH AGUNG RI | {unit.upper()}",
+                "jenis_formasi": jf,
+                "jumlah_pelamar": None,
+                "rasio_kompetisi": None,
+                "peluang_lolos_pct": None,
+                "status_keketatan": None,
+                "gaji_min": None,
+                "gaji_max": None,
+                "sumber_dokumen": SUMBER_MA,
+            }
+        )
+    return rows
+
+
+def get_kemenham_rows(extract_jenjang_fn, json_path) -> list[dict]:
+    """Load 15 verified Kementerian Hak Asasi Manusia CPNS 2026 rows (8 jabatan / 1,000 seats) with official salaries."""
+    import json
+
+    if not json_path.exists():
+        return []
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    rows = []
+    for r in payload.get("rows", []):
+        no = int(r["no_urut"])
+        jab = re.sub(r"\s+", " ", str(r["jabatan_nm"])).strip().upper()
+        unit = re.sub(r"\s+", " ", str(r["unit_penempatan"])).strip()
+        jf = re.sub(r"\s+", " ", str(r["jenis_formasi"])).strip().upper()
+        pend_nm = " | ".join(re.sub(r"\s+", " ", p).strip() for p in str(r["pendidikan_nm"]).split("|") if p.strip())
+        eselon1 = "Unit Pusat Kementerian HAM" if unit.lower() == "unit pusat" else "Unit Pusat dan Kantor Wilayah (20 Kanwil)"
+        rows.append(
+            {
+                "no_urut": no,
+                "formasi_id": str(r["formasi_id"]).strip(),
+                "instansi_id": "KEMENHAM",
+                "instansi_nm": "Kementerian Hak Asasi Manusia",
+                "kategori_instansi": "Pusat",
+                "unit_eselon1": eselon1,
+                "jabatan_nm": jab,
+                "pendidikan_nm": pend_nm,
+                "jenjang": extract_jenjang_fn(pend_nm),
+                "jumlah_formasi": int(r["jumlah_formasi"]),
+                "lokasi_nm": f"KEMENTERIAN HAM | {unit.upper()}",
+                "jenis_formasi": jf,
+                "jumlah_pelamar": None,
+                "rasio_kompetisi": None,
+                "peluang_lolos_pct": None,
+                "status_keketatan": None,
+                "gaji_min": int(r["gaji_min"]),
+                "gaji_max": int(r["gaji_max"]),
+                "sumber_dokumen": SUMBER_KEMENHAM,
+            }
+        )
+    return rows
+
+
+def _polri_unit_eselon1(unit: str) -> str:
+    u = re.sub(r"\s+", " ", unit).strip().upper()
+    m = re.search(r"\b(POLDA\s+[A-Z.\s]+)$", u)
+    if m:
+        polda = re.sub(r"\s+", " ", m.group(1)).strip()
+        polda_tc = polda.title().replace("Diy", "DIY").replace("Ntb", "NTB").replace("Ntt", "NTT").replace("Dki", "DKI")
+        return polda_tc
+    return "Mabes Polri (Satker Pusat)"
+
+
+def get_polri_rows(extract_jenjang_fn, json_path) -> list[dict]:
+    """Load 633 verified Polri CPNS 2026 rows (605 placement items / 750 seats) from Peng/33/XI/KEP./2026."""
+    import json
+
+    if not json_path.exists():
+        return []
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    rows = []
+    for r in payload.get("rows", []):
+        no = int(r["no_urut"])
+        jab = re.sub(r"\s+", " ", str(r["jabatan_nm"])).strip().upper()
+        unit = re.sub(r"\s+", " ", str(r["unit_penempatan"])).strip().upper()
+        jf = re.sub(r"\s+", " ", str(r["jenis_formasi"])).strip().upper()
+        pend_nm = " | ".join(re.sub(r"\s+", " ", p).strip() for p in str(r["pendidikan_nm"]).split("|") if p.strip())
+        rows.append(
+            {
+                "no_urut": no,
+                "formasi_id": str(r["formasi_id"]).strip(),
+                "instansi_id": "POLRI",
+                "instansi_nm": "Kepolisian Negara Republik Indonesia",
+                "kategori_instansi": "Pusat",
+                "unit_eselon1": _polri_unit_eselon1(unit),
+                "jabatan_nm": jab,
+                "pendidikan_nm": pend_nm,
+                "jenjang": extract_jenjang_fn(pend_nm),
+                "jumlah_formasi": int(r["jumlah_formasi"]),
+                "lokasi_nm": f"POLRI | {unit}",
+                "jenis_formasi": jf,
+                "jumlah_pelamar": None,
+                "rasio_kompetisi": None,
+                "peluang_lolos_pct": None,
+                "status_keketatan": None,
+                "gaji_min": None,
+                "gaji_max": None,
+                "sumber_dokumen": SUMBER_POLRI,
             }
         )
     return rows

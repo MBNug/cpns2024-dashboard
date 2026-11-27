@@ -1,0 +1,255 @@
+{
+  "source": "Pengumuman Sekretaris Mahkamah Agung RI No. 34/SEK/PENG.KP1.1.2/XI/2026 (27 Nov 2026, KepmenPANRB No. 643 Tahun 2026)",
+  "total_formasi_kode": 18,
+  "total_rows": 22,
+  "total_seats": 4430,
+  "breakdown_jalur": {
+    "UMUM": 4321,
+    "PENYANDANG DISABILITAS": 89,
+    "PUTRA/PUTRI PAPUA": 20
+  },
+  "rows": [
+    {
+      "no_urut": 1,
+      "no_lampiran": 1,
+      "kode_formasi": "CHU",
+      "formasi_id": "2026-MA-01-CHU-UMUM",
+      "jabatan_nm": "ANALIS PERKARA PERADILAN / CALON HAKIM PERADILAN UMUM",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Peradilan Umum (Seluruh Indonesia)",
+      "jumlah_formasi": 842,
+      "pendidikan_nm": "S-1 HUKUM | S-1 ILMU HUKUM"
+    },
+    {
+      "no_urut": 2,
+      "no_lampiran": 1,
+      "kode_formasi": "CHU",
+      "formasi_id": "2026-MA-01-CHU-PAPUA",
+      "jabatan_nm": "ANALIS PERKARA PERADILAN / CALON HAKIM PERADILAN UMUM",
+      "jenis_formasi": "PUTRA/PUTRI PAPUA",
+      "unit_penempatan": "Peradilan Umum (Seluruh Indonesia)",
+      "jumlah_formasi": 8,
+      "pendidikan_nm": "S-1 HUKUM | S-1 ILMU HUKUM"
+    },
+    {
+      "no_urut": 3,
+      "no_lampiran": 2,
+      "kode_formasi": "CHG",
+      "formasi_id": "2026-MA-02-CHG-UMUM",
+      "jabatan_nm": "ANALIS PERKARA PERADILAN / CALON HAKIM PERADILAN AGAMA",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Peradilan Agama (Seluruh Indonesia)",
+      "jumlah_formasi": 588,
+      "pendidikan_nm": "S-1 HUKUM | S-1 ILMU HUKUM | S-1 HUKUM KELUARGA | S-1 HUKUM KELUARGA (AHWAL SYAKHSIYYAH) | S-1 HUKUM KELUARGA (AKHWAL SYAKSIYAH) | S-1 HUKUM KELUARGA ISLAM | S-1 HUKUM KELUARGA ISLAM (AHWAL AL-SYAKHSIYAH) | S-1 HUKUM KELUARGA ISLAM (AHWAL ASY-SYAKHSIYAH) | S-1 HUKUM KELUARGA ISLAM (AKHWAL SYAKSIYAH) | S-1 HUKUM EKONOMI ISLAM | S-1 HUKUM EKONOMI SYARI'AH | S-1 HUKUM EKONOMI SYARIAH | S-1 HUKUM EKONOMI SYARIAH (MU'AMALAH) | S-1 HUKUM EKONOMI SYARIAH (SYARIAH) | S-1 HUKUM TATA NEGARA | S-1 HUKUM TATA NEGARA DAN PIDANA ISLAM | S-1 HUKUM TATA NEGARA ISLAM (SIYASAH) | S-1 PIDANA ISLAM | S-1 PERBANDINGAN MAZHAB | S-1 PERBANDINGAN MAZHAB DAN HUKUM | S-1 SYARIAH PERBANDINGAN MAZHAB | S-1 HUKUM PIDANA (JINAYAH) | S-1 HUKUM PIDANA ISLAM (JINAYAH) | S-1 JINAYAH | S-1 JINAYAH SIYASAH | S-1 MUAMALAH JINAYAH | S-1 SIYASAH JINAYAH | S-1 SYAR'IYAH (AHWAL SYAKHSIYAH/JINAYAH/SIYASAH SYAR'IYAH/MUAMALAH)"
+    },
+    {
+      "no_urut": 4,
+      "no_lampiran": 2,
+      "kode_formasi": "CHG",
+      "formasi_id": "2026-MA-02-CHG-PAPUA",
+      "jabatan_nm": "ANALIS PERKARA PERADILAN / CALON HAKIM PERADILAN AGAMA",
+      "jenis_formasi": "PUTRA/PUTRI PAPUA",
+      "unit_penempatan": "Peradilan Agama (Seluruh Indonesia)",
+      "jumlah_formasi": 12,
+      "pendidikan_nm": "S-1 HUKUM | S-1 ILMU HUKUM | S-1 HUKUM KELUARGA | S-1 HUKUM KELUARGA (AHWAL SYAKHSIYYAH) | S-1 HUKUM KELUARGA (AKHWAL SYAKSIYAH) | S-1 HUKUM KELUARGA ISLAM | S-1 HUKUM KELUARGA ISLAM (AHWAL AL-SYAKHSIYAH) | S-1 HUKUM KELUARGA ISLAM (AHWAL ASY-SYAKHSIYAH) | S-1 HUKUM KELUARGA ISLAM (AKHWAL SYAKSIYAH) | S-1 HUKUM EKONOMI ISLAM | S-1 HUKUM EKONOMI SYARI'AH | S-1 HUKUM EKONOMI SYARIAH | S-1 HUKUM EKONOMI SYARIAH (MU'AMALAH) | S-1 HUKUM EKONOMI SYARIAH (SYARIAH) | S-1 HUKUM TATA NEGARA | S-1 HUKUM TATA NEGARA DAN PIDANA ISLAM | S-1 HUKUM TATA NEGARA ISLAM (SIYASAH) | S-1 PIDANA ISLAM | S-1 PERBANDINGAN MAZHAB | S-1 PERBANDINGAN MAZHAB DAN HUKUM | S-1 SYARIAH PERBANDINGAN MAZHAB | S-1 HUKUM PIDANA (JINAYAH) | S-1 HUKUM PIDANA ISLAM (JINAYAH) | S-1 JINAYAH | S-1 JINAYAH SIYASAH | S-1 MUAMALAH JINAYAH | S-1 SIYASAH JINAYAH | S-1 SYAR'IYAH (AHWAL SYAKHSIYAH/JINAYAH/SIYASAH SYAR'IYAH/MUAMALAH)"
+    },
+    {
+      "no_urut": 5,
+      "no_lampiran": 3,
+      "kode_formasi": "CHT",
+      "formasi_id": "2026-MA-03-CHT-UMUM",
+      "jabatan_nm": "ANALIS PERKARA PERADILAN / CALON HAKIM PERADILAN TATA USAHA NEGARA",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Peradilan Tata Usaha Negara (Seluruh Indonesia)",
+      "jumlah_formasi": 150,
+      "pendidikan_nm": "S-1 HUKUM | S-1 ILMU HUKUM"
+    },
+    {
+      "no_urut": 6,
+      "no_lampiran": 4,
+      "kode_formasi": "KSD",
+      "formasi_id": "2026-MA-04-KSD-UMUM",
+      "jabatan_nm": "KONSELOR SDM",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 45,
+      "pendidikan_nm": "S-1 PSIKOLOGI | S-1 MANAJEMEN SDM"
+    },
+    {
+      "no_urut": 7,
+      "no_lampiran": 5,
+      "kode_formasi": "PKPT",
+      "formasi_id": "2026-MA-05-PKPT-UMUM",
+      "jabatan_nm": "PENATA KEPROTOKOLAN",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 120,
+      "pendidikan_nm": "S-1 ILMU KOMUNIKASI | S-1 HUBUNGAN INTERNASIONAL | S-1 ILMU PEMERINTAHAN | S-1 ILMU ADMINISTRASI NEGARA | S-1 ILMU ADMINISTRASI PUBLIK"
+    },
+    {
+      "no_urut": 8,
+      "no_lampiran": 6,
+      "kode_formasi": "PSTI",
+      "formasi_id": "2026-MA-06-PSTI-UMUM",
+      "jabatan_nm": "PENATA KELOLA SISTEM DAN TEKNOLOGI INFORMASI",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 632,
+      "pendidikan_nm": "S-1 TEKNOLOGI INFORMASI | S-1 TEKNIK INFORMATIKA | S-1 SISTEM INFORMASI | S-1 ILMU KOMPUTER | S-1 KOMPUTER | S-1 INFORMATIKA"
+    },
+    {
+      "no_urut": 9,
+      "no_lampiran": 6,
+      "kode_formasi": "PSTI",
+      "formasi_id": "2026-MA-06-PSTI-DISABILITAS",
+      "jabatan_nm": "PENATA KELOLA SISTEM DAN TEKNOLOGI INFORMASI",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 84,
+      "pendidikan_nm": "S-1 TEKNOLOGI INFORMASI | S-1 TEKNIK INFORMATIKA | S-1 SISTEM INFORMASI | S-1 ILMU KOMPUTER | S-1 KOMPUTER | S-1 INFORMATIKA"
+    },
+    {
+      "no_urut": 10,
+      "no_lampiran": 7,
+      "kode_formasi": "PTK",
+      "formasi_id": "2026-MA-07-PTK-UMUM",
+      "jabatan_nm": "PENELAAH TEKNIS KEBIJAKAN",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya (Kode PTK — Hukum/Syariah)",
+      "jumlah_formasi": 510,
+      "pendidikan_nm": "S-1 HUKUM | S-1 ILMU HUKUM | S-1 HUKUM KELUARGA | S-1 HUKUM KELUARGA (AHWAL SYAKHSIYYAH) | S-1 HUKUM KELUARGA (AKHWAL SYAKSIYAH) | S-1 HUKUM KELUARGA ISLAM | S-1 HUKUM KELUARGA ISLAM (AHWAL AL-SYAKHSIYAH) | S-1 HUKUM KELUARGA ISLAM (AHWAL ASY-SYAKHSIYAH) | S-1 HUKUM KELUARGA ISLAM (AKHWAL SYAKSIYAH) | S-1 HUKUM EKONOMI ISLAM | S-1 HUKUM EKONOMI SYARI'AH | S-1 HUKUM EKONOMI SYARIAH | S-1 HUKUM EKONOMI SYARIAH (MU'AMALAH) | S-1 HUKUM EKONOMI SYARIAH (SYARIAH) | S-1 HUKUM TATA NEGARA | S-1 HUKUM TATA NEGARA DAN PIDANA ISLAM | S-1 HUKUM TATA NEGARA ISLAM (SIYASAH) | S-1 PIDANA ISLAM | S-1 PERBANDINGAN MAZHAB | S-1 PERBANDINGAN MAZHAB DAN HUKUM | S-1 SYARIAH PERBANDINGAN MAZHAB | S-1 HUKUM PIDANA (JINAYAH) | S-1 HUKUM PIDANA ISLAM (JINAYAH) | S-1 JINAYAH | S-1 JINAYAH SIYASAH | S-1 MUAMALAH JINAYAH | S-1 SIYASAH JINAYAH | S-1 SYAR'IYAH (AHWAL SYAKHSIYAH/JINAYAH/SIYASAH SYAR'IYAH/MUAMALAH)"
+    },
+    {
+      "no_urut": 11,
+      "no_lampiran": 8,
+      "kode_formasi": "PTKA",
+      "formasi_id": "2026-MA-08-PTKA-UMUM",
+      "jabatan_nm": "PENELAAH TEKNIS KEBIJAKAN",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya (Kode PTKA — Akuntansi)",
+      "jumlah_formasi": 70,
+      "pendidikan_nm": "S-1 AKUNTANSI"
+    },
+    {
+      "no_urut": 12,
+      "no_lampiran": 9,
+      "kode_formasi": "PTKS",
+      "formasi_id": "2026-MA-09-PTKS-UMUM",
+      "jabatan_nm": "PENELAAH TEKNIS KEBIJAKAN",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya (Kode PTKS — Teknik Sipil)",
+      "jumlah_formasi": 20,
+      "pendidikan_nm": "S-1 TEKNIK SIPIL"
+    },
+    {
+      "no_urut": 13,
+      "no_lampiran": 10,
+      "kode_formasi": "PTKB",
+      "formasi_id": "2026-MA-10-PTKB-UMUM",
+      "jabatan_nm": "PENELAAH TEKNIS KEBIJAKAN",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya (Kode PTKB — Ekonomi/Akuntansi/Manajemen)",
+      "jumlah_formasi": 100,
+      "pendidikan_nm": "S-1 EKONOMI | S-1 AKUNTANSI | S-1 MANAJEMEN"
+    },
+    {
+      "no_urut": 14,
+      "no_lampiran": 11,
+      "kode_formasi": "PTKR",
+      "formasi_id": "2026-MA-11-PTKR-UMUM",
+      "jabatan_nm": "PENELAAH TEKNIS KEBIJAKAN",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya (Kode PTKR — Arsitektur)",
+      "jumlah_formasi": 5,
+      "pendidikan_nm": "S-1 ARSITEKTUR"
+    },
+    {
+      "no_urut": 15,
+      "no_lampiran": 12,
+      "kode_formasi": "PBJ",
+      "formasi_id": "2026-MA-12-PBJ-UMUM",
+      "jabatan_nm": "PENGELOLA PENGADAAN BARANG/JASA AHLI PERTAMA",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 80,
+      "pendidikan_nm": "S-1 EKONOMI | S-1 AKUNTANSI | S-1 HUKUM"
+    },
+    {
+      "no_urut": 16,
+      "no_lampiran": 13,
+      "kode_formasi": "PHM",
+      "formasi_id": "2026-MA-13-PHM-UMUM",
+      "jabatan_nm": "PRANATA HUBUNGAN MASYARAKAT AHLI PERTAMA",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 3,
+      "pendidikan_nm": "S-1 DESAIN GRAFIS"
+    },
+    {
+      "no_urut": 17,
+      "no_lampiran": 14,
+      "kode_formasi": "ASDM",
+      "formasi_id": "2026-MA-14-ASDM-UMUM",
+      "jabatan_nm": "ASESOR SUMBER DAYA MANUSIA APARATUR AHLI PERTAMA",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 5,
+      "pendidikan_nm": "S-1 PSIKOLOGI"
+    },
+    {
+      "no_urut": 18,
+      "no_lampiran": 15,
+      "kode_formasi": "PWT",
+      "formasi_id": "2026-MA-15-PWT-UMUM",
+      "jabatan_nm": "PERAWAT TERAMPIL",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 5,
+      "pendidikan_nm": "D-III KEPERAWATAN"
+    },
+    {
+      "no_urut": 19,
+      "no_lampiran": 16,
+      "kode_formasi": "PNP",
+      "formasi_id": "2026-MA-16-PNP-UMUM",
+      "jabatan_nm": "PENGELOLA PENANGANAN PERKARA",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 100,
+      "pendidikan_nm": "D-III HUKUM | D-III ADMINISTRASI NEGARA | D-III ADMINISTRASI PUBLIK | D-III MANAJEMEN | D-III KOMPUTER | D-III KEARSIPAN | D-III MANAJEMEN INFORMASI DAN DOKUMEN"
+    },
+    {
+      "no_urut": 20,
+      "no_lampiran": 17,
+      "kode_formasi": "PDDI",
+      "formasi_id": "2026-MA-17-PDDI-UMUM",
+      "jabatan_nm": "PENGOLAH DATA DAN INFORMASI",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 140,
+      "pendidikan_nm": "D-III HUKUM | D-III ADMINISTRASI NEGARA | D-III ADMINISTRASI PUBLIK | D-III MANAJEMEN | D-III KOMPUTER | D-III KEARSIPAN | D-III MANAJEMEN INFORMASI DAN DOKUMEN"
+    },
+    {
+      "no_urut": 21,
+      "no_lampiran": 17,
+      "kode_formasi": "PDDI",
+      "formasi_id": "2026-MA-17-PDDI-DISABILITAS",
+      "jabatan_nm": "PENGOLAH DATA DAN INFORMASI",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 5,
+      "pendidikan_nm": "D-III HUKUM | D-III ADMINISTRASI NEGARA | D-III ADMINISTRASI PUBLIK | D-III MANAJEMEN | D-III KOMPUTER | D-III KEARSIPAN | D-III MANAJEMEN INFORMASI DAN DOKUMEN"
+    },
+    {
+      "no_urut": 22,
+      "no_lampiran": 18,
+      "kode_formasi": "PTP",
+      "formasi_id": "2026-MA-18-PTP-UMUM",
+      "jabatan_nm": "PENGADMINISTRASI PERKANTORAN / PETUGAS PENGAMANAN PERSIDANGAN",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Mahkamah Agung dan Badan Peradilan di Bawahnya",
+      "jumlah_formasi": 906,
+      "pendidikan_nm": "SLTA SEDERAJAT"
+    }
+  ]
+}

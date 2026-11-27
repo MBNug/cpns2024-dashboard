@@ -48,8 +48,11 @@ from extra_sources_2026 import (  # noqa: E402
     get_bpkp_rows,
     get_bssn_rows,
     get_kejagung_rows,
+    get_kemenham_rows,
     get_kemenkes_str_rows,
     get_kemenkum_rows,
+    get_ma_rows,
+    get_polri_rows,
     get_sscasn_live_rows,
 )
 
@@ -524,13 +527,19 @@ def main():
     kemenkes_rows = get_kemenkes_str_rows(extract_jenjang_tier, DATA_DIR / "kemenkes_str_tables.json")
     bpkp_rows = get_bpkp_rows(extract_jenjang_tier, DATA_DIR / "bpkp_2026_verified.json")
     kemenkum_rows = get_kemenkum_rows(extract_jenjang_tier, DATA_DIR / "kemenkum_2026_verified.json")
+    ma_rows = get_ma_rows(extract_jenjang_tier, DATA_DIR / "ma_2026_verified.json")
+    kemenham_rows = get_kemenham_rows(extract_jenjang_tier, DATA_DIR / "kemenham_2026_verified.json")
+    polri_rows = get_polri_rows(extract_jenjang_tier, DATA_DIR / "polri_2026_verified.json")
     live_agencies = {r["instansi_nm"].strip().lower() for r in sscasn_rows}
     live_agency_ids = {r["instansi_id"] for r in sscasn_rows}
 
     # Precedence rule: live SSCASN rows automatically supersede pre-release decree/SE rows
     # for the same agency (matched by instansi_id or canonical instansi_nm) so no agency is ever double-counted.
     decree_rows = [
-        r for r in (rows + bssn_rows + kejagung_rows + kemenkes_rows + bpkp_rows + kemenkum_rows)
+        r for r in (
+            rows + bssn_rows + kejagung_rows + kemenkes_rows + bpkp_rows
+            + kemenkum_rows + ma_rows + kemenham_rows + polri_rows
+        )
         if r["instansi_id"] not in live_agency_ids and r["instansi_nm"].strip().lower() not in live_agencies
     ]
     combined_raw = decree_rows + sscasn_rows
@@ -560,8 +569,11 @@ def main():
     assert len(kemenkes_rows) == 49
     assert len(bpkp_rows) == 554 and sum(r["jumlah_formasi"] for r in bpkp_rows) == 2007
     assert len(kemenkum_rows) == 45 and sum(r["jumlah_formasi"] for r in kemenkum_rows) == 1297
-    assert len(rows) == 1379, f"Expected 1379 combined verified rows, got {len(rows)}"
-    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 9017, "Total combined alokasi must be 9017!"
+    assert len(ma_rows) == 22 and sum(r["jumlah_formasi"] for r in ma_rows) == 4430
+    assert len(kemenham_rows) == 15 and sum(r["jumlah_formasi"] for r in kemenham_rows) == 1000
+    assert len(polri_rows) == 633 and sum(r["jumlah_formasi"] for r in polri_rows) == 750
+    assert len(rows) == 2049, f"Expected 2049 combined verified rows, got {len(rows)}"
+    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 15197, "Total combined alokasi must be 15197!"
 
     # Enrich each 2026 row with verified CPNS 2024 historical benchmark & exam scores
     cmp_2024 = compute_2024_comparison_map(rows, DATA_DIR / "cpns2024.db")

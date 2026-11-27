@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (8 Instansi Terverifikasi)</title>
-  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (Kejaksaan Agung, Kemenkop, BPK, BSSN) serta dokumen resmi BPKP, Kemenkeu, Kemenkum, dan acuan kualifikasi STR Kemenkes (1.379 baris, 9.017 kursi teralokasi)." />
+  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (11 Instansi Terverifikasi)</title>
+  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (Kejaksaan Agung, Kemenkop, BPK, BSSN) serta pengumuman resmi MA RI, BPKP, Kemenkeu, Kemenkum, Kemenham, Polri, dan acuan STR Kemenkes (2.049 baris, 15.197 kursi teralokasi)." />
   <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
   <link rel="stylesheet" href="/static/css/app.css?v=20261127h" />
   <script>
@@ -114,8 +114,8 @@
         <span class="ticker-label">Rasio</span>
         <span id="kpi-avg-rasio" class="ticker-value">—</span>
       </div>
-      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (Kejaksaan Agung, Kemenkop, BPK, BSSN) • Pengumuman Resmi (BPKP &amp; Kemenkum) • KepmenPANRB 675 (Kemenkeu) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
-        <span id="kpi-source-badge">8 Instansi Resmi • 2026</span>
+      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (Kejaksaan Agung, Kemenkop, BPK, BSSN) • Pengumuman Resmi (MA RI, BPKP, Kemenkeu, Kemenkum, Kemenham, Polri) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
+        <span id="kpi-source-badge">11 Instansi Resmi • 2026</span>
       </a>
     </section>
 
@@ -201,7 +201,7 @@
         <div class="field-group col-span-3">
           <div class="field-label-row">
             <label for="filter-instansi" class="field-label">Instansi Pemerintah</label>
-            <span id="badge-instansi-count" class="field-hint">8 instansi</span>
+            <span id="badge-instansi-count" class="field-hint">11 instansi</span>
           </div>
           <select id="filter-instansi" class="control-select">
             <option value="">Semua Instansi</option>
@@ -283,7 +283,7 @@
       <!-- Quick Presets + Bookmarks -->
       <div class="workbench-footer">
         <div class="quick-presets-cluster">
-          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (1.379)</button>
+          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (2.049)</button>
           <button type="button" class="preset-chip" data-preset="sma">Lulusan SMA/SMK</button>
           <button type="button" class="preset-chip" data-preset="s1">Lulusan S-1 / D-IV</button>
           <button type="button" class="preset-chip mobile-secondary-presets" data-preset="d3">Lulusan D-III</button>
@@ -462,17 +462,20 @@
 
       <div class="reference-split">
         <div class="reference-col">
-          <h3>Sumber Data Masuk ke Database (1.379 Baris / 9.017 Kursi)</h3>
+          <h3>Sumber Data Masuk ke Database (2.049 Baris / 15.197 Kursi)</h3>
           <p class="prose-measure">
             Seluruh entri diambil langsung dari API resmi SSCASN BKN dan dokumen pengumuman/penetapan resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
           </p>
           <ul class="spec-list">
+            <li><span>Mahkamah Agung RI (Pengumuman 34/SEK/2026)</span><strong>22 baris / 4.430 kursi (KepmenPANRB 643/2026 • 18 kode formasi, 3 jalur)</strong></li>
             <li><span>BPKP (Pengumuman KP.00.01/PENG-2/SU/02/2026)</span><strong>554 baris / 2.007 kursi (KepmenPANRB 640/2026 • Gaji Rp 7,7–11,5 jt)</strong></li>
             <li><span>Kementerian Keuangan (KepmenPANRB 675/2026)</span><strong>374 baris / 1.915 kursi (19 Nov 2026 • lengkap 35 hal. lampiran)</strong></li>
             <li><span>Kejaksaan Agung (SSCASN Live • Kejaksaan RI)</span><strong>30 baris / 1.660 kursi lengkap nasional (4 jalur • Gaji BKN Rp 7,0–11,2 jt)</strong></li>
             <li><span>Kementerian Hukum (Pengumuman SEK.2-KP.02.01-326)</span><strong>45 baris / 1.297 kursi (KepmenPANRB 647/2026 • 15 jabatan, 4 jalur formasi)</strong></li>
+            <li><span>Kementerian Hak Asasi Manusia (Pengumuman SEK-1143/2026)</span><strong>15 baris / 1.000 kursi (KepmenPANRB 672/2026 • Gaji Rp 5,3–9,4 jt)</strong></li>
             <li><span>Kementerian Koperasi (SSCASN Live)</span><strong>274 baris / 986 kursi (4 jalur • Gaji BKN Rp 5,0–8,3 jt)</strong></li>
             <li><span>Badan Pemeriksa Keuangan (SSCASN Live + Pengumuman 01/2026)</span><strong>51 baris / 952 kursi (Umum, Disabilitas, Papua • Gaji BKN Rp 13–19 jt)</strong></li>
+            <li><span>Kepolisian Negara RI / Polri (Pengumuman Peng/33/XI/KEP./2026)</span><strong>633 baris / 750 kursi (KepmenPANRB 653/2026 • 605 satker Polda &amp; Mabes)</strong></li>
             <li><span>Badan Siber &amp; Sandi Negara (SSCASN Live + PENG.102/2026)</span><strong>2 baris / 200 kursi (196 Umum + 4 Disabilitas • Gaji BKN Rp 5,1–5,8 jt)</strong></li>
             <li><span>Kementerian Kesehatan (SE HK.02.02/F/4023/2026)</span><strong>49 kelompok JF Kesehatan (30 jabatan • syarat pendidikan &amp; STR, kuota <span class="inline-code">—</span>)</strong></li>
             <li><span>Tautan Kompilasi Pengumuman Instansi (Komunitas X <span class="inline-code">@wiraaaaa27</span>)</span><strong><a href="https://x.com/wiraaaaa27/status/2126201372244914343" target="_blank" rel="noopener noreferrer" style="color: var(--color-accent-ink); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere;">https://x.com/wiraaaaa27/status/2126201372244914343</a></strong></li>
@@ -549,7 +552,7 @@
 
   <footer class="site-footer">
     <div class="container-wide footer-inner">
-      <div>SSCASN Explorer • Portal Data CPNS 2026 (SSCASN Live: Kejaksaan Agung, Kemenkop, BPK, BSSN • Resmi: BPKP, Kemenkeu, Kemenkum &amp; Syarat STR Kemenkes)</div>
+      <div>SSCASN Explorer • Portal Data CPNS 2026 (11 Instansi Resmi: MA RI, BPKP, Kemenkeu, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN &amp; Kemenkes STR)</div>
       <div class="footer-links">
         <a href="/cpns-2024">Arsip CPNS 2024</a>
         <a href="/sumber-data">Dokumentasi Metodologi</a>
