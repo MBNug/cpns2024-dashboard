@@ -10,10 +10,13 @@ __pycache__/
 *$py.class
 *.cpython-*.pyc
 
-# Local SQLite uncompressed runtime DB & WAL files (tracked via cpns2024.db.gz / raw_cpns_2024.csv)
+# Local SQLite uncompressed runtime DB & WAL files (tracked via *.db.gz / raw_cpns_*.csv)
 data/cpns2024.db
 data/cpns2024.db-wal
 data/cpns2024.db-shm
+data/cpns2026.db
+data/cpns2026.db-wal
+data/cpns2026.db-shm
 
 # Local pre-upgrade backup folder
 backup_pre_upgrade/

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CPNS 2026 Explorer — Penetapan Kebutuhan Awal (KepmenPANRB No. 675/2026)</title>
+  <meta name="description" content="Eksplorasi formasi awal CPNS 2026 berdasarkan KepmenPANRB Nomor 675 Tahun 2026 (Kementerian Keuangan: 374 baris formasi, 1.915 alokasi). Data transparan tanpa estimasi fiktif." />
+  <link rel="icon" type="image/svg+xml" href="/static/tako_logo.svg" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261125d" />
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('cpns2024_theme');
+        var theme = (saved === 'light' || saved === 'dark')
+          ? saved
+          : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.colorScheme = theme;
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a href="#section-table" class="skip-link sr-only">Langsung ke daftar formasi CPNS 2026</a>
+
+  <!-- Sticky Compact Top Header -->
+  <header class="site-header" id="main-header">
+    <div class="container-wide header-inner">
+      <a href="/cpns-2026" class="brand-link" aria-label="CPNS 2026 Explorer">
+        <div class="brand-mark" aria-hidden="true">
+          <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2z" />
+            <path d="M12 22v-9.5" />
+            <path d="M21 6.5 12 12.5 3 6.5" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-heading">SSCASN Explorer</span>
+          <span class="brand-subtitle">CPNS 2026 • Data Awal Terverifikasi</span>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="Navigasi CPNS 2026">
+        <button type="button" id="btn-open-compare" class="btn btn-secondary btn-sm" title="Bandingkan formasi tersimpan">
+          <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+          </svg>
+          <span class="hide-xs">Bandingkan</span>
+          <span id="compare-count-badge" class="count-pill hidden">0</span>
+        </button>
+
+        <a href="/" class="btn btn-ghost btn-sm" title="Kembali ke arsip lengkap CPNS 2024">
+          <span>CPNS 2024</span>
+        </a>
+
+        <a href="#section-sumber-data" class="btn btn-ghost btn-sm">
+          <span>Sumber Data</span>
+        </a>
+
+        <a href="/sumber-data" class="btn btn-ghost btn-sm hide-xs">
+          <span>Metodologi</span>
+        </a>
+
+        <a href="#section-support-creator" class="btn-support-pill">
+          <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+          </svg>
+          <span>Dukung <span class="hide-xs">Proyek</span></span>
+        </a>
+
+        <button type="button" id="btn-theme-toggle" class="btn-theme-toggle" aria-label="Ganti ke mode terang">
+          <span id="theme-icon-wrap" aria-hidden="true">
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+            </svg>
+          </span>
+          <span id="theme-label-text" class="hide-xs">Terang</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container-wide workspace-main">
+    <!-- 1. Dataset Ticker Strip (Strict Verified Fields Only) -->
+    <section class="dataset-strip" aria-label="Ringkasan Dataset CPNS 2026">
+      <div class="ticker-metric">
+        <span class="ticker-label">Baris Formasi</span>
+        <span id="kpi-total-rows" class="ticker-value">—</span>
+      </div>
+      <div class="ticker-divider" aria-hidden="true"></div>
+      <div class="ticker-metric">
+        <span class="ticker-label">Alokasi Kursi</span>
+        <span id="kpi-total-kuota" class="ticker-value">—</span>
+      </div>
+      <div class="ticker-divider" aria-hidden="true"></div>
+      <div class="ticker-metric">
+        <span class="ticker-label">Instansi</span>
+        <span id="kpi-total-instansi" class="ticker-value">—</span>
+      </div>
+      <div class="ticker-divider" aria-hidden="true"></div>
+      <div class="ticker-metric ticker-metric-desktop" title="Belum ada pendaftar; menunggu pembukaan SSCASN 2026">
+        <span class="ticker-label">Pelamar</span>
+        <span id="kpi-total-pelamar" class="ticker-value">—</span>
+      </div>
+      <div class="ticker-divider" aria-hidden="true"></div>
+      <div class="ticker-metric ticker-metric-desktop" title="Rentang gaji BKN belum dipublikasikan">
+        <span class="ticker-label">Gaji BKN</span>
+        <span id="kpi-median-gaji" class="ticker-value">—</span>
+      </div>
+      <div class="ticker-divider" aria-hidden="true"></div>
+      <div class="ticker-metric ticker-metric-desktop" title="Rasio kompetisi belum tersedia sebelum pendaftaran dibuka">
+        <span class="ticker-label">Rasio</span>
+        <span id="kpi-avg-rasio" class="ticker-value">—</span>
+      </div>
+      <a href="#section-sumber-data" class="badge badge-accent" title="Klik untuk melihat dokumen sumber resmi">
+        <span>KepmenPANRB No. 675/2026 • Kemenkeu</span>
+      </a>
+    </section>
+
+    <!-- 2. Search & Filter Workbench -->
+    <section id="workbench-panel" class="workbench-panel" aria-label="Pencarian dan Filter Formasi CPNS 2026">
+      <div class="workbench-header">
+        <div class="workbench-title-group">
+          <h1 style="font-size: 1rem; font-weight: 700;">Eksplorasi Formasi CPNS 2026</h1>
+          <div class="live-telemetry">
+            <span class="telemetry-item telemetry-item-accent">
+              <strong id="telemetry-filtered-rows">0</strong> baris
+            </span>
+            <span class="telemetry-item">
+              <strong id="telemetry-filtered-kuota">0</strong> kursi alokasi
+            </span>
+            <span class="telemetry-item telemetry-desktop-only">
+              Instansi aktif: <strong>Kementerian Keuangan (Pusat)</strong>
+            </span>
+          </div>
+        </div>
+
+        <div class="workbench-header-actions">
+          <button type="button" id="btn-toggle-mobile-filters" class="btn btn-secondary btn-sm mobile-only-btn" aria-expanded="false">
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+            </svg>
+            <span id="mobile-filter-toggle-label">Filter Lengkap</span>
+          </button>
+
+          <button type="button" id="btn-toggle-analytics" class="btn btn-secondary btn-sm" aria-expanded="false" aria-controls="analytics-drawer">
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" />
+            </svg>
+            <span>Analitik</span>
+          </button>
+
+          <button type="button" id="btn-reset-filters" class="btn btn-ghost btn-sm" title="Reset semua filter">
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" />
+            </svg>
+            <span class="hide-xs">Reset</span>
+          </button>
+
+          <button type="button" id="btn-export-csv" class="btn btn-primary btn-sm" title="Ekspor hasil filter ke CSV">
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" />
+            </svg>
+            <span>Ekspor CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 12-Col Filter Grid -->
+      <div class="filter-grid">
+        <div class="field-group col-span-3">
+          <div class="field-label-row">
+            <label for="filter-q" class="field-label">Kata Kunci</label>
+            <span class="field-hint">Jabatan / unit / jurusan</span>
+          </div>
+          <div class="input-wrap">
+            <span class="input-leading-icon" aria-hidden="true">
+              <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+            </span>
+            <input type="text" id="filter-q" class="control-input has-leading-icon has-clear-btn" placeholder="Contoh: Bea dan Cukai, Medan, Hukum..." autocomplete="off" />
+            <button type="button" id="btn-clear-q" class="input-clear-btn hidden" aria-label="Hapus kata kunci">×</button>
+          </div>
+        </div>
+
+        <div class="field-group col-span-3">
+          <div class="field-label-row">
+            <label for="filter-jurusan" class="field-label">Program Studi / Jurusan</label>
+            <span class="field-hint">Pilih 1 atau ketik</span>
+          </div>
+          <div class="input-wrap">
+            <input type="text" id="filter-jurusan" class="control-input has-clear-btn" placeholder="Ketik S-1 Akuntansi, SMA..." autocomplete="off" />
+            <button type="button" id="btn-clear-jurusan" class="input-clear-btn hidden" aria-label="Hapus jurusan">×</button>
+          </div>
+          <div id="jurusan-popover" class="autocomplete-popover hidden" role="listbox" aria-label="Saran Program Studi"></div>
+        </div>
+
+        <div class="field-group col-span-3">
+          <div class="field-label-row">
+            <label for="filter-eselon1" class="field-label">Unit Eselon I (Kemenkeu)</label>
+            <span id="badge-eselon1-count" class="field-hint">13 unit</span>
+          </div>
+          <select id="filter-eselon1" class="control-select">
+            <option value="">Semua Unit Eselon I</option>
+          </select>
+        </div>
+
+        <div class="field-group col-span-3">
+          <div class="field-label-row">
+            <label for="filter-jabatan" class="field-label">Nama Jabatan</label>
+            <span class="field-hint">8 jabatan</span>
+          </div>
+          <select id="filter-jabatan" class="control-select">
+            <option value="">Semua Jabatan</option>
+          </select>
+        </div>
+
+        <div class="field-group col-span-3 field-secondary">
+          <div class="field-label-row">
+            <label for="filter-lokasi" class="field-label">Unit / Kota Penempatan</label>
+          </div>
+          <div class="input-wrap">
+            <input type="text" id="filter-lokasi" class="control-input has-clear-btn" placeholder="Contoh: KANWIL, TANJUNG BALAI, BPPK..." autocomplete="off" />
+            <button type="button" id="btn-clear-lokasi" class="input-clear-btn hidden" aria-label="Hapus lokasi">×</button>
+          </div>
+        </div>
+
+        <div class="field-group col-span-2 field-secondary">
+          <div class="field-label-row">
+            <label for="filter-jenjang" class="field-label">Jenjang</label>
+          </div>
+          <select id="filter-jenjang" class="control-select">
+            <option value="">Semua Jenjang</option>
+          </select>
+        </div>
+
+        <div class="field-group col-span-2 field-secondary">
+          <div class="field-label-row">
+            <label for="filter-min-kuota" class="field-label">Min. Alokasi</label>
+          </div>
+          <select id="filter-min-kuota" class="control-select">
+            <option value="">Semua Kursi</option>
+            <option value="2">>= 2 kursi</option>
+            <option value="5">>= 5 kursi</option>
+            <option value="10">>= 10 kursi</option>
+            <option value="20">>= 20 kursi</option>
+          </select>
+        </div>
+
+        <div class="field-group col-span-3 field-secondary">
+          <div class="field-label-row">
+            <label for="filter-sort" class="field-label">Urutkan</label>
+          </div>
+          <select id="filter-sort" class="control-select">
+            <option value="no_urut">No. Urut Kepmen (1 → 374)</option>
+            <option value="kuota_desc">Alokasi Terbanyak</option>
+            <option value="kuota_asc">Alokasi Terkecil</option>
+            <option value="jabatan_asc">Jabatan (A → Z)</option>
+            <option value="eselon1_asc">Unit Eselon I (A → Z)</option>
+          </select>
+        </div>
+
+        <div class="field-group col-span-2 field-secondary" title="KepmenPANRB No. 675/2026 belum memecah Jalur Formasi (Umum/Cumlaude/Disabilitas)">
+          <div class="field-label-row">
+            <label for="filter-jenis-formasi" class="field-label">Jalur Formasi</label>
+          </div>
+          <select id="filter-jenis-formasi" class="control-select" disabled style="opacity: 0.58; cursor: not-allowed;">
+            <option value="">— Belum rilis</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick Presets + Bookmarks -->
+      <div class="workbench-footer">
+        <div class="quick-presets-cluster">
+          <button type="button" class="preset-chip is-active" data-preset="all">Semua (374)</button>
+          <button type="button" class="preset-chip" data-preset="sma">Lulusan SMA/SMK</button>
+          <button type="button" class="preset-chip" data-preset="s1">Lulusan S-1 / D-IV</button>
+          <button type="button" class="preset-chip mobile-secondary-presets" data-preset="d3">Lulusan D-III</button>
+          <button type="button" class="preset-chip mobile-secondary-presets" data-preset="big_kuota">Alokasi >= 10</button>
+          <button type="button" class="preset-chip mobile-secondary-presets" data-preset="saved">
+            Tersimpan (<span id="preset-bookmark-count">0</span>)
+          </button>
+        </div>
+
+        <span class="field-hint">
+          Kolom <strong>Pelamar</strong>, <strong>Jalur</strong>, <strong>Keketatan</strong>, dan <strong>Gaji BKN</strong> sengaja dikosongkan (<span class="inline-code">—</span>) hingga SSCASN 2026 merilis data resmi.
+        </span>
+      </div>
+
+      <!-- Active Filter Chips -->
+      <div id="active-chips-bar" class="active-chips-bar hidden">
+        <span class="chips-label">Filter aktif:</span>
+        <div id="active-chips-list" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+
+      <!-- Collapsible Analytics Drawer -->
+      <div id="analytics-drawer" class="analytics-drawer hidden">
+        <div class="analytics-top-tier">
+          <div class="analytics-column">
+            <div class="analytics-col-header">
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Top 10 Program Studi (Alokasi Kursi)</h2>
+              <span class="analytics-col-meta">Klik untuk filter</span>
+            </div>
+            <div id="chart-top-jurusan" class="top-chart-list"></div>
+          </div>
+
+          <div class="analytics-column">
+            <div class="analytics-col-header">
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Unit Eselon I Kementerian Keuangan</h2>
+              <span class="analytics-col-meta">Klik untuk filter</span>
+            </div>
+            <div id="chart-top-eselon1" class="top-chart-list"></div>
+          </div>
+        </div>
+
+        <div class="analytics-dist-tier">
+          <div class="analytics-column">
+            <div class="analytics-col-header">
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Sebaran 8 Nama Jabatan</h2>
+              <span class="analytics-col-meta">Total 1.915 kursi</span>
+            </div>
+            <div id="chart-top-jabatan" class="dist-list"></div>
+          </div>
+
+          <div class="analytics-column">
+            <div class="analytics-col-header">
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Proporsi Jenjang Pendidikan</h2>
+              <span class="analytics-col-meta">Klik untuk filter</span>
+            </div>
+            <div id="dist-jenjang" class="dist-list"></div>
+          </div>
+
+          <div class="analytics-column">
+            <div class="analytics-col-header">
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Pelamar &amp; Tingkat Keketatan</h2>
+              <span class="analytics-col-meta">SSCASN 2026</span>
+            </div>
+            <div id="dist-keketatan" class="top-chart-empty" style="border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); padding: 14px;">
+              Belum tersedia — data jumlah pelamar dan tingkat keketatan baru dapat dihitung setelah pendaftaran SSCASN 2026 dibuka.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Verified Formation Ledger Table & Mobile Cards -->
+    <section id="section-table" class="ledger-section" aria-label="Tabel Formasi CPNS 2026">
+      <div class="ledger-toolbar">
+        <div class="ledger-title-wrap">
+          <h2 style="font-size: 0.9375rem; font-weight: 700;">Daftar Penetapan Kebutuhan</h2>
+          <span id="table-loading-indicator" class="loading-indicator hidden">
+            <svg class="icon-xs spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            Memuat...
+          </span>
+        </div>
+
+        <div class="ledger-controls">
+          <div class="segmented-toggle" role="group" aria-label="Mode tampilan">
+            <button type="button" id="btn-view-table" class="segmented-btn is-active" aria-pressed="true">Tabel</button>
+            <button type="button" id="btn-view-cards" class="segmented-btn" aria-pressed="false">Kartu</button>
+          </div>
+
+          <div class="page-size-group">
+            <label for="page-size-select">Baris:</label>
+            <select id="page-size-select" class="page-size-select">
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-notice" id="mobile-scroll-notice">
+        <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+        </svg>
+        <span>Geser tabel ke samping untuk melihat detail unit &amp; kolom lengkap, atau gunakan mode Kartu.</span>
+      </div>
+
+      <div id="table-view-wrap" class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 56px;">No</th>
+              <th>Jabatan &amp; Unit Eselon I</th>
+              <th>Unit Penempatan</th>
+              <th>Kualifikasi Pendidikan</th>
+              <th class="col-num">Alokasi / Pelamar</th>
+              <th class="col-center">Keketatan</th>
+              <th>Gaji BKN</th>
+              <th class="col-center" style="width: 112px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="table-tbody"></tbody>
+        </table>
+      </div>
+
+      <div id="cards-view-wrap" class="cards-grid hidden"></div>
+
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon-circle" aria-hidden="true">
+          <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+        </div>
+        <h3 style="font-size: 1rem;">Tidak ada formasi yang cocok</h3>
+        <p class="empty-desc">Coba kurangi filter atau ubah kata kunci pencarian.</p>
+        <button type="button" id="btn-empty-reset" class="btn btn-secondary btn-sm">Reset Semua Filter</button>
+      </div>
+
+      <div class="pagination-bar" id="pagination-bar">
+        <div id="pagination-summary">Menampilkan 0–0 dari 0 baris</div>
+        <div id="pagination-controls" class="pagination-controls"></div>
+      </div>
+    </section>
+
+    <!-- 4. Reference & Data Provenance Section -->
+    <section id="section-sumber-data" class="reference-section" aria-label="Sumber Data Resmi CPNS 2026">
+      <div class="section-header-bar">
+        <div>
+          <h2 style="font-size: 1.125rem; font-weight: 700;">Sumber Data Resmi &amp; Transparansi Kolom Kosong</h2>
+          <p class="section-subcopy">
+            Seluruh entri di halaman ini berasal dari dokumen penetapan resmi yang sudah diterbitkan; angka atau kategori yang belum dirilis SSCASN 2026 dibiarkan kosong (<span class="inline-code">—</span>).
+          </p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <a href="/api/2026/download/raw-csv" class="btn btn-secondary btn-sm">Unduh CSV 2026</a>
+          <a href="/api/2026/download/sqlite-db" class="btn btn-secondary btn-sm">Unduh SQLite 2026</a>
+          <a href="/sumber-data" class="btn btn-ghost btn-sm">Metodologi Lengkap</a>
+        </div>
+      </div>
+
+      <div class="reference-split">
+        <div class="reference-col">
+          <h3>Dokumen Sumber Terverifikasi</h3>
+          <p class="prose-measure">
+            Data kebutuhan TA 2026 saat ini diekstrak dari scan lampiran keputusan resmi yang telah beredar untuk Kementerian Keuangan dan diverifikasi ulang terhadap jumlah total lembar lampiran.
+          </p>
+          <ul class="spec-list">
+            <li><span>Dasar Penetapan</span><strong>KepmenPANRB Nomor 675 Tahun 2026</strong></li>
+            <li><span>Tanggal Ditetapkan</span><strong>Jakarta, 19 November 2026 (Rini Widyantini)</strong></li>
+            <li><span>Instansi &amp; Kategori</span><strong>Kementerian Keuangan • Pusat (Tenaga Teknis)</strong></li>
+            <li><span>Cakupan Lampiran</span><strong>35 halaman (374 nomor urut, 8 jabatan)</strong></li>
+            <li><span>Total Alokasi Terverifikasi</span><strong>1.915 kebutuhan CPNS</strong></li>
+            <li><span>Status Portal SSCASN 2026</span><strong>Belum rilis rincian pelamar, jalur, &amp; gaji resmi</strong></li>
+          </ul>
+        </div>
+
+        <div class="reference-col">
+          <h3>Kolom Tersedia vs. Sengaja Dikosongkan (<span class="inline-code">—</span>)</h3>
+          <p class="prose-measure">
+            Untuk menghindari angka halusinasi (<em>no-hallucination policy</em>), hanya field yang eksplisit tercantum dalam KepmenPANRB No. 675/2026 yang diisi ke database.
+          </p>
+          <ul class="spec-list">
+            <li><span>Nomor Urut, Jabatan, &amp; Alokasi CPNS</span><strong>Terisi 100% (374/374 baris)</strong></li>
+            <li><span>Unit Penempatan &amp; Unit Eselon I</span><strong>Terisi 100% (13 Eselon I Kemenkeu)</strong></li>
+            <li><span>Kualifikasi Pendidikan &amp; Jenjang</span><strong>Terisi 100% (101 program studi terindeks)</strong></li>
+            <li><span>Jalur Formasi (Umum/Cumlaude/Disabilitas)</span><strong>Kosong (<span class="inline-code">—</span>) — belum dirinci</strong></li>
+            <li><span>Jumlah Pelamar, Rasio, &amp; Keketatan</span><strong>Kosong (<span class="inline-code">—</span>) — SSCASN belum buka</strong></li>
+            <li><span>Gaji BKN (<span class="inline-code">gaji_min</span>/<span class="inline-code">gaji_max</span>)</span><strong>Kosong (<span class="inline-code">—</span>) — menanti pengumuman resmi</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="disclaimer-panel">
+        <div class="disclaimer-heading">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
+          </svg>
+          <span>Catatan Penting Penggunaan Data Awal CPNS 2026</span>
+        </div>
+        <ul class="disclaimer-list">
+          <li>Data pada halaman ini baru mencakup <strong>Kementerian Keuangan</strong> (KepmenPANRB No. 675 Tahun 2026). Instansi pusat dan daerah lainnya akan ditambahkan setelah surat penetapan atau API SSCASN 2026 tersedia.</li>
+          <li><strong>Simulasi Estimasi THP</strong> di jendela Detail Formasi memakai acuan regulasi resmi statutori (Gaji Pokok 80% CPNS PP No. 5/2024 + Tukin Kemenkeu Perpres No. 156/2014), <em>bukan</em> data rentang gaji BKN SSCASN 2026.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. Support Creator Section (Consistent with CPNS 2024) -->
+    <section id="section-support-creator" class="support-spotlight" aria-label="Dukung Pengembangan Dashboard">
+      <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px;">
+        <div>
+          <h2 style="font-size: 1.05rem; font-weight: 700;">Dukung Pemeliharaan &amp; Pembaruan CPNS 2026</h2>
+          <p class="muted-note" style="margin-top: 4px;">
+            Dashboard ini gratis, tanpa iklan, dan terbuka untuk seluruh pejuang ASN Indonesia. Dukungan Anda membantu biaya server dan pemantauan otomatis rilis SSCASN 2026.
+          </p>
+        </div>
+      </div>
+
+      <div class="support-grid">
+        <div class="qris-frame-wrap">
+          <img src="/static/qris.png" alt="Kode QRIS untuk donasi pemeliharaan server" class="qris-img" />
+          <div class="nmid-copy-row">
+            <span>NMID: <code class="inline-code">ID1025421073475</code></span>
+            <button type="button" id="btn-copy-nmid" class="btn btn-secondary btn-sm">Salin NMID</button>
+          </div>
+        </div>
+
+        <div class="tako-panel">
+          <div class="tako-creator-row">
+            <div class="tako-identity">
+              <img src="/static/tako_logo.svg" alt="Logo Tako" class="tako-logo-img" />
+              <div>
+                <div style="font-weight: 700; color: var(--color-text-primary);">Dukung via Tako</div>
+                <div style="font-size: 0.78rem; color: var(--color-text-muted);">Traktir kopi creator di <code class="inline-code">tako.id/Eurekaaa</code></div>
+              </div>
+            </div>
+            <a href="https://tako.id/Eurekaaa" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Buka Tako</a>
+          </div>
+          <p class="muted-note">
+            Halaman CPNS 2026 akan terus diperbarui secara bertahap seiring terbitnya KepmenPANRB instansi lain dan pembukaan portal resmi SSCASN BKN 2026.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container-wide footer-inner">
+      <div>SSCASN Explorer • Portal Data Awal CPNS 2026 (KepmenPANRB No. 675/2026 • Kementerian Keuangan)</div>
+      <div class="footer-links">
+        <a href="/">Arsip CPNS 2024</a>
+        <a href="/sumber-data">Dokumentasi Metodologi</a>
+        <a href="/api/2026/download/raw-csv">CSV 2026</a>
+        <a href="/api/2026/download/sqlite-db">SQLite 2026</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Detail Modal -->
+  <div id="modal-detail" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
+    <div class="modal-dialog modal-dialog-wide">
+      <div id="modal-detail-loading" class="modal-loading-overlay hidden">
+        <svg class="icon-md spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <span>Memuat detail formasi...</span>
+      </div>
+
+      <div class="modal-header">
+        <div>
+          <span id="modal-detail-badge" class="badge badge-neutral">Menunggu data SSCASN</span>
+          <h2 id="modal-detail-title" style="font-size: 1.05rem; font-weight: 700; margin-top: 6px;">—</h2>
+          <p id="modal-detail-sub" style="margin: 3px 0 0; font-size: 0.8125rem; color: var(--color-text-muted);">—</p>
+        </div>
+        <button type="button" id="btn-close-detail" class="btn-icon" aria-label="Tutup modal detail">×</button>
+      </div>
+
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+        <div class="modal-kpi-strip">
+          <div class="modal-kpi-cell">
+            <span class="modal-kpi-lbl">Alokasi CPNS</span>
+            <span id="detail-kpi-kuota" class="modal-kpi-val">—</span>
+            <span class="modal-kpi-sub">Sesuai KepmenPANRB</span>
+          </div>
+          <div class="modal-kpi-cell">
+            <span class="modal-kpi-lbl">Pelamar &amp; Rasio</span>
+            <span id="detail-kpi-rasio" class="modal-kpi-val">—</span>
+            <span class="modal-kpi-sub">Belum rilis SSCASN</span>
+          </div>
+          <div class="modal-kpi-cell">
+            <span class="modal-kpi-lbl">Gaji BKN (SSCASN)</span>
+            <span id="detail-kpi-gaji" class="modal-kpi-val">—</span>
+            <span class="modal-kpi-sub">Belum dipublikasikan</span>
+          </div>
+          <div class="modal-kpi-cell">
+            <span class="modal-kpi-lbl">Sumber Penetapan</span>
+            <span id="detail-kpi-no" class="modal-kpi-val">—</span>
+            <span class="modal-kpi-sub">KepmenPANRB No. 675/2026</span>
+          </div>
+        </div>
+
+        <div class="detail-meta-grid">
+          <div>
+            <div class="metric-pair-label">Unit Eselon I</div>
+            <div id="detail-eselon1" style="font-weight: 600;">—</div>
+          </div>
+          <div>
+            <div class="metric-pair-label">Jalur Formasi</div>
+            <div id="detail-jenis" style="font-weight: 600;">— (Belum rilis SSCASN)</div>
+          </div>
+          <div>
+            <div class="metric-pair-label">Unit Penempatan Lengkap</div>
+            <div id="detail-lokasi" style="font-weight: 600;">—</div>
+          </div>
+          <div>
+            <div class="metric-pair-label">Jenjang Pendidikan</div>
+            <div id="detail-jenjang" style="font-weight: 600;">—</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="metric-pair-label" style="margin-bottom: 6px;">Kualifikasi Pendidikan (klik jurusan untuk memfilter tabel)</div>
+          <div id="detail-majors-cloud" class="majors-pill-cloud"></div>
+        </div>
+
+        <!-- Statutory THP Simulator (Explicitly Labeled as Regulation Reference Only) -->
+        <div class="thp-workbench">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px;">
+            <div>
+              <h3 style="font-size: 0.9rem; font-weight: 700;">Simulasi Referensi Regulasi (Opsional — Bukan Gaji Resmi BKN 2026)</h3>
+              <p class="muted-note" style="font-size: 0.75rem; margin: 2px 0 0;">
+                Karena Gaji BKN pada SSCASN 2026 belum rilis (<span class="inline-code">—</span>), simulator ini hanya menghitung acuan PP No. 5/2024 + Perpres Tukin Kemenkeu No. 156/2014.
+              </p>
+            </div>
+            <span id="thp-golongan-pill" class="badge badge-accent">Gol. —</span>
+          </div>
+
+          <div class="thp-controls-grid">
+            <div class="field-group">
+              <label for="sim-tukin-pct" class="field-label">Persen Simulasi Tukin (<span id="sim-tukin-label">Mid</span>)</label>
+              <input type="range" id="sim-tukin-pct" min="0" max="100" step="10" value="50" class="control-range" />
+            </div>
+            <div class="field-group">
+              <label for="sim-status" class="field-label">Status Kepegawaian</label>
+              <select id="sim-status" class="control-select">
+                <option value="cpns" selected>Masa CPNS (80% Gapok)</option>
+                <option value="pns">Setelah Diangkat PNS (100%)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="sim-keluarga" class="field-label">Tunjangan Keluarga</label>
+              <select id="sim-keluarga" class="control-select">
+                <option value="tk0" selected>Lajang (TK/0)</option>
+                <option value="k0">Menikah (K/0: +10%)</option>
+                <option value="k1">Menikah + 1 Anak (K/1: +12%)</option>
+                <option value="k2">Menikah + 2 Anak (K/2: +14%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="slip-columns">
+            <div class="slip-col">
+              <div class="slip-col-title">Komponen Penghasilan Acuan</div>
+              <div class="slip-line"><span>Gaji Pokok (PP No. 5/2024)</span><strong id="slip-gapok" class="num">—</strong></div>
+              <div class="slip-line"><span>Tunjangan Keluarga &amp; Beras</span><strong id="slip-tunj-keluarga" class="num">—</strong></div>
+              <div class="slip-line"><span>Tukin Kemenkeu (Perpres 156/2014)</span><strong id="slip-tukin" class="num">—</strong></div>
+              <div class="slip-total-line"><span>Estimasi Kotor Regulasi</span><strong id="slip-kotor" class="num">—</strong></div>
+            </div>
+            <div class="slip-col">
+              <div class="slip-col-title">Potongan Wajib &amp; Estimasi Bersih</div>
+              <div class="slip-line"><span>IWP 10% (Pensiun + Kesehatan)</span><strong id="slip-pot-iwp" class="num">—</strong></div>
+              <div class="slip-line"><span>PPh 21 (Ditanggung Pemerintah)</span><strong id="slip-pot-pph" class="num">Rp 0</strong></div>
+              <div class="slip-total-line"><span>Simulasi Take-Home Pay Regulasi</span><strong id="slip-bersih" class="num" style="color: var(--color-accent-ink);">—</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="btn-detail-bookmark" class="btn btn-secondary btn-sm">Simpan ke Bandingkan</button>
+        <button type="button" id="btn-detail-close-footer" class="btn btn-primary btn-sm">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compare Modal -->
+  <div id="modal-compare" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-compare-title">
+    <div class="modal-dialog modal-dialog-wide">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-compare-title" style="font-size: 1.05rem; font-weight: 700;">Bandingkan Formasi Tersimpan (CPNS 2026)</h2>
+          <p style="margin: 3px 0 0; font-size: 0.8125rem; color: var(--color-text-muted);">Perbandingan berdampingan hingga 4 formasi (kolom belum rilis tetap <span class="inline-code">—</span>).</p>
+        </div>
+        <button type="button" id="btn-close-compare" class="btn-icon" aria-label="Tutup perbandingan">×</button>
+      </div>
+      <div class="modal-body" id="compare-body"></div>
+      <div class="modal-footer">
+        <button type="button" id="btn-clear-bookmarks" class="btn btn-danger-soft btn-sm">Hapus Semua Tersimpan</button>
+        <button type="button" id="btn-compare-close-footer" class="btn btn-primary btn-sm">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Banner -->
+  <div id="toast-banner" class="toast-banner hidden" role="status" aria-live="polite">
+    <span id="toast-message"></span>
+  </div>
+
+  <script src="/static/js/cpns2026.js?v=20261127a"></script>
+</body>
+</html>

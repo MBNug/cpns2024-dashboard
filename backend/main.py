@@ -21,6 +21,11 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
+try:
+    from .cpns2026 import router as cpns2026_router
+except ImportError:
+    from cpns2026 import router as cpns2026_router
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = (
     (BASE_DIR / "data")
@@ -35,6 +40,7 @@ app = FastAPI(
     description="Backend API querying normalized 3NF SQLite database of CPNS 2024 formations",
     version="1.0.0"
 )
+app.include_router(cpns2026_router)
 
 # Enable CORS for local development & cross-origin frontend
 app.add_middleware(
@@ -2209,6 +2215,14 @@ def serve_sumber_data():
     if page.exists():
         return FileResponse(str(page))
     raise HTTPException(status_code=404, detail="Halaman sumber-data.html belum dibuat")
+
+
+@app.api_route("/cpns-2026", methods=["GET", "HEAD"])
+def serve_cpns_2026():
+    page = FRONTEND_DIR / "cpns-2026.html"
+    if page.exists():
+        return FileResponse(str(page))
+    raise HTTPException(status_code=404, detail="Halaman cpns-2026.html belum dibuat")
 
 
 @app.get("/api/download/raw-csv")
