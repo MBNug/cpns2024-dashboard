@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (11 Instansi Terverifikasi)</title>
-  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (Kejaksaan Agung, Kemenkum, Kemenkop, BPK, BSSN) serta pengumuman resmi MA RI, BPKP, Kemenkeu, Kemenham, Polri, dan acuan STR Kemenkes (2.057 baris, 15.197 kursi teralokasi)." />
+  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (MA RI, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, BSSN) serta pengumuman resmi BPKP, Kemenkeu, Kemenham, Polri, dan acuan STR Kemenkes (2.057 baris, 15.197 kursi teralokasi)." />
   <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
   <link rel="stylesheet" href="/static/css/app.css?v=20261127h" />
   <script>
@@ -114,7 +114,7 @@
         <span class="ticker-label">Rasio</span>
         <span id="kpi-avg-rasio" class="ticker-value">—</span>
       </div>
-      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (Kejaksaan Agung, Kemenkum, Kemenkop, BPK, BSSN) • Pengumuman Resmi (MA RI, BPKP, Kemenkeu, Kemenham, Polri) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
+      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (MA RI, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, BSSN) • Pengumuman Resmi (BPKP, Kemenkeu, Kemenham, Polri) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
         <span id="kpi-source-badge">11 Instansi Resmi • 2026</span>
       </a>
     </section>
@@ -467,7 +467,7 @@
             Seluruh entri diambil langsung dari API resmi SSCASN BKN dan dokumen pengumuman/penetapan resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
           </p>
           <ul class="spec-list">
-            <li><span>Mahkamah Agung RI (Pengumuman 34/SEK/2026)</span><strong>22 baris / 4.430 kursi (KepmenPANRB 643/2026 • 18 kode formasi, 3 jalur)</strong></li>
+            <li><span>Mahkamah Agung RI (SSCASN Live + Pengumuman 34/SEK/2026)</span><strong>22 baris / 4.430 kursi (3 jalur • Gaji BKN Rp 2,5–10,9 jt)</strong></li>
             <li><span>BPKP (Pengumuman KP.00.01/PENG-2/SU/02/2026)</span><strong>554 baris / 2.007 kursi (KepmenPANRB 640/2026 • Gaji Rp 7,7–11,5 jt)</strong></li>
             <li><span>Kementerian Keuangan (KepmenPANRB 675/2026)</span><strong>374 baris / 1.915 kursi (19 Nov 2026 • lengkap 35 hal. lampiran)</strong></li>
             <li><span>Kejaksaan Agung (SSCASN Live • Kejaksaan RI)</span><strong>30 baris / 1.660 kursi lengkap nasional (4 jalur • Gaji BKN Rp 7,0–11,2 jt)</strong></li>
@@ -488,10 +488,10 @@
             Setiap sumber diaudit silang SHA-256 dan kunci natural; field yang belum ada pada sumber tetap dibiarkan <span class="inline-code">NULL</span> (<span class="inline-code">—</span>).
           </p>
           <ul class="spec-list">
-            <li><span><span class="inline-code">BPK.pdf</span>, <span class="inline-code">CPNS_BSSN.pdf</span>, <span class="inline-code">Kemenkum.pdf</span>, <span class="inline-code">Kejagung Parsial</span> + Duplikat</span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
+            <li><span><span class="inline-code">Mahkamah Agung.pdf</span>, <span class="inline-code">Kemenkum.pdf</span>, <span class="inline-code">BPK.pdf</span>, <span class="inline-code">CPNS_BSSN.pdf</span>, <span class="inline-code">Kejagung Parsial</span></span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
             <li><span><span class="inline-code">Mekanisme CPNS &amp; Passing Grade.pdf</span> (KepmenPANRB 674/2026)</span><strong>Acuan Ambang Batas SKD 2026 (Umum 65/80/166; Cum Laude 311; Disabilitas 286)</strong></li>
             <li><span>Kuota Kementerian Kesehatan (<span class="inline-code">SE HK.02.02</span>)</span><strong>Dikosongkan (<span class="inline-code">—</span>) sesuai sumber karena hanya mengatur syarat prodi &amp; STR</strong></li>
-            <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada BPK, Kejaksaan Agung, Kemenkum, Kemenkop, BSSN (SSCASN Live), BPKP &amp; Kemenham; <span class="inline-code">—</span> di PDF lainnya</strong></li>
+            <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada MA RI, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, BSSN (SSCASN Live), BPKP &amp; Kemenham; <span class="inline-code">—</span> di PDF lainnya</strong></li>
             <li><span>Pelamar, Rasio &amp; Data Nilai Minimal/Median 2024</span><strong>Pelamar 2026 <span class="inline-code">NULL</span> (<span class="inline-code">—</span>); data nilai SKD–SKB 2024 bersumber dari pengumuman resmi instansi</strong></li>
           </ul>
         </div>

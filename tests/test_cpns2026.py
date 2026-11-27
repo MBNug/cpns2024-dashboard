@@ -91,7 +91,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
                 FROM formasi
                 """
             ).fetchone()
-            self.assertEqual(non_nulls, (1634, 0, 0, 0, 0, 979, 979, 49))
+            self.assertEqual(non_nulls, (1634, 0, 0, 0, 0, 1001, 1001, 49))
 
             # Ensure jurusan catalog merges case-variants (e.g. S-1 Informatika + S-1 INFORMATIKA)
             dup_jurusan = cur.execute(
@@ -129,8 +129,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(rf.status_code, 200)
         fd = rf.json()
         self.assertEqual(len(fd["instansi"]), 11)
-        self.assertEqual(len(fd["unit_eselon1"]), 91)
-        self.assertEqual(len(fd["jabatan"]), 126)
+        self.assertEqual(len(fd["unit_eselon1"]), 105)
+        self.assertEqual(len(fd["jabatan"]), 123)
         self.assertEqual(
             sorted(fd["jenis_formasi"]),
             [
@@ -142,15 +142,15 @@ class Cpns2026DashboardTests(unittest.TestCase):
         )
         self.assertEqual(fd["status_keketatan"], [])
         k24_map = {x["status"]: x for x in fd["status_keketatan_2024"]}
-        self.assertEqual(k24_map["Sangat Ketat"]["formasi_count"], 243)
+        self.assertEqual(k24_map["Sangat Ketat"]["formasi_count"], 248)
         self.assertEqual(k24_map["Moderat"]["formasi_count"], 53)
         self.assertEqual(k24_map["Tanpa Pelamar"]["formasi_count"], 1)
-        self.assertEqual(fd["unmatched_2024_count"], 1760)
+        self.assertEqual(fd["unmatched_2024_count"], 1755)
 
         r_k24_tight = self.client.get("/api/2026/formasi", params={"keketatan_2024": "Sangat Ketat"})
         self.assertEqual(r_k24_tight.status_code, 200)
-        self.assertEqual(r_k24_tight.json()["total"], 243)
-        self.assertEqual(r_k24_tight.json()["total_kuota_filtered"], 2111)
+        self.assertEqual(r_k24_tight.json()["total"], 248)
+        self.assertEqual(r_k24_tight.json()["total_kuota_filtered"], 3711)
         self.assertTrue(all(x["status_keketatan_2024"] == "Sangat Ketat" for x in r_k24_tight.json()["items"]))
 
         r_k24_mod = self.client.get("/api/2026/formasi", params={"keketatan_2024": "Moderat"})
@@ -165,8 +165,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_k24_none = self.client.get("/api/2026/formasi", params={"keketatan_2024": "__NONE__"})
         self.assertEqual(r_k24_none.status_code, 200)
-        self.assertEqual(r_k24_none.json()["total"], 1760)
-        self.assertEqual(r_k24_none.json()["total_kuota_filtered"], 11320)
+        self.assertEqual(r_k24_none.json()["total"], 1755)
+        self.assertEqual(r_k24_none.json()["total_kuota_filtered"], 9720)
         self.assertTrue(all(x["status_keketatan_2024"] is None for x in r_k24_none.json()["items"]))
 
         r_k24_sorted = self.client.get(
@@ -263,7 +263,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(r_ma.status_code, 200)
         self.assertEqual(r_ma.json()["total"], 22)
         self.assertEqual(r_ma.json()["total_kuota_filtered"], 4430)
-        self.assertIsNone(r_ma.json()["items"][0]["gaji_min"])
+        self.assertGreater(r_ma.json()["items"][0]["gaji_min"], 0)
 
         r_kemenham = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Hak Asasi Manusia"})
         self.assertEqual(r_kemenham.status_code, 200)
@@ -350,8 +350,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_ana_k24 = self.client.get("/api/2026/analytics/top", params={"keketatan_2024": "Sangat Ketat"})
         self.assertEqual(r_ana_k24.status_code, 200)
-        self.assertEqual(r_ana_k24.json()["total_rows"], 243)
-        self.assertEqual(r_ana_k24.json()["total_kuota"], 2111)
+        self.assertEqual(r_ana_k24.json()["total_rows"], 248)
+        self.assertEqual(r_ana_k24.json()["total_kuota"], 3711)
 
         r_csv = self.client.get("/api/2026/export")
         self.assertEqual(r_csv.status_code, 200)
@@ -398,7 +398,6 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_raw = self.client.get("/api/2026/download/raw-csv")
         self.assertEqual(r_raw.status_code, 200)
         self.assertIn("Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026", r_raw.text)
-        self.assertIn("Pengumuman Sekretaris Mahkamah Agung RI No. 34/SEK/PENG.KP1.1.2/XI/2026", r_raw.text)
         self.assertIn("Pengumuman Kemenham No. SEK-1143.KP.02.01 Tahun 2026", r_raw.text)
         self.assertIn("Pengumuman Kapolri No. Peng/33/XI/KEP./2026", r_raw.text)
         self.assertIn("KepmenPANRB No. 675 Tahun 2026", r_raw.text)

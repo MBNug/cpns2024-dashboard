@@ -136,13 +136,13 @@ DRIVE_AUDIT_SUMMARY = [
         "catatan": "Data resmi SSCASN BKN Live lengkap 53 baris penempatan (Unit Utama, Kantor Wilayah, Ditjen KI, Ditjen PP, BPSDM/Poltek Pengayoman) dengan total 1.297 kursi identik pengumuman (1.219 Umum, 26 Lulusan Terbaik, 26 Disabilitas, 26 Putra/Putri Papua) beserta Gaji Resmi BKN Rp 5,3–9,8 jt. Menggantikan Kemenkum.pdf pra-rilis tanpa duplikasi.",
     },
     {
-        "file_name": "Mahkamah Agung.pdf",
-        "status": "ingested",
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Mahkamah Agung.pdf",
+        "status": "ingested_sscasn_live",
         "instansi": "Mahkamah Agung RI",
-        "referensi": "Pengumuman Sekretaris MA No. 34/SEK/PENG.KP1.1.2/XI/2026 (KepmenPANRB No. 643/2026, 27 Nov 2026)",
+        "referensi": "SSCASN BKN Live + Pengumuman Sekretaris MA No. 34/SEK/PENG.KP1.1.2/XI/2026 (KepmenPANRB No. 643/2026)",
         "rows_ingested": 22,
         "kuota_ingested": 4430,
-        "catatan": "Rincian lengkap 18 kode formasi / 22 baris alokasi jalur (4.321 Umum, 89 Disabilitas, 20 Putra/Putri Papua) termasuk Calon Hakim (1.600 kursi), PSTI (716), Penelaah Teknis Kebijakan (705), dan Petugas Pengamanan Persidangan (906). Gaji resmi & pelamar dibiarkan NULL.",
+        "catatan": "Data resmi SSCASN BKN Live lengkap 22 baris (18 kode formasi, 4.321 Umum, 89 Disabilitas, 20 Putra/Putri Papua) termasuk Analis Perkara Peradilan / Calon Hakim (1.600 kursi), PSTI (716), dan Pengadministrasi Perkantoran / PTP (906), beserta Gaji Resmi BKN Rp 2,5–10,9 jt. Menggantikan Mahkamah Agung.pdf pra-rilis tanpa duplikasi.",
     },
     {
         "file_name": "Kemenham.pdf",
