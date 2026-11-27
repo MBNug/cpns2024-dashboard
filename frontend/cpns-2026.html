@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (6 Instansi Terverifikasi)</title>
-  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (BPK) serta dokumen resmi BPKP, Kemenkeu, BSSN, Kejaksaan Agung (parsial), dan acuan kualifikasi STR Kemenkes (1.124 baris, 5.249 kursi teralokasi)." />
+  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (7 Instansi Terverifikasi)</title>
+  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (BPK) serta dokumen resmi BPKP, Kemenkeu, Kemenkum, BSSN, Kejaksaan Agung (parsial), dan acuan kualifikasi STR Kemenkes (1.169 baris, 6.546 kursi teralokasi)." />
   <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
-  <link rel="stylesheet" href="/static/css/app.css?v=20261127g" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261127h" />
   <script>
     (function () {
       try {
@@ -114,8 +114,8 @@
         <span class="ticker-label">Rasio</span>
         <span id="kpi-avg-rasio" class="ticker-value">—</span>
       </div>
-      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (BPK) • Pengumuman Resmi (BPKP) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejaksaan Agung) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
-        <span id="kpi-source-badge">6 Instansi Resmi • 2026</span>
+      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (BPK) • Pengumuman Resmi (BPKP &amp; Kemenkum) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejaksaan Agung) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
+        <span id="kpi-source-badge">7 Instansi Resmi • 2026</span>
       </a>
     </section>
 
@@ -201,7 +201,7 @@
         <div class="field-group col-span-3">
           <div class="field-label-row">
             <label for="filter-instansi" class="field-label">Instansi Pemerintah</label>
-            <span id="badge-instansi-count" class="field-hint">6 instansi</span>
+            <span id="badge-instansi-count" class="field-hint">7 instansi</span>
           </div>
           <select id="filter-instansi" class="control-select">
             <option value="">Semua Instansi</option>
@@ -218,7 +218,7 @@
           </select>
         </div>
 
-        <div class="field-group col-span-3 field-secondary">
+        <div class="field-group col-span-2 field-secondary">
           <div class="field-label-row">
             <label for="filter-jabatan" class="field-label">Nama Jabatan</label>
             <span id="badge-jabatan-count" class="field-hint">58 jabatan</span>
@@ -228,12 +228,12 @@
           </select>
         </div>
 
-        <div class="field-group col-span-3 field-secondary">
+        <div class="field-group col-span-2 field-secondary">
           <div class="field-label-row">
             <label for="filter-lokasi" class="field-label">Unit / Kota Penempatan</label>
           </div>
           <div class="input-wrap">
-            <input type="text" id="filter-lokasi" class="control-input has-clear-btn" placeholder="Contoh: BEA DAN CUKAI, KEJAKSAAN NEGERI, JAKARTA..." autocomplete="off" />
+            <input type="text" id="filter-lokasi" class="control-input has-clear-btn" placeholder="Contoh: BEA DAN CUKAI, JAKARTA..." autocomplete="off" />
             <button type="button" id="btn-clear-lokasi" class="input-clear-btn hidden" aria-label="Hapus lokasi">×</button>
           </div>
         </div>
@@ -268,12 +268,22 @@
             <option value="20">>= 20 kursi</option>
           </select>
         </div>
+
+        <div class="field-group col-span-2 field-secondary" title="Filter formasi 2026 berdasarkan tingkat keketatan pembanding pada CPNS 2024 (pelamar 2026 belum rilis)">
+          <div class="field-label-row">
+            <label for="filter-keketatan-2024" class="field-label">Keketatan (2024)</label>
+            <span class="field-hint">Pembanding</span>
+          </div>
+          <select id="filter-keketatan-2024" class="control-select">
+            <option value="">Semua Pembanding 2024</option>
+          </select>
+        </div>
       </div>
 
       <!-- Quick Presets + Bookmarks -->
       <div class="workbench-footer">
         <div class="quick-presets-cluster">
-          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (1.124)</button>
+          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (1.169)</button>
           <button type="button" class="preset-chip" data-preset="sma">Lulusan SMA/SMK</button>
           <button type="button" class="preset-chip" data-preset="s1">Lulusan S-1 / D-IV</button>
           <button type="button" class="preset-chip mobile-secondary-presets" data-preset="d3">Lulusan D-III</button>
@@ -284,7 +294,7 @@
         </div>
 
         <span class="field-hint">
-          Kolom <strong>Pelamar</strong> dan <strong>Keketatan</strong> sengaja dikosongkan (<span class="inline-code">—</span>) hingga SSCASN 2026 merilis statistik pendaftar.
+          Kolom <strong>Pelamar</strong> &amp; <strong>Keketatan 2026</strong> dikosongkan (<span class="inline-code">—</span>) hingga SSCASN 2026 dibuka; gunakan filter <strong>Keketatan (2024)</strong> untuk menyaring pembanding 2024.
         </span>
       </div>
 
@@ -333,11 +343,13 @@
 
           <div class="analytics-column">
             <div class="analytics-col-header">
-              <h2 style="font-size: 0.875rem; font-weight: 700;">Pelamar &amp; Tingkat Keketatan</h2>
-              <span class="analytics-col-meta">SSCASN 2026</span>
+              <h2 style="font-size: 0.875rem; font-weight: 700;">Keketatan 2026 &amp; Acuan 2024</h2>
+              <span class="analytics-col-meta">Klik untuk filter</span>
             </div>
-            <div id="dist-keketatan" class="top-chart-empty" style="border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); padding: 14px;">
-              Belum tersedia — data jumlah pelamar dan tingkat keketatan baru dapat dihitung setelah pendaftaran SSCASN 2026 dibuka.
+            <div id="dist-keketatan" class="dist-list">
+              <div class="top-chart-empty" style="border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); padding: 14px;">
+                Memuat acuan tingkat keketatan 2024...
+              </div>
             </div>
           </div>
         </div>
@@ -364,6 +376,8 @@
               <option value="no_urut" selected>Urutan Dokumen</option>
               <option value="kuota_desc">Alokasi Terbanyak</option>
               <option value="kuota_asc">Alokasi Terkecil</option>
+              <option value="rasio_2024_desc">Keketatan 2024: Paling Ketat</option>
+              <option value="rasio_2024_asc">Keketatan 2024: Paling Longgar</option>
               <option value="jabatan_asc">Jabatan (A → Z)</option>
               <option value="eselon1_asc">Unit Eselon I (A → Z)</option>
             </select>
@@ -448,17 +462,19 @@
 
       <div class="reference-split">
         <div class="reference-col">
-          <h3>Sumber Data Masuk ke Database (1.124 Baris / 5.249 Kursi)</h3>
+          <h3>Sumber Data Masuk ke Database (1.169 Baris / 6.546 Kursi)</h3>
           <p class="prose-measure">
             Seluruh entri diambil langsung dari API resmi SSCASN BKN dan dokumen pengumuman/penetapan resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
           </p>
           <ul class="spec-list">
             <li><span>BPKP (Pengumuman KP.00.01/PENG-2/SU/02/2026)</span><strong>554 baris / 2.007 kursi (KepmenPANRB 640/2026 • Gaji Rp 7,7–11,5 jt)</strong></li>
             <li><span>Kementerian Keuangan (KepmenPANRB 675/2026)</span><strong>374 baris / 1.915 kursi (19 Nov 2026 • lengkap 35 hal. lampiran)</strong></li>
+            <li><span>Kementerian Hukum (Pengumuman SEK.2-KP.02.01-326)</span><strong>45 baris / 1.297 kursi (KepmenPANRB 647/2026 • 15 jabatan, 4 jalur formasi)</strong></li>
             <li><span>Badan Pemeriksa Keuangan (SSCASN Live + Pengumuman 01/2026)</span><strong>51 baris / 952 kursi (Umum, Disabilitas, Papua • Gaji BKN Rp 13–19 jt)</strong></li>
             <li><span>Badan Siber &amp; Sandi Negara (PENG.102/2026)</span><strong>2 baris / 200 kursi (KepmenPANRB 676/2026 • 196 Umum + 4 Disabilitas)</strong></li>
             <li><span>Kejaksaan Agung (KepmenPANRB 638/2026 Parsial)</span><strong>94 baris / 175 kursi (Hal. 1, 2, 8, 9, 10, 69 dari 69 • tidak direka)</strong></li>
             <li><span>Kementerian Kesehatan (SE HK.02.02/F/4023/2026)</span><strong>49 kelompok JF Kesehatan (30 jabatan • syarat pendidikan &amp; STR, kuota <span class="inline-code">—</span>)</strong></li>
+            <li><span>Tautan Kompilasi Pengumuman Instansi (Komunitas X <span class="inline-code">@wiraaaaa27</span>)</span><strong><a href="https://x.com/wiraaaaa27/status/2126201372244914343" target="_blank" rel="noopener noreferrer" style="color: var(--color-accent-ink); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere;">https://x.com/wiraaaaa27/status/2126201372244914343</a></strong></li>
           </ul>
         </div>
 
@@ -486,7 +502,7 @@
         </div>
         <ul class="disclaimer-list">
           <li>Jika instansi yang sama nantinya merilis rincian resmi di portal live <strong>SSCASN BKN</strong> (<span class="inline-code">api-rekrutmen.bkn.go.id/portal/api/spf</span>), data SSCASN otomatis menggantikan catatan pra-rilis tanpa menduplikasi baris.</li>
-          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 34/2023 BPKP, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, dan No. 109/2016 Kemenkes), terpisah dari kolom <strong>Gaji Resmi</strong> pengumuman/SSCASN.</li>
+          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 34/2023 BPKP, No. 130/2017 Kemenkum, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, dan No. 109/2016 Kemenkes), terpisah dari kolom <strong>Gaji Resmi</strong> pengumuman/SSCASN.</li>
         </ul>
       </div>
     </section>
@@ -532,7 +548,7 @@
 
   <footer class="site-footer">
     <div class="container-wide footer-inner">
-      <div>SSCASN Explorer • Portal Data Awal CPNS 2026 (BPK Live SSCASN, Kemenkeu, BSSN, Kejaksaan Agung Parsial &amp; Syarat STR Kemenkes)</div>
+      <div>SSCASN Explorer • Portal Data Awal CPNS 2026 (BPKP, Kemenkeu, Kemenkum, BPK Live SSCASN, BSSN, Kejaksaan Agung Parsial &amp; Syarat STR Kemenkes)</div>
       <div class="footer-links">
         <a href="/cpns-2024">Arsip CPNS 2024</a>
         <a href="/sumber-data">Dokumentasi Metodologi</a>
@@ -723,6 +739,6 @@
     <span id="toast-message"></span>
   </div>
 
-  <script src="/static/js/cpns2026.js?v=20261127g"></script>
+  <script src="/static/js/cpns2026.js?v=20261127h"></script>
 </body>
 </html>

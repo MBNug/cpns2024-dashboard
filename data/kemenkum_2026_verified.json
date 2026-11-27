@@ -1,0 +1,464 @@
+{
+  "source": "Pengumuman Sekretaris Jenderal Kementerian Hukum No. SEK.2-KP.02.01-326 (27 Nov 2026, KepmenPANRB No. 647 Tahun 2026)",
+  "total_jabatan": 15,
+  "total_rows": 45,
+  "total_seats": 1297,
+  "breakdown_jalur": {
+    "UMUM": 1219,
+    "PUTRA/PUTRI LULUSAN TERBAIK": 26,
+    "PENYANDANG DISABILITAS": 26,
+    "ORANG ASLI PAPUA": 26
+  },
+  "rows": [
+    {
+      "no_urut": 1,
+      "no_lampiran": 1,
+      "formasi_id": "2026-KEMENKUM-01-UMUM",
+      "jabatan_nm": "Dosen Asisten Ahli",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 2,
+      "pendidikan_raw": "S-2 Ilmu Hukum; S-2 Hukum"
+    },
+    {
+      "no_urut": 2,
+      "no_lampiran": 1,
+      "formasi_id": "2026-KEMENKUM-01-TERBAIK",
+      "jabatan_nm": "Dosen Asisten Ahli",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-2 Ilmu Hukum; S-2 Hukum"
+    },
+    {
+      "no_urut": 3,
+      "no_lampiran": 2,
+      "formasi_id": "2026-KEMENKUM-02-UMUM",
+      "jabatan_nm": "Widyaiswara Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Balai Pelatihan Hukum",
+      "jumlah_formasi": 31,
+      "pendidikan_raw": "S-2 Sistem Informasi; S-2 Kebijakan Publik; S-2 Hukum; S-2 Ilmu Politik; S-2 Psikologi; S-2 Ilmu Informatika; S-2 Sistem Informasi Manajemen; S-2 Ilmu Komputer; S-2 Teknologi Informasi; S-2 Ilmu Manajemen; S-2 Teknik Komputer"
+    },
+    {
+      "no_urut": 4,
+      "no_lampiran": 2,
+      "formasi_id": "2026-KEMENKUM-02-TERBAIK",
+      "jabatan_nm": "Widyaiswara Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat dan Balai Pelatihan Hukum",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-2 Sistem Informasi; S-2 Kebijakan Publik; S-2 Hukum; S-2 Ilmu Politik; S-2 Psikologi; S-2 Ilmu Informatika; S-2 Sistem Informasi Manajemen; S-2 Ilmu Komputer; S-2 Teknologi Informasi; S-2 Ilmu Manajemen; S-2 Teknik Komputer"
+    },
+    {
+      "no_urut": 5,
+      "no_lampiran": 3,
+      "formasi_id": "2026-KEMENKUM-03-UMUM",
+      "jabatan_nm": "Perancang Peraturan Perundang-undangan Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 120,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 6,
+      "no_lampiran": 3,
+      "formasi_id": "2026-KEMENKUM-03-TERBAIK",
+      "jabatan_nm": "Perancang Peraturan Perundang-undangan Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 7,
+      "no_lampiran": 3,
+      "formasi_id": "2026-KEMENKUM-03-DISABILITAS",
+      "jabatan_nm": "Perancang Peraturan Perundang-undangan Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 4,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 8,
+      "no_lampiran": 3,
+      "formasi_id": "2026-KEMENKUM-03-OAP",
+      "jabatan_nm": "Perancang Peraturan Perundang-undangan Ahli Pertama",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 4,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 9,
+      "no_lampiran": 4,
+      "formasi_id": "2026-KEMENKUM-04-UMUM",
+      "jabatan_nm": "Analis Kekayaan Intelektual Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 123,
+      "pendidikan_raw": "S-1 Hukum; S-1 Teknik Mesin; S-1 Ekonomi Pembangunan; S-1 Manajemen; S-1 Teknik Elektro; S-1 Kimia; S-1 Ekonomi; S-1 Desain Produk Industri; S-1 Desain Komunikasi Visual; S-1 Ilmu Komunikasi; S-1 Biologi; S-1 Musik; S-1 Sains Komunikasi; S-1 Seni Murni; S-1 Farmasi; S-1 Ilmu Komputer; S-1 Bahasa Inggris; S-1 Ilmu Informatika; S-1 Sastra Inggris; S-1 Statistika"
+    },
+    {
+      "no_urut": 10,
+      "no_lampiran": 4,
+      "formasi_id": "2026-KEMENKUM-04-TERBAIK",
+      "jabatan_nm": "Analis Kekayaan Intelektual Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "S-1 Hukum; S-1 Teknik Mesin; S-1 Ekonomi Pembangunan; S-1 Manajemen; S-1 Teknik Elektro; S-1 Kimia; S-1 Ekonomi; S-1 Desain Produk Industri; S-1 Desain Komunikasi Visual; S-1 Ilmu Komunikasi; S-1 Biologi; S-1 Musik; S-1 Sains Komunikasi; S-1 Seni Murni; S-1 Farmasi; S-1 Ilmu Komputer; S-1 Bahasa Inggris; S-1 Ilmu Informatika; S-1 Sastra Inggris; S-1 Statistika"
+    },
+    {
+      "no_urut": 11,
+      "no_lampiran": 4,
+      "formasi_id": "2026-KEMENKUM-04-DISABILITAS",
+      "jabatan_nm": "Analis Kekayaan Intelektual Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 4,
+      "pendidikan_raw": "S-1 Hukum; S-1 Teknik Mesin; S-1 Ekonomi Pembangunan; S-1 Manajemen; S-1 Teknik Elektro; S-1 Kimia; S-1 Ekonomi; S-1 Desain Produk Industri; S-1 Desain Komunikasi Visual; S-1 Ilmu Komunikasi; S-1 Biologi; S-1 Musik; S-1 Sains Komunikasi; S-1 Seni Murni; S-1 Farmasi; S-1 Ilmu Komputer; S-1 Bahasa Inggris; S-1 Ilmu Informatika; S-1 Sastra Inggris; S-1 Statistika"
+    },
+    {
+      "no_urut": 12,
+      "no_lampiran": 4,
+      "formasi_id": "2026-KEMENKUM-04-OAP",
+      "jabatan_nm": "Analis Kekayaan Intelektual Ahli Pertama",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 4,
+      "pendidikan_raw": "S-1 Hukum; S-1 Teknik Mesin; S-1 Ekonomi Pembangunan; S-1 Manajemen; S-1 Teknik Elektro; S-1 Kimia; S-1 Ekonomi; S-1 Desain Produk Industri; S-1 Desain Komunikasi Visual; S-1 Ilmu Komunikasi; S-1 Biologi; S-1 Musik; S-1 Sains Komunikasi; S-1 Seni Murni; S-1 Farmasi; S-1 Ilmu Komputer; S-1 Bahasa Inggris; S-1 Ilmu Informatika; S-1 Sastra Inggris; S-1 Statistika"
+    },
+    {
+      "no_urut": 13,
+      "no_lampiran": 5,
+      "formasi_id": "2026-KEMENKUM-05-UMUM",
+      "jabatan_nm": "Pemeriksa Merek Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 18,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 14,
+      "no_lampiran": 5,
+      "formasi_id": "2026-KEMENKUM-05-TERBAIK",
+      "jabatan_nm": "Pemeriksa Merek Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 15,
+      "no_lampiran": 5,
+      "formasi_id": "2026-KEMENKUM-05-DISABILITAS",
+      "jabatan_nm": "Pemeriksa Merek Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 16,
+      "no_lampiran": 6,
+      "formasi_id": "2026-KEMENKUM-06-UMUM",
+      "jabatan_nm": "Pemeriksa Paten Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 38,
+      "pendidikan_raw": "S-1 Teknik Mesin; S-1 Teknik Industri; S-1 Teknik Sipil; S-1 Teknik Biomedis; S-1 Biologi; S-1 Teknik Material; S-1 Teknik Pertambangan; S-1 Bioteknologi; S-1 Teknik Dirgantara; S-1 Farmasi; S-1 Teknik Perminyakan; S-1 Bioinformatika; S-1 Peternakan; S-1 Teknologi Pertanian; S-1 Teknologi Pangan; S-1 Teknik Metalurgi; S-1 Teknik Metalurgi dan Material; S-1 Teknik Tekstil; S-1 Teknik Geologi; S-1 Teknik Sistem Perkapalan; S-1 Biomedik; S-1 Teknik Nuklir; S-1 Teknik Lingkungan; S-1 Teknik Energi Terbarukan; S-1 Teknik Bioproses; S-1 Teknik Kelautan; S-1 Perikanan; S-1 Teknik Perkapalan; S-1 Teknik Pertanian; S-1 Biokimia"
+    },
+    {
+      "no_urut": 17,
+      "no_lampiran": 6,
+      "formasi_id": "2026-KEMENKUM-06-TERBAIK",
+      "jabatan_nm": "Pemeriksa Paten Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-1 Teknik Mesin; S-1 Teknik Industri; S-1 Teknik Sipil; S-1 Teknik Biomedis; S-1 Biologi; S-1 Teknik Material; S-1 Teknik Pertambangan; S-1 Bioteknologi; S-1 Teknik Dirgantara; S-1 Farmasi; S-1 Teknik Perminyakan; S-1 Bioinformatika; S-1 Peternakan; S-1 Teknologi Pertanian; S-1 Teknologi Pangan; S-1 Teknik Metalurgi; S-1 Teknik Metalurgi dan Material; S-1 Teknik Tekstil; S-1 Teknik Geologi; S-1 Teknik Sistem Perkapalan; S-1 Biomedik; S-1 Teknik Nuklir; S-1 Teknik Lingkungan; S-1 Teknik Energi Terbarukan; S-1 Teknik Bioproses; S-1 Teknik Kelautan; S-1 Perikanan; S-1 Teknik Perkapalan; S-1 Teknik Pertanian; S-1 Biokimia"
+    },
+    {
+      "no_urut": 18,
+      "no_lampiran": 6,
+      "formasi_id": "2026-KEMENKUM-06-DISABILITAS",
+      "jabatan_nm": "Pemeriksa Paten Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-1 Teknik Mesin; S-1 Teknik Industri; S-1 Teknik Sipil; S-1 Teknik Biomedis; S-1 Biologi; S-1 Teknik Material; S-1 Teknik Pertambangan; S-1 Bioteknologi; S-1 Teknik Dirgantara; S-1 Farmasi; S-1 Teknik Perminyakan; S-1 Bioinformatika; S-1 Peternakan; S-1 Teknologi Pertanian; S-1 Teknologi Pangan; S-1 Teknik Metalurgi; S-1 Teknik Metalurgi dan Material; S-1 Teknik Tekstil; S-1 Teknik Geologi; S-1 Teknik Sistem Perkapalan; S-1 Biomedik; S-1 Teknik Nuklir; S-1 Teknik Lingkungan; S-1 Teknik Energi Terbarukan; S-1 Teknik Bioproses; S-1 Teknik Kelautan; S-1 Perikanan; S-1 Teknik Perkapalan; S-1 Teknik Pertanian; S-1 Biokimia"
+    },
+    {
+      "no_urut": 19,
+      "no_lampiran": 7,
+      "formasi_id": "2026-KEMENKUM-07-UMUM",
+      "jabatan_nm": "Pemeriksa Desain Industri Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 8,
+      "pendidikan_raw": "S-1 Desain Komunikasi Visual; S-1 Seni Rupa; S-1 Kriya; S-1 Desain Produk; S-1 Seni Kriya; S-1 Seni Rupa Murni"
+    },
+    {
+      "no_urut": 20,
+      "no_lampiran": 7,
+      "formasi_id": "2026-KEMENKUM-07-TERBAIK",
+      "jabatan_nm": "Pemeriksa Desain Industri Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-1 Desain Komunikasi Visual; S-1 Seni Rupa; S-1 Kriya; S-1 Desain Produk; S-1 Seni Kriya; S-1 Seni Rupa Murni"
+    },
+    {
+      "no_urut": 21,
+      "no_lampiran": 7,
+      "formasi_id": "2026-KEMENKUM-07-DISABILITAS",
+      "jabatan_nm": "Pemeriksa Desain Industri Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-1 Desain Komunikasi Visual; S-1 Seni Rupa; S-1 Kriya; S-1 Desain Produk; S-1 Seni Kriya; S-1 Seni Rupa Murni"
+    },
+    {
+      "no_urut": 22,
+      "no_lampiran": 8,
+      "formasi_id": "2026-KEMENKUM-08-UMUM",
+      "jabatan_nm": "Analis Hukum Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 95,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 23,
+      "no_lampiran": 8,
+      "formasi_id": "2026-KEMENKUM-08-TERBAIK",
+      "jabatan_nm": "Analis Hukum Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 24,
+      "no_lampiran": 8,
+      "formasi_id": "2026-KEMENKUM-08-DISABILITAS",
+      "jabatan_nm": "Analis Hukum Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 25,
+      "no_lampiran": 8,
+      "formasi_id": "2026-KEMENKUM-08-OAP",
+      "jabatan_nm": "Analis Hukum Ahli Pertama",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 26,
+      "no_lampiran": 9,
+      "formasi_id": "2026-KEMENKUM-09-UMUM",
+      "jabatan_nm": "Penyuluh Hukum Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 73,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 27,
+      "no_lampiran": 9,
+      "formasi_id": "2026-KEMENKUM-09-TERBAIK",
+      "jabatan_nm": "Penyuluh Hukum Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 2,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 28,
+      "no_lampiran": 9,
+      "formasi_id": "2026-KEMENKUM-09-DISABILITAS",
+      "jabatan_nm": "Penyuluh Hukum Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 29,
+      "no_lampiran": 9,
+      "formasi_id": "2026-KEMENKUM-09-OAP",
+      "jabatan_nm": "Penyuluh Hukum Ahli Pertama",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "S-1 Hukum; S-1 Ilmu Hukum"
+    },
+    {
+      "no_urut": 30,
+      "no_lampiran": 10,
+      "formasi_id": "2026-KEMENKUM-10-UMUM",
+      "jabatan_nm": "Penerjemah Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 2,
+      "pendidikan_raw": "S-1 Bahasa Inggris; S-1 Sastra Inggris; S-1 Bahasa dan Kebudayaan Inggris"
+    },
+    {
+      "no_urut": 31,
+      "no_lampiran": 10,
+      "formasi_id": "2026-KEMENKUM-10-TERBAIK",
+      "jabatan_nm": "Penerjemah Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "S-1 Bahasa Inggris; S-1 Sastra Inggris; S-1 Bahasa dan Kebudayaan Inggris"
+    },
+    {
+      "no_urut": 32,
+      "no_lampiran": 11,
+      "formasi_id": "2026-KEMENKUM-11-UMUM",
+      "jabatan_nm": "Pranata Komputer Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 186,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; D-IV Ilmu Informatika; D-IV Teknik Komputer dan Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Informatika; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 33,
+      "no_lampiran": 11,
+      "formasi_id": "2026-KEMENKUM-11-TERBAIK",
+      "jabatan_nm": "Pranata Komputer Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 5,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; D-IV Ilmu Informatika; D-IV Teknik Komputer dan Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Informatika; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 34,
+      "no_lampiran": 11,
+      "formasi_id": "2026-KEMENKUM-11-DISABILITAS",
+      "jabatan_nm": "Pranata Komputer Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 6,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; D-IV Ilmu Informatika; D-IV Teknik Komputer dan Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Informatika; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 35,
+      "no_lampiran": 11,
+      "formasi_id": "2026-KEMENKUM-11-OAP",
+      "jabatan_nm": "Pranata Komputer Ahli Pertama",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; D-IV Ilmu Informatika; D-IV Teknik Komputer dan Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Informatika; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 36,
+      "no_lampiran": 12,
+      "formasi_id": "2026-KEMENKUM-12-UMUM",
+      "jabatan_nm": "Penata Kelola Informatika Sistem Pemerintahan Berbasis Elektronik (SPBE) Ahli Pertama",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 70,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Informatika; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 37,
+      "no_lampiran": 12,
+      "formasi_id": "2026-KEMENKUM-12-TERBAIK",
+      "jabatan_nm": "Penata Kelola Informatika Sistem Pemerintahan Berbasis Elektronik (SPBE) Ahli Pertama",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 2,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Informatika; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 38,
+      "no_lampiran": 12,
+      "formasi_id": "2026-KEMENKUM-12-DISABILITAS",
+      "jabatan_nm": "Penata Kelola Informatika Sistem Pemerintahan Berbasis Elektronik (SPBE) Ahli Pertama",
+      "jenis_formasi": "PENYANDANG DISABILITAS",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 3,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Informatika; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 39,
+      "no_lampiran": 12,
+      "formasi_id": "2026-KEMENKUM-12-OAP",
+      "jabatan_nm": "Penata Kelola Informatika Sistem Pemerintahan Berbasis Elektronik (SPBE) Ahli Pertama",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 1,
+      "pendidikan_raw": "D-IV Sistem Informasi; D-IV Ilmu Informatika; D-IV Ilmu Komputer; D-IV Teknologi Informasi; D-IV Teknik Komputer; D-IV Teknik Informatika; S-1 Teknologi Informasi; S-1 Teknik Informatika; S-1 Ilmu Komputer; S-1 Teknik Komputer; S-1 Ilmu Informatika; S-1 Sistem Informasi"
+    },
+    {
+      "no_urut": 40,
+      "no_lampiran": 13,
+      "formasi_id": "2026-KEMENKUM-13-UMUM",
+      "jabatan_nm": "Penelaah Teknis Kebijakan",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 81,
+      "pendidikan_raw": "D-IV Akuntansi Sektor Publik; S-1 Hukum; S-1 Manajemen; S-1 Ekonomi; S-1 Ilmu Politik; S-1 Ilmu Pemerintahan; S-1 Hubungan Internasional; S-1 Ilmu Komunikasi; S-1 Akuntansi; S-1 Administrasi Publik"
+    },
+    {
+      "no_urut": 41,
+      "no_lampiran": 13,
+      "formasi_id": "2026-KEMENKUM-13-TERBAIK",
+      "jabatan_nm": "Penelaah Teknis Kebijakan",
+      "jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK",
+      "unit_penempatan": "Unit Pusat",
+      "jumlah_formasi": 2,
+      "pendidikan_raw": "D-IV Akuntansi Sektor Publik; S-1 Hukum; S-1 Manajemen; S-1 Ekonomi; S-1 Ilmu Politik; S-1 Ilmu Pemerintahan; S-1 Hubungan Internasional; S-1 Ilmu Komunikasi; S-1 Akuntansi; S-1 Administrasi Publik"
+    },
+    {
+      "no_urut": 42,
+      "no_lampiran": 14,
+      "formasi_id": "2026-KEMENKUM-14-UMUM",
+      "jabatan_nm": "Pengolah Data dan Informasi",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 196,
+      "pendidikan_raw": "D-III Administrasi Tata Perkantoran; D-III Administrasi Keuangan; D-III Manajemen Perkantoran; D-III Manajemen Kepegawaian; D-III Administrasi Perkantoran; D-III Administrasi Bisnis; D-III Administrasi Negara; D-III Administrasi Publik; D-III Administrasi; D-III Administrasi Niaga; D-III Administrasi Pemerintahan; D-III Akuntansi; D-III Manajemen Sistem Informasi; D-III Administrasi Pembangunan; D-III Manajemen Akuntansi; D-III Manajemen Bisnis; D-III Manajemen Keuangan; D-III Manajemen Informasi; D-III Keuangan; D-III Administrasi Kesekretariatan; D-III Manajemen Teknik Informatika"
+    },
+    {
+      "no_urut": 43,
+      "no_lampiran": 14,
+      "formasi_id": "2026-KEMENKUM-14-OAP",
+      "jabatan_nm": "Pengolah Data dan Informasi",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 4,
+      "pendidikan_raw": "D-III Administrasi Tata Perkantoran; D-III Administrasi Keuangan; D-III Manajemen Perkantoran; D-III Manajemen Kepegawaian; D-III Administrasi Perkantoran; D-III Administrasi Bisnis; D-III Administrasi Negara; D-III Administrasi Publik; D-III Administrasi; D-III Administrasi Niaga; D-III Administrasi Pemerintahan; D-III Akuntansi; D-III Manajemen Sistem Informasi; D-III Administrasi Pembangunan; D-III Manajemen Akuntansi; D-III Manajemen Bisnis; D-III Manajemen Keuangan; D-III Manajemen Informasi; D-III Keuangan; D-III Administrasi Kesekretariatan; D-III Manajemen Teknik Informatika"
+    },
+    {
+      "no_urut": 44,
+      "no_lampiran": 15,
+      "formasi_id": "2026-KEMENKUM-15-UMUM",
+      "jabatan_nm": "Pengadministrasi Perkantoran",
+      "jenis_formasi": "UMUM",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 176,
+      "pendidikan_raw": "SLTA/sederajat"
+    },
+    {
+      "no_urut": 45,
+      "no_lampiran": 15,
+      "formasi_id": "2026-KEMENKUM-15-OAP",
+      "jabatan_nm": "Pengadministrasi Perkantoran",
+      "jenis_formasi": "ORANG ASLI PAPUA",
+      "unit_penempatan": "Unit Pusat dan Kantor Wilayah",
+      "jumlah_formasi": 4,
+      "pendidikan_raw": "SLTA/sederajat"
+    }
+  ]
+}

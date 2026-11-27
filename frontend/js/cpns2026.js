@@ -26,6 +26,7 @@
     jenjang: '',
     jenis_formasi: '',
     min_kuota: '',
+    keketatan_2024: '',
     sort_by: 'no_urut',
     only_saved: false,
     analyticsOpen: false,
@@ -213,6 +214,7 @@
       jenjang: state.jenjang,
       jenis_formasi: state.jenis_formasi,
       min_kuota: state.min_kuota,
+      keketatan_2024: state.keketatan_2024,
       sort_by: state.sort_by,
     };
   }
@@ -344,6 +346,26 @@
           jenisSel.innerHTML = '<option value="">— Belum rilis</option>';
         }
       }
+
+      const k24Sel = $('filter-keketatan-2024');
+      if (k24Sel) {
+        const curK24 = k24Sel.value;
+        const k24List = f.status_keketatan_2024 || [];
+        k24Sel.innerHTML = '<option value="">Semua Pembanding 2024</option>';
+        k24List.forEach((item) => {
+          const opt = document.createElement('option');
+          opt.value = item.status;
+          opt.textContent = item.status + ' (' + formatInt(item.formasi_count) + ' baris)';
+          k24Sel.appendChild(opt);
+        });
+        if ((f.unmatched_2024_count || 0) > 0) {
+          const optNone = document.createElement('option');
+          optNone.value = '__NONE__';
+          optNone.textContent = 'Tanpa Pembanding 2024 (' + formatInt(f.unmatched_2024_count) + ' baris)';
+          k24Sel.appendChild(optNone);
+        }
+        k24Sel.value = curK24;
+      }
     } catch (err) {
       showToast('Gagal memuat daftar filter CPNS 2026.', 'warn');
     }
@@ -395,7 +417,7 @@
       if (p === 'saved') {
         active = state.only_saved;
       } else if (!state.only_saved) {
-        if (p === 'all' && !state.instansi && !state.jenjang && !state.jenis_formasi && !state.min_kuota && !state.eselon1 && !state.jabatan && !state.jurusan && !state.q && !state.lokasi) {
+        if (p === 'all' && !state.instansi && !state.jenjang && !state.jenis_formasi && !state.min_kuota && !state.keketatan_2024 && !state.eselon1 && !state.jabatan && !state.jurusan && !state.q && !state.lokasi) {
           active = true;
         } else if (p === 'sma' && state.jenjang === 'SMA/SMK') {
           active = true;
@@ -427,6 +449,12 @@
     if (state.jenjang) chips.push({ key: 'jenjang', label: 'Jenjang: ' + state.jenjang });
     if (state.jenis_formasi) chips.push({ key: 'jenis_formasi', label: 'Jalur: ' + state.jenis_formasi });
     if (state.min_kuota) chips.push({ key: 'min_kuota', label: 'Alokasi >= ' + state.min_kuota });
+    if (state.keketatan_2024) {
+      chips.push({
+        key: 'keketatan_2024',
+        label: 'Keketatan 2024: ' + (state.keketatan_2024 === '__NONE__' ? 'Tanpa Pembanding' : state.keketatan_2024),
+      });
+    }
     if ($('telemetry-active-instansi')) {
       $('telemetry-active-instansi').textContent = state.instansi || 'Semua Instansi Terverifikasi';
     }
@@ -894,6 +922,102 @@
           );
         })
         .join('');
+
+      const distKetEl = $('dist-keketatan');
+      if (distKetEl) {
+        const k26 = d.keketatan_dist || [];
+        const k24 = d.keketatan_2024_dist || [];
+        const totalRows = Math.max(1, d.total_rows || 1);
+        if (d.has_applicant_data && k26.length) {
+          distKetEl.innerHTML = k26
+            .map((it) => {
+              const pct = ((it.formasi_count / totalRows) * 100).toFixed(1);
+              const fillCls =
+                it.status_keketatan === 'Sangat Longgar' || it.status_keketatan === 'Tanpa Pelamar'
+                  ? 'fill-loose'
+                  : it.status_keketatan === 'Moderat'
+                    ? 'fill-mod'
+                    : 'fill-tight';
+              return (
+                '<div class="dist-row-btn" style="cursor:default;">' +
+                '<div class="dist-row-top"><span style="font-weight:600;">' +
+                escapeHtml(it.status_keketatan) +
+                '</span><strong class="num">' +
+                formatInt(it.formasi_count) +
+                ' baris</strong></div>' +
+                '<div class="dist-bar-track"><div class="dist-bar-fill ' +
+                fillCls +
+                '" style="width:' +
+                Math.max(4, Number(pct)) +
+                '%;"></div></div>' +
+                '<div class="dist-row-sub"><span>' +
+                formatInt(it.total_kuota) +
+                ' kursi</span><span>' +
+                pct +
+                '%</span></div></div>'
+              );
+            })
+            .join('');
+        } else {
+          const note =
+            '<div style="font-size:0.75rem; color:var(--color-text-muted); margin-bottom:2px;">' +
+            'Pelamar 2026 belum rilis (<strong>—</strong>). Acuan tingkat keketatan 2024:' +
+            '</div>';
+          if (!k24.length) {
+            distKetEl.innerHTML =
+              note + '<div class="top-chart-empty">Tidak ada data keketatan pembanding 2024 pada filter ini.</div>';
+          } else {
+            distKetEl.innerHTML =
+              note +
+              k24
+                .map((it) => {
+                  const pct = ((it.formasi_count / totalRows) * 100).toFixed(1);
+                  const st = it.status_keketatan_2024 || '';
+                  const fVal = it.filter_value || '';
+                  let fillCls = '';
+                  let extraStyle = '';
+                  if (fVal === '__NONE__') {
+                    extraStyle = 'background-color: var(--color-text-muted);';
+                  } else if (st === 'Tanpa Pelamar' || st.includes('Longgar')) {
+                    fillCls = 'fill-loose';
+                  } else if (st === 'Moderat') {
+                    fillCls = 'fill-mod';
+                  } else {
+                    fillCls = 'fill-tight';
+                  }
+                  const rasioHint =
+                    it.avg_rasio_2024 !== null && it.avg_rasio_2024 !== undefined
+                      ? 'Rerata 1:' + it.avg_rasio_2024
+                      : formatInt(it.total_kuota) + ' kursi';
+                  return (
+                    '<button type="button" class="dist-row-btn ' +
+                    (state.keketatan_2024 === fVal ? 'is-active' : '') +
+                    '" data-chart-keketatan24="' +
+                    escapeHtml(fVal) +
+                    '">' +
+                    '<div class="dist-row-top"><span style="font-weight:600;">' +
+                    escapeHtml(st) +
+                    '</span><strong class="num">' +
+                    formatInt(it.formasi_count) +
+                    ' baris</strong></div>' +
+                    '<div class="dist-bar-track"><div class="dist-bar-fill ' +
+                    fillCls +
+                    '" style="width:' +
+                    Math.max(4, Number(pct)) +
+                    '%;' +
+                    extraStyle +
+                    '"></div></div>' +
+                    '<div class="dist-row-sub"><span>' +
+                    escapeHtml(rasioHint) +
+                    '</span><span>' +
+                    pct +
+                    '%</span></div></button>'
+                  );
+                })
+                .join('');
+          }
+        }
+      }
     } catch (e) {
       showToast('Gagal memuat analitik CPNS 2026.', 'warn');
     }
@@ -1165,6 +1289,7 @@
     state.jenjang = '';
     state.jenis_formasi = '';
     state.min_kuota = '';
+    state.keketatan_2024 = '';
     state.sort_by = 'no_urut';
 
     $('filter-q').value = '';
@@ -1176,6 +1301,7 @@
     $('filter-jenjang').value = '';
     if ($('filter-jenis-formasi')) $('filter-jenis-formasi').value = '';
     $('filter-min-kuota').value = '';
+    if ($('filter-keketatan-2024')) $('filter-keketatan-2024').value = '';
     $('filter-sort').value = 'no_urut';
     loadFormasiTable();
   }
@@ -1330,6 +1456,14 @@
       state.page = 1;
       loadFormasiTable();
     });
+    if ($('filter-keketatan-2024')) {
+      $('filter-keketatan-2024').addEventListener('change', (e) => {
+        state.keketatan_2024 = e.target.value;
+        state.only_saved = false;
+        state.page = 1;
+        loadFormasiTable();
+      });
+    }
     $('filter-sort').addEventListener('change', (e) => {
       state.sort_by = e.target.value;
       state.page = 1;
@@ -1377,6 +1511,7 @@
       else if (key === 'jenjang') { state.jenjang = ''; $('filter-jenjang').value = ''; }
       else if (key === 'jenis_formasi') { state.jenis_formasi = ''; if ($('filter-jenis-formasi')) $('filter-jenis-formasi').value = ''; }
       else if (key === 'min_kuota') { state.min_kuota = ''; $('filter-min-kuota').value = ''; }
+      else if (key === 'keketatan_2024') { state.keketatan_2024 = ''; if ($('filter-keketatan-2024')) $('filter-keketatan-2024').value = ''; }
       state.page = 1;
       loadFormasiTable();
     });
@@ -1417,6 +1552,16 @@
         const val = jenjBtn.getAttribute('data-chart-jenjang');
         state.jenjang = state.jenjang === val ? '' : val;
         $('filter-jenjang').value = state.jenjang;
+        state.only_saved = false;
+        state.page = 1;
+        loadFormasiTable();
+        return;
+      }
+      const k24Btn = e.target.closest('[data-chart-keketatan24]');
+      if (k24Btn) {
+        const val = k24Btn.getAttribute('data-chart-keketatan24');
+        state.keketatan_2024 = state.keketatan_2024 === val ? '' : val;
+        if ($('filter-keketatan-2024')) $('filter-keketatan-2024').value = state.keketatan_2024;
         state.only_saved = false;
         state.page = 1;
         loadFormasiTable();

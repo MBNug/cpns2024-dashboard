@@ -112,6 +112,7 @@ def _build_filter_clause(
     lokasi: str = "",
     jenis_formasi: str = "",
     keketatan: str = "",
+    keketatan_2024: str = "",
     min_kuota: Optional[int] = None,
     only_zero_pelamar: bool = False,
 ) -> tuple[str, list[Any]]:
@@ -158,6 +159,14 @@ def _build_filter_clause(
     if (keketatan or "").strip():
         clauses.append("f.status_keketatan = ?")
         params.append(keketatan.strip())
+
+    if (keketatan_2024 or "").strip():
+        k24 = keketatan_2024.strip()
+        if k24 == "__NONE__":
+            clauses.append("b.status_keketatan_2024 IS NULL")
+        else:
+            clauses.append("b.status_keketatan_2024 = ?")
+            params.append(k24)
 
     if min_kuota is not None and min_kuota > 0:
         clauses.append("f.jumlah_formasi >= ?")
@@ -302,7 +311,7 @@ def get_stats_2026() -> dict[str, Any]:
             "has_jenis_formasi": has_jenis,
             "instansi_summary": instansi_summary,
             "drive_audit": drive_audit,
-            "sumber_dokumen": "Pengumuman BPKP 02/2026 • SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejagung), 674 (Passing Grade) • SE Kemenkes HK.02.02",
+            "sumber_dokumen": "Pengumuman BPKP 02/2026 • Pengumuman Kemenkum SEK.2-KP.02.01-326 (KepmenPANRB 647/2026) • SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejagung), 674 (Passing Grade) • SE Kemenkes HK.02.02",
         }
     finally:
         conn.close()
@@ -380,6 +389,43 @@ def get_filters_2026() -> dict[str, Any]:
                 "SELECT DISTINCT status_keketatan FROM formasi WHERE status_keketatan IS NOT NULL ORDER BY status_keketatan"
             ).fetchall()
         ]
+        raw_k24 = cur.execute(
+            """
+            SELECT
+                b.status_keketatan_2024,
+                COUNT(*) AS formasi_count,
+                COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
+            FROM formasi f
+            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
+            GROUP BY b.status_keketatan_2024
+            """
+        ).fetchall()
+        order_k24 = {
+            "Tanpa Pelamar": 1,
+            "Sangat Longgar": 2,
+            "Longgar": 3,
+            "Moderat": 4,
+            "Ketat": 5,
+            "Sangat Ketat": 6,
+        }
+        status_keketatan_2024 = []
+        unmatched_2024_count = 0
+        unmatched_2024_kuota = 0
+        for r in raw_k24:
+            st24 = r["status_keketatan_2024"]
+            if st24:
+                status_keketatan_2024.append(
+                    {
+                        "status": st24,
+                        "formasi_count": r["formasi_count"],
+                        "total_kuota": r["total_kuota"],
+                    }
+                )
+            else:
+                unmatched_2024_count = r["formasi_count"]
+                unmatched_2024_kuota = r["total_kuota"]
+        status_keketatan_2024.sort(key=lambda x: (order_k24.get(x["status"], 99), x["status"]))
+
         flags = cur.execute(
             """
             SELECT
@@ -399,6 +445,9 @@ def get_filters_2026() -> dict[str, Any]:
             "jabatan": jabatan,
             "jenis_formasi": jenis_formasi,
             "status_keketatan": status_keketatan,
+            "status_keketatan_2024": status_keketatan_2024,
+            "unmatched_2024_count": unmatched_2024_count,
+            "unmatched_2024_kuota": unmatched_2024_kuota,
             "has_applicant_data": (flags["has_p"] or 0) > 0,
             "has_salary_data": (flags["has_g"] or 0) > 0,
             "has_jenis_formasi": (flags["has_j"] or 0) > 0,
@@ -472,6 +521,7 @@ def list_formasi_2026(
     lokasi: str = Query(default=""),
     jenis_formasi: str = Query(default=""),
     keketatan: str = Query(default=""),
+    keketatan_2024: str = Query(default=""),
     min_kuota: Optional[int] = Query(default=None),
     only_zero_pelamar: bool = Query(default=False),
     sort_by: str = Query(default="no_urut"),
@@ -485,6 +535,8 @@ def list_formasi_2026(
         "kuota_asc": "f.jumlah_formasi ASC, " + default_order,
         "jabatan_asc": "f.jabatan_nm ASC, f.jumlah_formasi DESC, " + default_order,
         "eselon1_asc": "f.unit_eselon1 ASC, f.jumlah_formasi DESC, " + default_order,
+        "rasio_2024_asc": "CASE WHEN b.rasio_2024 IS NULL THEN 1 ELSE 0 END ASC, b.rasio_2024 ASC, f.jumlah_formasi DESC, " + default_order,
+        "rasio_2024_desc": "CASE WHEN b.rasio_2024 IS NULL THEN 1 ELSE 0 END ASC, b.rasio_2024 DESC, f.jumlah_formasi DESC, " + default_order,
         "rasio_asc": "CASE WHEN f.rasio_kompetisi IS NULL THEN 1 ELSE 0 END ASC, f.rasio_kompetisi ASC, f.jumlah_formasi DESC",
         "peluang_desc": "CASE WHEN f.peluang_lolos_pct IS NULL THEN 1 ELSE 0 END ASC, f.peluang_lolos_pct DESC, f.jumlah_formasi DESC",
         "gaji_desc": "CASE WHEN f.gaji_max IS NULL THEN 1 ELSE 0 END ASC, f.gaji_max DESC, f.jumlah_formasi DESC",
@@ -494,7 +546,8 @@ def list_formasi_2026(
     where_sql, params = _build_filter_clause(
         q=q, instansi=instansi, eselon1=eselon1, kategori=kategori, jenjang=jenjang,
         jurusan=jurusan, jabatan=jabatan, lokasi=lokasi, jenis_formasi=jenis_formasi,
-        keketatan=keketatan, min_kuota=min_kuota, only_zero_pelamar=only_zero_pelamar,
+        keketatan=keketatan, keketatan_2024=keketatan_2024, min_kuota=min_kuota,
+        only_zero_pelamar=only_zero_pelamar,
     )
 
     conn = _get_conn()
@@ -504,6 +557,7 @@ def list_formasi_2026(
             SELECT COUNT(*) AS cnt, COALESCE(SUM(f.jumlah_formasi), 0) AS kuota_sum
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
+            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE {where_sql}
             """,
             params,
@@ -616,13 +670,15 @@ def get_top_analytics_2026(
     lokasi: str = Query(default=""),
     jenis_formasi: str = Query(default=""),
     keketatan: str = Query(default=""),
+    keketatan_2024: str = Query(default=""),
     min_kuota: Optional[int] = Query(default=None),
     only_zero_pelamar: bool = Query(default=False),
 ) -> dict[str, Any]:
     where_sql, params = _build_filter_clause(
         q=q, instansi=instansi, eselon1=eselon1, kategori=kategori, jenjang=jenjang,
         jurusan=jurusan, jabatan=jabatan, lokasi=lokasi, jenis_formasi=jenis_formasi,
-        keketatan=keketatan, min_kuota=min_kuota, only_zero_pelamar=only_zero_pelamar,
+        keketatan=keketatan, keketatan_2024=keketatan_2024, min_kuota=min_kuota,
+        only_zero_pelamar=only_zero_pelamar,
     )
     conn = _get_conn()
     try:
@@ -635,6 +691,7 @@ def get_top_analytics_2026(
                 COUNT(f.jumlah_pelamar) AS has_p
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
+            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE {where_sql}
             """,
             params,
@@ -652,6 +709,7 @@ def get_top_analytics_2026(
                     CASE WHEN COUNT(f.jumlah_pelamar) > 0 THEN SUM(f.jumlah_pelamar) ELSE NULL END AS total_pelamar
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
+                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
                 JOIN formasi_jurusan fj ON fj.formasi_id = f.formasi_id
                 JOIN jurusan j ON j.jurusan_id = fj.jurusan_id
                 WHERE {where_sql}
@@ -673,6 +731,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
+                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
                 WHERE {where_sql}
                 GROUP BY f.jabatan_nm
                 ORDER BY total_kuota DESC, formasi_count DESC
@@ -692,6 +751,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
+                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
                 WHERE {where_sql}
                 GROUP BY f.unit_eselon1
                 ORDER BY total_kuota DESC, formasi_count DESC
@@ -711,6 +771,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
+                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
                 WHERE {where_sql}
                 GROUP BY f.jenjang
                 ORDER BY total_kuota DESC
@@ -731,6 +792,7 @@ def get_top_analytics_2026(
                         COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                     FROM formasi f
                     JOIN instansi i ON i.instansi_id = f.instansi_id
+                    LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
                     WHERE {where_sql} AND f.status_keketatan IS NOT NULL
                     GROUP BY f.status_keketatan
                     ORDER BY total_kuota DESC
@@ -738,6 +800,37 @@ def get_top_analytics_2026(
                     params,
                 ).fetchall()
             ]
+
+        keketatan_2024_dist = [
+            dict(r)
+            for r in cur.execute(
+                f"""
+                SELECT
+                    COALESCE(b.status_keketatan_2024, 'Belum Ada Pembanding 2024') AS status_keketatan_2024,
+                    CASE WHEN b.status_keketatan_2024 IS NULL THEN '__NONE__' ELSE b.status_keketatan_2024 END AS filter_value,
+                    COUNT(*) AS formasi_count,
+                    COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota,
+                    ROUND(AVG(b.rasio_2024), 1) AS avg_rasio_2024
+                FROM formasi f
+                JOIN instansi i ON i.instansi_id = f.instansi_id
+                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
+                WHERE {where_sql}
+                GROUP BY b.status_keketatan_2024
+                ORDER BY
+                    CASE COALESCE(b.status_keketatan_2024, '__NONE__')
+                        WHEN 'Tanpa Pelamar' THEN 1
+                        WHEN 'Sangat Longgar' THEN 2
+                        WHEN 'Longgar' THEN 3
+                        WHEN 'Moderat' THEN 4
+                        WHEN 'Ketat' THEN 5
+                        WHEN 'Sangat Ketat' THEN 6
+                        WHEN '__NONE__' THEN 9
+                        ELSE 8
+                    END ASC
+                """,
+                params,
+            ).fetchall()
+        ]
 
         kategori_dist = [
             dict(r)
@@ -749,6 +842,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
+                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
                 WHERE {where_sql}
                 GROUP BY i.kategori_instansi
                 ORDER BY total_kuota DESC
@@ -767,6 +861,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
+                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
                 WHERE {where_sql}
                 GROUP BY i.instansi_id, i.instansi_nm
                 ORDER BY total_kuota DESC, i.instansi_nm ASC
@@ -784,6 +879,7 @@ def get_top_analytics_2026(
             "top_eselon1": top_eselon1,
             "jenjang_dist": jenjang_dist,
             "keketatan_dist": keketatan_dist,
+            "keketatan_2024_dist": keketatan_2024_dist,
             "kategori_dist": kategori_dist,
             "instansi_dist": instansi_dist,
         }
@@ -803,13 +899,15 @@ def export_csv_2026(
     lokasi: str = Query(default=""),
     jenis_formasi: str = Query(default=""),
     keketatan: str = Query(default=""),
+    keketatan_2024: str = Query(default=""),
     min_kuota: Optional[int] = Query(default=None),
     only_zero_pelamar: bool = Query(default=False),
 ):
     where_sql, params = _build_filter_clause(
         q=q, instansi=instansi, eselon1=eselon1, kategori=kategori, jenjang=jenjang,
         jurusan=jurusan, jabatan=jabatan, lokasi=lokasi, jenis_formasi=jenis_formasi,
-        keketatan=keketatan, min_kuota=min_kuota, only_zero_pelamar=only_zero_pelamar,
+        keketatan=keketatan, keketatan_2024=keketatan_2024, min_kuota=min_kuota,
+        only_zero_pelamar=only_zero_pelamar,
     )
     conn = _get_conn()
     try:

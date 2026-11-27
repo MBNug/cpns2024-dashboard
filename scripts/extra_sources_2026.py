@@ -56,6 +56,14 @@ EXTRA_INSTANSI = [
         41550000,
         "Perpres No. 34/2023 (Tukin Resmi Terverifikasi BPKP — Simulasi Acuan)",
     ),
+    (
+        "KEMENKUM",
+        "Kementerian Hukum",
+        "Pusat",
+        2531250,
+        27577500,
+        "Perpres No. 130/2017 (Tukin Resmi Terverifikasi Kemenkum / eks Kemenkumham — Simulasi Acuan)",
+    ),
 ]
 
 DRIVE_AUDIT_SUMMARY = [
@@ -76,6 +84,15 @@ DRIVE_AUDIT_SUMMARY = [
         "rows_ingested": 554,
         "kuota_ingested": 2007,
         "catatan": "Lampiran I & II lengkap: 21 kelompok jabatan/rumpun di 554 baris unit penempatan (Umum & Penyandang Disabilitas) beserta kualifikasi pendidikan dan kisaran penghasilan resmi Rp 7,7–11,5 jt.",
+    },
+    {
+        "file_name": "Kemenkum.pdf",
+        "status": "ingested",
+        "instansi": "Kementerian Hukum",
+        "referensi": "Pengumuman Kemenkum No. SEK.2-KP.02.01-326 (KepmenPANRB No. 647/2026, 27 Nov 2026)",
+        "rows_ingested": 45,
+        "kuota_ingested": 1297,
+        "catatan": "Lampiran lengkap 15 jabatan (45 baris alokasi jalur: 1.219 Umum, 26 Putra/Putri Lulusan Terbaik, 26 Penyandang Disabilitas, 26 Orang Asli Papua) pada Unit Pusat, Kantor Wilayah, dan Balai Pelatihan Hukum. Gaji resmi & pelamar belum dicantumkan sehingga dibiarkan NULL.",
     },
     {
         "file_name": "Mekanisme_CPNS_dan_Passing_Grade.pdf",
@@ -343,6 +360,10 @@ _INSTANSI_CODE_MAP = {
     "Kementerian Keuangan": "KEMENKEU",
     "Badan Siber dan Sandi Negara": "BSSN",
     "Kejaksaan Agung": "KEJAGUNG",
+    "Kementerian Kesehatan": "KEMENKES",
+    "Badan Pengawasan Keuangan dan Pembangunan": "BPKP",
+    "Kementerian Hukum": "KEMENKUM",
+    "Kementerian Hukum Republik Indonesia": "KEMENKUM",
 }
 
 SUMBER_SSCASN = (
@@ -578,6 +599,60 @@ def get_bpkp_rows(extract_jenjang_fn, json_path) -> list[dict]:
                 "gaji_min": int(r["gaji_min"]),
                 "gaji_max": int(r["gaji_max"]),
                 "sumber_dokumen": SUMBER_BPKP,
+            }
+        )
+    return rows
+
+
+SUMBER_KEMENKUM = (
+    "Pengumuman Kemenkum No. SEK.2-KP.02.01-326 — Seleksi Pengadaan CPNS Kementerian Hukum RI TA 2026 "
+    "(KepmenPANRB No. 647 Tahun 2026, 27 November 2026)"
+)
+
+
+def _kemenkum_unit_eselon1(unit: str) -> str:
+    u = re.sub(r"\s+", " ", unit).strip()
+    if u.lower() == "unit pusat":
+        return "Unit Pusat Kementerian Hukum"
+    return u
+
+
+def get_kemenkum_rows(extract_jenjang_fn, json_path) -> list[dict]:
+    """Load 45 verified Kementerian Hukum CPNS 2026 rows (15 jabatan / 1,297 seats) from SEK.2-KP.02.01-326."""
+    import json
+
+    if not json_path.exists():
+        return []
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    rows = []
+    for r in payload.get("rows", []):
+        no = int(r["no_urut"])
+        jab = re.sub(r"\s+", " ", str(r["jabatan_nm"])).strip().upper()
+        unit = re.sub(r"\s+", " ", str(r["unit_penempatan"])).strip()
+        jf = re.sub(r"\s+", " ", str(r["jenis_formasi"])).strip().upper()
+        pend_parts = [re.sub(r"\s+", " ", p).strip() for p in str(r["pendidikan_raw"]).split(";") if p.strip()]
+        pend_nm = " | ".join(pend_parts)
+        rows.append(
+            {
+                "no_urut": no,
+                "formasi_id": str(r["formasi_id"]).strip(),
+                "instansi_id": "KEMENKUM",
+                "instansi_nm": "Kementerian Hukum",
+                "kategori_instansi": "Pusat",
+                "unit_eselon1": _kemenkum_unit_eselon1(unit),
+                "jabatan_nm": jab,
+                "pendidikan_nm": pend_nm,
+                "jenjang": extract_jenjang_fn(pend_nm),
+                "jumlah_formasi": int(r["jumlah_formasi"]),
+                "lokasi_nm": f"KEMENTERIAN HUKUM | {unit.upper()}",
+                "jenis_formasi": jf,
+                "jumlah_pelamar": None,
+                "rasio_kompetisi": None,
+                "peluang_lolos_pct": None,
+                "status_keketatan": None,
+                "gaji_min": None,
+                "gaji_max": None,
+                "sumber_dokumen": SUMBER_KEMENKUM,
             }
         )
     return rows
