@@ -73,6 +73,48 @@
     return formatRp(minVal);
   }
 
+  function renderKeketatan2024Badge(status) {
+    if (!status) return '';
+    const cls = status.includes('Longgar')
+      ? 'badge-loose'
+      : status.includes('Ketat')
+      ? 'badge-tight'
+      : status === 'Tanpa Pelamar'
+      ? 'badge-neutral'
+      : 'badge-mod';
+    return '<span class="badge ' + cls + '">' + escapeHtml(status) + '</span>';
+  }
+
+  function formatRasio2024(item) {
+    if (!item || item.kursi_2024 === null || item.kursi_2024 === undefined) return '';
+    if (!item.pelamar_2024 || item.pelamar_2024 <= 0) return '0 pelamar';
+    return '1 : ' + Number(item.rasio_2024).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderCompare2024Cell(item) {
+    if (item.kursi_2024 === null || item.kursi_2024 === undefined) {
+      return '<div class="compare-2024-sub" style="margin-top:0;">Tidak ada pembanding di 2024</div>';
+    }
+    const rasioText = formatRasio2024(item);
+    return (
+      '<div class="quota-num" style="font-size:0.8rem;">' +
+      formatInt(item.kursi_2024) +
+      ' kursi • ' +
+      formatInt(item.pelamar_2024) +
+      ' pelamar</div>' +
+      '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:4px;">' +
+      renderKeketatan2024Badge(item.status_keketatan_2024) +
+      '<span class="applicant-num">' +
+      escapeHtml(rasioText) +
+      '</span></div>' +
+      '<div class="compare-2024-sub" title="' +
+      escapeHtml(item.match_label_2024 || '') +
+      '">' +
+      escapeHtml(item.match_label_2024 || '') +
+      '</div>'
+    );
+  }
+
   function showToast(msg, tone) {
     const banner = $('toast-banner');
     const txt = $('toast-message');
@@ -587,6 +629,9 @@
           renderKeketatanBadge(item) +
           '</td>' +
           '<td>' +
+          renderCompare2024Cell(item) +
+          '</td>' +
+          '<td>' +
           gajiHtml +
           '</td>' +
           '<td class="col-center">' +
@@ -643,6 +688,12 @@
           '</div>' +
           '<div style="margin-top:8px;">' +
           renderMajorTagsHtml(item.jurusan_list, item.formasi_id) +
+          '</div>' +
+          '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--color-border-subtle);font-size:0.78rem;">' +
+          '<span style="color:var(--color-text-muted);font-weight:600;">Pembanding 2024: </span>' +
+          (item.kursi_2024 !== null && item.kursi_2024 !== undefined
+            ? '<strong>' + formatInt(item.kursi_2024) + ' kursi</strong> • <strong>' + formatInt(item.pelamar_2024) + ' pelamar</strong> (' + escapeHtml(item.status_keketatan_2024 || '') + ', ' + escapeHtml(formatRasio2024(item)) + ')'
+            : '<span class="muted-note">Tidak ada pembanding di 2024</span>') +
           '</div>' +
           '</div>' +
           '<div>' +
@@ -908,9 +959,34 @@
       $('detail-kpi-rasio').textContent =
         item.jumlah_pelamar !== null ? formatInt(item.jumlah_pelamar) + ' (' + item.rasio_kompetisi + ')' : '—';
       $('detail-kpi-gaji').textContent = formatSalaryRange(item.gaji_min, item.gaji_max);
+      if ($('detail-kpi-gaji-sub')) {
+        $('detail-kpi-gaji-sub').textContent = item.gaji_min > 0 ? 'Resmi BKN (SSCASN)' : 'Belum dipublikasikan';
+      }
       $('detail-kpi-no').textContent = 'No. ' + item.no_urut;
       if ($('detail-kpi-sumber')) {
         $('detail-kpi-sumber').textContent = item.sumber_dokumen || '—';
+      }
+
+      if ($('detail-compare-2024-text') && $('detail-compare-2024-badge')) {
+        if (item.kursi_2024 !== null && item.kursi_2024 !== undefined) {
+          const peluangStr = Number(item.peluang_2024_pct || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+          $('detail-compare-2024-badge').className = 'badge ' + (
+            (item.status_keketatan_2024 || '').includes('Longgar') ? 'badge-loose'
+              : (item.status_keketatan_2024 || '').includes('Ketat') ? 'badge-tight'
+              : item.status_keketatan_2024 === 'Tanpa Pelamar' ? 'badge-neutral' : 'badge-mod'
+          );
+          $('detail-compare-2024-badge').textContent = item.status_keketatan_2024 || '—';
+          $('detail-compare-2024-text').textContent =
+            'Di CPNS 2024 (' + (item.match_label_2024 || 'Posisi sejenis') + '): ada ' +
+            formatInt(item.kursi_2024) + ' kursi dan ' + formatInt(item.pelamar_2024) +
+            ' pelamar, dengan keketatan ' + (item.status_keketatan_2024 || '—') +
+            ' (rasio ' + formatRasio2024(item) + ', peluang ' + peluangStr + '%).';
+        } else {
+          $('detail-compare-2024-badge').className = 'badge badge-neutral';
+          $('detail-compare-2024-badge').textContent = 'Tidak ada di 2024';
+          $('detail-compare-2024-text').textContent =
+            'Tidak ada pembanding di 2024 — tidak ditemukan formasi atau jabatan yang sama pada instansi ini di database SSCASN CPNS 2024.';
+        }
       }
 
       $('detail-eselon1').textContent = item.unit_eselon1;
@@ -1000,6 +1076,11 @@
         rowHtml('Jalur Formasi', (it) => (it.jenis_formasi ? escapeHtml(it.jenis_formasi) : '<span class="muted-note">— (Belum rilis)</span>')) +
         rowHtml('Jumlah Pelamar', (it) => (it.jumlah_pelamar !== null ? formatInt(it.jumlah_pelamar) : '<span class="muted-note">— (Belum rilis)</span>')) +
         rowHtml('Gaji BKN (SSCASN)', (it) => (it.gaji_min > 0 ? '<span class="num">' + formatSalaryRange(it.gaji_min, it.gaji_max) + '</span>' : '<span class="muted-note">— (Belum rilis)</span>')) +
+        rowHtml('Pembanding CPNS 2024', (it) => (
+          it.kursi_2024 !== null && it.kursi_2024 !== undefined
+            ? '<span class="num">' + formatInt(it.kursi_2024) + ' kursi • ' + formatInt(it.pelamar_2024) + ' pelamar</span> (' + escapeHtml(it.status_keketatan_2024 || '') + ', ' + escapeHtml(formatRasio2024(it)) + ')'
+            : '<span class="muted-note">Tidak ada pembanding di 2024</span>'
+        )) +
         rowHtml('Simulasi Gapok CPNS 80%', (it) => '<span class="num">' + formatRp(it.gapok_cpns_80) + ' (Gol. ' + escapeHtml(it.golongan_kode) + ')</span>') +
         rowHtml('Tukin Instansi (Regulasi)', (it) => (it.tukin_min && it.tukin_max ? '<span class="num">' + formatRp(it.tukin_min) + ' – ' + formatRp(it.tukin_max) + '</span>' : '<span class="muted-note">—</span>')) +
         '</tbody></table></div>';

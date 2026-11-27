@@ -1955,6 +1955,28 @@ button:disabled {
   white-space: nowrap;
 }
 
+.compare-2024-sub {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+  line-height: 1.32;
+  white-space: normal;
+  max-width: 175px;
+}
+
+.data-table-2026 thead th,
+.data-table-2026 td {
+  padding: 9px 9px;
+}
+
+.data-table-2026 .major-tag-list {
+  max-width: 165px;
+}
+
+.data-table-2026 .location-line {
+  overflow-wrap: anywhere;
+}
+
 .row-actions {
   display: inline-flex;
   align-items: center;

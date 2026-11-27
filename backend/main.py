@@ -2195,10 +2195,23 @@ if FRONTEND_DIR.exists():
 
 @app.api_route("/", methods=["GET", "HEAD"])
 def serve_index():
+    """Serve CPNS 2026 Explorer as the default home page."""
+    page_2026 = FRONTEND_DIR / "cpns-2026.html"
+    if page_2026.exists():
+        return FileResponse(str(page_2026))
     index_file = FRONTEND_DIR / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file))
-    return {"message": "Frontend not yet built. Please check frontend/index.html"}
+    return {"message": "Frontend not yet built."}
+
+
+@app.api_route("/cpns-2024", methods=["GET", "HEAD"])
+def serve_cpns_2024():
+    """Serve the complete CPNS 2024 archive dashboard."""
+    index_file = FRONTEND_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    raise HTTPException(status_code=404, detail="Halaman CPNS 2024 belum tersedia")
 
 
 @app.get("/favicon.ico")

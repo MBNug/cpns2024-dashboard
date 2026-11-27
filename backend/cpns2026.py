@@ -496,9 +496,18 @@ def list_formasi_2026(
                 i.kategori_instansi,
                 i.tukin_min,
                 i.tukin_max,
-                i.tukin_sumber
+                i.tukin_sumber,
+                b.match_level_2024,
+                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024,
+                b.kursi_2024,
+                b.pelamar_2024,
+                b.rasio_2024,
+                b.peluang_2024_pct,
+                b.status_keketatan_2024,
+                COALESCE(b.row_count_2024, 0) AS row_count_2024
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
+            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE {where_sql}
             ORDER BY {order_sql}
             LIMIT ? OFFSET ?
@@ -534,9 +543,18 @@ def get_formasi_batch_2026(ids: str = Query(default="")) -> list[dict[str, Any]]
                 i.kategori_instansi,
                 i.tukin_min,
                 i.tukin_max,
-                i.tukin_sumber
+                i.tukin_sumber,
+                b.match_level_2024,
+                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024,
+                b.kursi_2024,
+                b.pelamar_2024,
+                b.rasio_2024,
+                b.peluang_2024_pct,
+                b.status_keketatan_2024,
+                COALESCE(b.row_count_2024, 0) AS row_count_2024
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
+            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE f.formasi_id IN ({placeholders})
             ORDER BY CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC
             """,
@@ -559,9 +577,18 @@ def get_formasi_detail_2026(formasi_id: str) -> dict[str, Any]:
                 i.kategori_instansi,
                 i.tukin_min,
                 i.tukin_max,
-                i.tukin_sumber
+                i.tukin_sumber,
+                b.match_level_2024,
+                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024,
+                b.kursi_2024,
+                b.pelamar_2024,
+                b.rasio_2024,
+                b.peluang_2024_pct,
+                b.status_keketatan_2024,
+                COALESCE(b.row_count_2024, 0) AS row_count_2024
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
+            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE f.formasi_id = ?
             """,
             (formasi_id,),
@@ -801,9 +828,15 @@ def export_csv_2026(
                 f.status_keketatan,
                 f.gaji_min,
                 f.gaji_max,
-                f.sumber_dokumen
+                f.sumber_dokumen,
+                b.kursi_2024,
+                b.pelamar_2024,
+                b.rasio_2024,
+                b.status_keketatan_2024,
+                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
+            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE {where_sql}
             ORDER BY CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC
             """,
@@ -817,6 +850,7 @@ def export_csv_2026(
             "Jabatan", "Unit Penempatan", "Kualifikasi Pendidikan", "Jenjang",
             "Alokasi CPNS", "Jenis Formasi", "Jumlah Pelamar", "Rasio Kompetisi",
             "Status Keketatan", "Gaji Min", "Gaji Max", "Sumber Dokumen",
+            "Kursi 2024", "Pelamar 2024", "Rasio 2024", "Keketatan 2024", "Pembanding 2024",
         ])
         for r in rows:
             writer.writerow([_sanitize_csv_cell(r[k]) for k in r.keys()])

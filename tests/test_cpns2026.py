@@ -168,10 +168,26 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(det["jumlah_formasi"], 43)
         self.assertEqual(det["golongan_kode"], "II/a")
 
-        # Verify Profesi tier resolves to III/b on Kejagung Apoteker
+        # Verify Profesi tier resolves to III/b on Kejagung Apoteker and includes 2024 comparison
         r_kej_det = self.client.get("/api/2026/formasi/2026-KEJAGUNG-B-001")
         self.assertEqual(r_kej_det.status_code, 200)
         self.assertEqual(r_kej_det.json()["golongan_kode"], "III/b")
+        self.assertEqual(r_kej_det.json()["kursi_2024"], 39)
+        self.assertEqual(r_kej_det.json()["pelamar_2024"], 214)
+
+        # Verify unmatched 2026 row returns explicit no-comparison message
+        r_bssn_det = self.client.get("/api/2026/formasi/2026-BSSN-001-UMUM")
+        self.assertEqual(r_bssn_det.status_code, 200)
+        self.assertIsNone(r_bssn_det.json()["kursi_2024"])
+        self.assertEqual(r_bssn_det.json()["match_label_2024"], "Tidak ada pembanding di 2024")
+
+        # Verify BPK Regional Jawa matches 2024 Regional Jawa (101 kursi, 12412 pelamar)
+        r_bpk = self.client.get("/api/2026/formasi", params={"instansi": "Badan Pemeriksa Keuangan", "jabatan": "PEMERIKSA AHLI PERTAMA"})
+        self.assertEqual(r_bpk.status_code, 200)
+        jawa_row = next(x for x in r_bpk.json()["items"] if x["lokasi_nm"] == "Regional Jawa")
+        self.assertEqual(jawa_row["kursi_2024"], 101)
+        self.assertEqual(jawa_row["pelamar_2024"], 12412)
+        self.assertEqual(jawa_row["status_keketatan_2024"], "Sangat Ketat")
 
         self.assertEqual(self.client.get("/api/2026/formasi/INVALID-ID").status_code, 404)
 
@@ -201,13 +217,23 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(reader[1][14], "")  # Gaji Min
 
     def test_html_pages_and_2024_non_regression(self) -> None:
+        r_root = self.client.get("/")
+        self.assertEqual(r_root.status_code, 200)
+        self.assertIn("CPNS 2026 Explorer", r_root.text)
+        self.assertIn("/cpns-2024", r_root.text)
+
+        r_2024 = self.client.get("/cpns-2024")
+        self.assertEqual(r_2024.status_code, 200)
+        self.assertIn("Portal Data Formasi CPNS 2024", r_2024.text)
+        self.assertIn('href="/"', r_2024.text)
+
         r_2026 = self.client.get("/cpns-2026")
         self.assertEqual(r_2026.status_code, 200)
         self.assertIn("CPNS 2026 Explorer", r_2026.text)
 
         r_sumber = self.client.get("/sumber-data")
         self.assertEqual(r_sumber.status_code, 200)
-        self.assertIn("/cpns-2026", r_sumber.text)
+        self.assertIn("/cpns-2024", r_sumber.text)
 
         r_raw = self.client.get("/api/2026/download/raw-csv")
         self.assertEqual(r_raw.status_code, 200)
@@ -220,10 +246,6 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_db = self.client.get("/api/2026/download/sqlite-db")
         self.assertEqual(r_db.status_code, 200)
         self.assertGreater(len(r_db.content), 100000)
-
-        r_root = self.client.get("/")
-        self.assertEqual(r_root.status_code, 200)
-        self.assertIn("/cpns-2026", r_root.text)
 
         r_stats_2024 = self.client.get("/api/stats")
         self.assertEqual(r_stats_2024.status_code, 200)

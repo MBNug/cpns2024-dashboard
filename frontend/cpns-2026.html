@@ -6,7 +6,7 @@
   <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (5 Instansi Terverifikasi)</title>
   <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (BPK) serta dokumen resmi Kemenkeu, BSSN, Kejaksaan Agung (parsial), dan acuan kualifikasi STR Kemenkes (570 baris, 3.242 kursi teralokasi)." />
   <link rel="icon" type="image/svg+xml" href="/static/tako_logo.svg" />
-  <link rel="stylesheet" href="/static/css/app.css?v=20261125d" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261127e" />
   <script>
     (function () {
       try {
@@ -26,7 +26,7 @@
   <!-- Sticky Compact Top Header -->
   <header class="site-header" id="main-header">
     <div class="container-wide header-inner">
-      <a href="/cpns-2026" class="brand-link" aria-label="CPNS 2026 Explorer">
+      <a href="/" class="brand-link" aria-label="CPNS 2026 Explorer">
         <div class="brand-mark" aria-hidden="true">
           <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2z" />
@@ -36,7 +36,7 @@
         </div>
         <div class="brand-text">
           <span class="brand-heading">SSCASN Explorer</span>
-          <span class="brand-subtitle">CPNS 2026 • Data Awal Terverifikasi</span>
+          <span class="brand-subtitle">CPNS 2026 • Data Awal &amp; Live SSCASN</span>
         </div>
       </a>
 
@@ -49,8 +49,9 @@
           <span id="compare-count-badge" class="count-pill hidden">0</span>
         </button>
 
-        <a href="/" class="btn btn-ghost btn-sm" title="Kembali ke arsip lengkap CPNS 2024">
+        <a href="/cpns-2024" class="btn btn-accent-soft btn-sm" title="Buka arsip lengkap CPNS 2024 (111.921 formasi)">
           <span>CPNS 2024</span>
+          <span class="count-pill">Arsip</span>
         </a>
 
         <a href="#section-sumber-data" class="btn btn-ghost btn-sm">
@@ -392,17 +393,18 @@
       </div>
 
       <div id="table-view-wrap" class="table-scroll">
-        <table class="data-table">
+        <table class="data-table data-table-2026">
           <thead>
             <tr>
-              <th style="width: 56px;">No</th>
+              <th style="width: 44px;">No</th>
               <th>Jabatan &amp; Unit Eselon I</th>
               <th>Unit Penempatan</th>
               <th>Kualifikasi Pendidikan</th>
               <th class="col-num">Alokasi / Pelamar</th>
               <th class="col-center">Keketatan</th>
+              <th style="min-width: 155px;">Pembanding 2024</th>
               <th>Gaji BKN</th>
-              <th class="col-center" style="width: 112px;">Aksi</th>
+              <th class="col-center" style="width: 96px;">Aksi</th>
             </tr>
           </thead>
           <tbody id="table-tbody"></tbody>
@@ -531,7 +533,7 @@
     <div class="container-wide footer-inner">
       <div>SSCASN Explorer • Portal Data Awal CPNS 2026 (BPK Live SSCASN, Kemenkeu, BSSN, Kejaksaan Agung Parsial &amp; Syarat STR Kemenkes)</div>
       <div class="footer-links">
-        <a href="/">Arsip CPNS 2024</a>
+        <a href="/cpns-2024">Arsip CPNS 2024</a>
         <a href="/sumber-data">Dokumentasi Metodologi</a>
         <a href="/api/2026/download/raw-csv">CSV 2026</a>
         <a href="/api/2026/download/sqlite-db">SQLite 2026</a>
@@ -573,13 +575,21 @@
           <div class="modal-kpi-cell">
             <span class="modal-kpi-lbl">Gaji BKN (SSCASN)</span>
             <span id="detail-kpi-gaji" class="modal-kpi-val">—</span>
-            <span class="modal-kpi-sub">Belum dipublikasikan</span>
+            <span id="detail-kpi-gaji-sub" class="modal-kpi-sub">Belum dipublikasikan</span>
           </div>
           <div class="modal-kpi-cell">
             <span class="modal-kpi-lbl">Sumber Penetapan</span>
             <span id="detail-kpi-no" class="modal-kpi-val">—</span>
             <span id="detail-kpi-sumber" class="modal-kpi-sub">—</span>
           </div>
+        </div>
+
+        <div id="detail-compare-2024-panel" class="disclaimer-panel" style="margin-top: 0;">
+          <div class="disclaimer-heading" style="justify-content: space-between; width: 100%;">
+            <span>Pembanding Historis CPNS 2024 (Posisi Sama / Serupa)</span>
+            <span id="detail-compare-2024-badge" class="badge badge-neutral">—</span>
+          </div>
+          <p id="detail-compare-2024-text" style="margin: 6px 0 0; font-size: 0.85rem; color: var(--color-text-secondary);">—</p>
         </div>
 
         <div class="detail-meta-grid">
@@ -689,6 +699,6 @@
     <span id="toast-message"></span>
   </div>
 
-  <script src="/static/js/cpns2026.js?v=20261127c"></script>
+  <script src="/static/js/cpns2026.js?v=20261127e"></script>
 </body>
 </html>

@@ -44,6 +44,7 @@ if str(SCRIPT_DIR) not in sys.path:
 from extra_sources_2026 import (  # noqa: E402
     DRIVE_AUDIT_SUMMARY,
     EXTRA_INSTANSI,
+    compute_2024_comparison_map,
     get_bssn_rows,
     get_kejagung_rows,
     get_kemenkes_str_rows,
@@ -555,11 +556,25 @@ def main():
     assert len(rows) == 570, f"Expected 570 combined verified rows, got {len(rows)}"
     assert sum(r["jumlah_formasi"] or 0 for r in rows) == 3242, "Total combined alokasi must be 3242!"
 
+    # Enrich each 2026 row with verified CPNS 2024 historical benchmark (or explicit no-match)
+    cmp_2024 = compute_2024_comparison_map(rows, DATA_DIR / "cpns2024.db")
+    for r in rows:
+        cinfo = cmp_2024[r["formasi_id"]]
+        r["kursi_2024"] = cinfo["kursi_2024"]
+        r["pelamar_2024"] = cinfo["pelamar_2024"]
+        r["rasio_2024"] = cinfo["rasio_2024"]
+        r["peluang_2024_pct"] = cinfo["peluang_2024_pct"]
+        r["status_keketatan_2024"] = cinfo["status_keketatan_2024"]
+        r["match_level_2024"] = cinfo["match_level_2024"]
+        r["match_label_2024"] = cinfo["match_label_2024"]
+        r["row_count_2024"] = cinfo["row_count_2024"]
+
     # Sanity audit prints
     uw = Counter(w.rstrip(",") for r in rows for w in r["lokasi_nm"].split() if w != "|")
     weird_u = [(w, c) for w, c in uw.items() if re.search(r"[^A-Z0-9/\-\(\)&]", w) or any(ch in w for ch in "0123456789")]
     print("Non-alpha tokens in lokasi_nm:", weird_u)
     print("Instansi breakdown:", Counter(r["instansi_id"] for r in rows).most_common())
+    print("Matched 2024 breakdown:", Counter(r["match_level_2024"] or "none" for r in rows).most_common())
     print("Unique unit_eselon1:", len(Counter(r["unit_eselon1"] for r in rows)))
     print("Unique jenjang:", Counter(r["jenjang"] for r in rows).most_common())
     print("Distinct pend strings:", len(Counter(r["pendidikan_nm"] for r in rows)))
@@ -570,6 +585,7 @@ def main():
         "no_urut", "formasi_id", "instansi_nm", "kategori_instansi", "unit_eselon1",
         "jabatan_nm", "pendidikan_nm", "jenjang", "jumlah_formasi", "lokasi_nm",
         "jenis_formasi", "jumlah_pelamar", "gaji_min", "gaji_max", "sumber_dokumen",
+        "kursi_2024", "pelamar_2024", "rasio_2024", "status_keketatan_2024", "match_label_2024",
     ]
     with open(CSV_PATH, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=csv_fields)
@@ -632,6 +648,19 @@ def main():
             PRIMARY KEY (formasi_id, jurusan_id),
             FOREIGN KEY (formasi_id) REFERENCES formasi(formasi_id),
             FOREIGN KEY (jurusan_id) REFERENCES jurusan(jurusan_id)
+        );
+
+        CREATE TABLE banding_2024 (
+            formasi_id TEXT PRIMARY KEY,
+            match_level_2024 TEXT,
+            match_label_2024 TEXT NOT NULL,
+            kursi_2024 INTEGER,
+            pelamar_2024 INTEGER,
+            rasio_2024 REAL,
+            peluang_2024_pct REAL,
+            status_keketatan_2024 TEXT,
+            row_count_2024 INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY (formasi_id) REFERENCES formasi(formasi_id)
         );
 
         CREATE INDEX idx_2026_formasi_instansi ON formasi(instansi_id);
@@ -700,6 +729,20 @@ def main():
                 "INSERT OR IGNORE INTO formasi_jurusan (formasi_id, jurusan_id) VALUES (?, ?)",
                 (r["formasi_id"], jid),
             )
+        cur.execute(
+            """
+            INSERT INTO banding_2024 (
+                formasi_id, match_level_2024, match_label_2024,
+                kursi_2024, pelamar_2024, rasio_2024, peluang_2024_pct,
+                status_keketatan_2024, row_count_2024
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                r["formasi_id"], r["match_level_2024"], r["match_label_2024"],
+                r["kursi_2024"], r["pelamar_2024"], r["rasio_2024"],
+                r["peluang_2024_pct"], r["status_keketatan_2024"], r["row_count_2024"],
+            ),
+        )
 
     conn.commit()
     conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")

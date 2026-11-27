@@ -508,3 +508,174 @@ def get_kemenkes_str_rows(extract_jenjang_fn, json_path) -> list[dict]:
     return rows
 
 
+def _classify_keketatan_2024(kursi: int, pelamar: int) -> tuple[float, float, str]:
+    """Match cpns2024.db classification thresholds cleanly without rounding drift."""
+    if not kursi or kursi <= 0:
+        return 0.0, 0.0, "Tanpa Formasi"
+    if not pelamar or pelamar <= 0:
+        return 0.0, 100.0, "Tanpa Pelamar"
+    rasio = round(pelamar / kursi, 2)
+    peluang = round(min(100.0, (kursi / pelamar) * 100.0), 2)
+    if rasio <= 1.0:
+        status = "Sangat Longgar"
+    elif rasio <= 15.0:
+        status = "Moderat"
+    else:
+        status = "Sangat Ketat"
+    return rasio, peluang, status
+
+
+def _norm_bpk_region(lokasi: str) -> str:
+    up = re.sub(r"\s+", " ", (lokasi or "").upper()).strip()
+    if up.startswith("REGIONAL SULAWESI"):
+        return "REGIONAL SULAWESI_MALUKU_PAPUA_BALI_NUSRA"
+    if up.startswith("REGIONAL "):
+        return up
+    return ""
+
+
+def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict[str, dict]:
+    """Compute historical CPNS 2024 comparison records per 2026 formasi_id from cpns2024.db."""
+    import sqlite3
+
+    result: dict[str, dict] = {}
+    if not cpns2024_db_path.exists():
+        for r in rows_2026:
+            result[r["formasi_id"]] = {
+                "formasi_id": r["formasi_id"],
+                "match_level_2024": None,
+                "match_label_2024": "Tidak ada pembanding di 2024",
+                "kursi_2024": None,
+                "pelamar_2024": None,
+                "rasio_2024": None,
+                "peluang_2024_pct": None,
+                "status_keketatan_2024": None,
+                "row_count_2024": 0,
+            }
+        return result
+
+    c24 = sqlite3.connect(f"file:{cpns2024_db_path}?mode=ro", uri=True)
+    try:
+        inst_map = {
+            r[1].strip().lower(): r[0]
+            for r in c24.execute("SELECT instansi_id, nama_instansi FROM instansi").fetchall()
+        }
+        # Preload 2024 formasi rows only for agencies present in 2026
+        needed_iids = {inst_map.get(r["instansi_nm"].strip().lower()) for r in rows_2026}
+        needed_iids.discard(None)
+
+        by_inst_jab: dict[tuple[int, str], list[tuple[str, str, int, int]]] = {}
+        by_inst_all: dict[int, list[tuple[str, int, int]]] = {}
+        if needed_iids:
+            placeholders = ",".join("?" for _ in needed_iids)
+            q_rows = c24.execute(
+                f"""
+                SELECT instansi_id, UPPER(jabatan_nm), lokasi_nm, jenis_formasi,
+                       COALESCE(jumlah_formasi, 0), COALESCE(jumlah_pelamar, 0)
+                FROM formasi
+                WHERE instansi_id IN ({placeholders})
+                """,
+                list(needed_iids),
+            ).fetchall()
+            for iid, jab, lok, jf, k, p in q_rows:
+                by_inst_jab.setdefault((iid, jab), []).append((lok or "", jf or "", int(k), int(p)))
+                by_inst_all.setdefault(iid, []).append((jab, int(k), int(p)))
+
+        for r in rows_2026:
+            fid = r["formasi_id"]
+            iid = inst_map.get(r["instansi_nm"].strip().lower())
+            jab26 = (r.get("jabatan_nm") or "").strip().upper()
+            matched_rows: list[tuple[int, int]] = []
+            match_level = None
+            match_label = "Tidak ada pembanding di 2024"
+
+            if iid is not None:
+                reg26 = _norm_bpk_region(r.get("lokasi_nm") or "")
+                exact_list = by_inst_jab.get((iid, jab26), [])
+
+                # Tier 1: Same Instansi + Exact Jabatan + Same Regional (e.g., BPK Regional)
+                if exact_list and reg26:
+                    reg_matches = [
+                        (k, p, jf)
+                        for lok, jf, k, p in exact_list
+                        if _norm_bpk_region(lok) == reg26
+                    ]
+                    if reg_matches:
+                        jf26 = (r.get("jenis_formasi") or "").upper()
+                        same_jf = [(k, p) for k, p, jf in reg_matches if jf26 and jf.upper() == jf26]
+                        if same_jf:
+                            matched_rows = same_jf
+                            match_level = "regional_exact"
+                            match_label = f"Regional & jalur sama di 2024 ({jf26})"
+                        else:
+                            matched_rows = [(k, p) for k, p, _ in reg_matches]
+                            match_level = "regional_exact"
+                            match_label = "Regional sama di 2024 (jalur Umum)" if jf26 else "Regional sama di 2024"
+
+                # Tier 2: Same Instansi + Exact Jabatan (Kemenkeu Kapal, Kejagung, BPK Analis Kerja Sama)
+                if not matched_rows and exact_list:
+                    matched_rows = [(k, p) for _, _, k, p in exact_list]
+                    match_level = "instansi_jabatan"
+                    match_label = "Jabatan sama di instansi yang sama (2024)"
+
+                # Tier 3: Kemenkes SE STR JF Rumpun + Kategori (Keahlian vs Keterampilan)
+                if not matched_rows and r["instansi_id"] == "KEMENKES":
+                    ue1 = r.get("unit_eselon1") or ""
+                    kat = "Keahlian" if "Keahlian" in ue1 else "Keterampilan"
+                    clean = re.sub(r"\(\*\)", "", jab26).replace("*", "").strip()
+                    aliases = [a.strip() for a in clean.split("/") if a.strip()]
+                    kat_rows: list[tuple[int, int]] = []
+                    for jab24, k24, p24 in by_inst_all.get(iid, []):
+                        if kat == "Keahlian" and any(t in jab24 for t in ("TERAMPIL", "PEMULA", "MAHIR", "PENYELIA")):
+                            continue
+                        if kat == "Keterampilan" and any(t in jab24 for t in ("AHLI", "SPESIALIS", "DOKTER")):
+                            continue
+                        for al in aliases:
+                            if (
+                                jab24 == al
+                                or jab24.startswith(al + " ")
+                                or jab24.startswith(al + " -")
+                            ):
+                                kat_rows.append((k24, p24))
+                                break
+                    if kat_rows:
+                        matched_rows = kat_rows
+                        match_level = "instansi_jf_kategori"
+                        match_label = f"Rumpun JF {kat} Kemenkes di 2024 (rekap unit)"
+
+            if matched_rows:
+                kursi24 = sum(k for k, _ in matched_rows)
+                pelamar24 = sum(p for _, p in matched_rows)
+                if kursi24 > 0:
+                    rasio24, peluang24, status24 = _classify_keketatan_2024(kursi24, pelamar24)
+                    result[fid] = {
+                        "formasi_id": fid,
+                        "match_level_2024": match_level,
+                        "match_label_2024": match_label,
+                        "kursi_2024": kursi24,
+                        "pelamar_2024": pelamar24,
+                        "rasio_2024": rasio24,
+                        "peluang_2024_pct": peluang24,
+                        "status_keketatan_2024": status24,
+                        "row_count_2024": len(matched_rows),
+                    }
+                    continue
+
+            result[fid] = {
+                "formasi_id": fid,
+                "match_level_2024": None,
+                "match_label_2024": "Tidak ada pembanding di 2024",
+                "kursi_2024": None,
+                "pelamar_2024": None,
+                "rasio_2024": None,
+                "peluang_2024_pct": None,
+                "status_keketatan_2024": None,
+                "row_count_2024": 0,
+            }
+    finally:
+        c24.close()
+
+    return result
+
+
+
