@@ -525,12 +525,13 @@ def main():
     bpkp_rows = get_bpkp_rows(extract_jenjang_tier, DATA_DIR / "bpkp_2026_verified.json")
     kemenkum_rows = get_kemenkum_rows(extract_jenjang_tier, DATA_DIR / "kemenkum_2026_verified.json")
     live_agencies = {r["instansi_nm"].strip().lower() for r in sscasn_rows}
+    live_agency_ids = {r["instansi_id"] for r in sscasn_rows}
 
     # Precedence rule: live SSCASN rows automatically supersede pre-release decree/SE rows
-    # for the same agency so no agency is ever double-counted.
+    # for the same agency (matched by instansi_id or canonical instansi_nm) so no agency is ever double-counted.
     decree_rows = [
         r for r in (rows + bssn_rows + kejagung_rows + kemenkes_rows + bpkp_rows + kemenkum_rows)
-        if r["instansi_nm"].strip().lower() not in live_agencies
+        if r["instansi_id"] not in live_agency_ids and r["instansi_nm"].strip().lower() not in live_agencies
     ]
     combined_raw = decree_rows + sscasn_rows
     deduped_rows = []
@@ -559,8 +560,8 @@ def main():
     assert len(kemenkes_rows) == 49
     assert len(bpkp_rows) == 554 and sum(r["jumlah_formasi"] for r in bpkp_rows) == 2007
     assert len(kemenkum_rows) == 45 and sum(r["jumlah_formasi"] for r in kemenkum_rows) == 1297
-    assert len(rows) == 1169, f"Expected 1169 combined verified rows, got {len(rows)}"
-    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 6546, "Total combined alokasi must be 6546!"
+    assert len(rows) == 1379, f"Expected 1379 combined verified rows, got {len(rows)}"
+    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 9017, "Total combined alokasi must be 9017!"
 
     # Enrich each 2026 row with verified CPNS 2024 historical benchmark & exam scores
     cmp_2024 = compute_2024_comparison_map(rows, DATA_DIR / "cpns2024.db")
@@ -696,6 +697,17 @@ def main():
         ),
         *EXTRA_INSTANSI,
     ]
+    known_instansi_ids = {row[0] for row in instansi_rows}
+    for r in rows:
+        iid = r["instansi_id"]
+        if iid not in known_instansi_ids:
+            from enrich_tukin import enrich_agency
+
+            tmin, tmax, tsumber = enrich_agency(r["instansi_nm"], r["kategori_instansi"])
+            instansi_rows.append(
+                (iid, r["instansi_nm"], r["kategori_instansi"], tmin, tmax, f"{tsumber} — Simulasi Acuan")
+            )
+            known_instansi_ids.add(iid)
     cur.executemany(
         """
         INSERT INTO instansi (instansi_id, instansi_nm, kategori_instansi, tukin_min, tukin_max, tukin_sumber)

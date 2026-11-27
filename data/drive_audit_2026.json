@@ -9,6 +9,15 @@
     "catatan": "Data resmi SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis). File BPK.pdf di Drive memuat total alokasi identik 952 kursi sehingga tidak digandakan."
   },
   {
+    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf (Kementerian Koperasi)",
+    "status": "ingested_sscasn_live",
+    "instansi": "Kementerian Koperasi",
+    "referensi": "SSCASN BKN Live — Seleksi CASN Nasional 2026 (27 Nov 2026)",
+    "rows_ingested": 274,
+    "kuota_ingested": 986,
+    "catatan": "Data resmi SSCASN BKN Live lengkap 274 baris penempatan unit Deputi/Inspektorat/Setmen (936 Umum, 10 Lulusan Terbaik, 20 Disabilitas, 20 Putra/Putri Papua; Gaji Resmi BKN Rp 5,0–8,3 jt; pelamar belum dirilis)."
+  },
+  {
     "file_name": "BPKP_PENGUMUMAN.pdf + BPKP_RINCIAN.pdf + BPKP_ALOKASI.pdf",
     "status": "ingested",
     "instansi": "Badan Pengawasan Keuangan dan Pembangunan",
@@ -36,22 +45,22 @@
     "catatan": "Regulasi mekanisme seleksi & Nilai Ambang Batas SKD CPNS 2026 (Umum: TWK >= 65, TIU >= 80, TKP >= 166; Cum Laude/Diaspora >= 311, TIU >= 85; Disabilitas/Papua >= 286, TIU >= 60; plus opsi pakai nilai SKD 2024). Ditampilkan sebagai acuan di Detail Formasi."
   },
   {
-    "file_name": "CPNS_BSSN.pdf",
-    "status": "ingested",
+    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + CPNS_BSSN.pdf",
+    "status": "ingested_sscasn_live",
     "instansi": "Badan Siber dan Sandi Negara",
-    "referensi": "PENG.102/BSSN/SU/KP.02.01/11/2026 (KepmenPANRB No. 676/2026)",
+    "referensi": "SSCASN BKN Live + PENG.102/BSSN/SU/KP.02.01/11/2026 (KepmenPANRB No. 676/2026)",
     "rows_ingested": 2,
     "kuota_ingested": 200,
-    "catatan": "Lampiran I lengkap (196 Umum + 4 Disabilitas)."
+    "catatan": "Data resmi SSCASN BKN Live (196 Umum + 4 Disabilitas, Gaji Resmi BKN Rp 5,1–5,8 jt; pelamar belum dirilis). Menggantikan catatan PDF CPNS_BSSN.pdf secara bersih tanpa duplikasi."
   },
   {
-    "file_name": "CPNS_KEJAKSAAN_AGUNG.pdf",
-    "status": "ingested_partial",
+    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + CPNS_KEJAKSAAN_AGUNG.pdf",
+    "status": "ingested_sscasn_live",
     "instansi": "Kejaksaan Agung",
-    "referensi": "KepmenPANRB No. 638/2026 (11 Nov 2026)",
-    "rows_ingested": 94,
-    "kuota_ingested": 175,
-    "catatan": "PDF yang diunggah hanya berisi 6 dari 69 halaman lampiran (hal. 1, 2, 8, 9, 10, 69 dari total 1.660 kursi nasional). Berkas CPNS_KEJAKSAAN_AGUNG_1.pdf identik SHA-256 sehingga dilewati."
+    "referensi": "SSCASN BKN Live (Kejaksaan RI) + KepmenPANRB No. 638/2026",
+    "rows_ingested": 30,
+    "kuota_ingested": 1660,
+    "catatan": "Data resmi SSCASN BKN Live lengkap nasional 1.660 kursi (1.510 Umum, 86 Lulusan Terbaik, 34 Disabilitas, 30 Putra/Putri Papua; Gaji Resmi BKN Rp 7,0–11,2 jt). Menggantikan sepenuhnya lampiran PDF parsial 6/69 halaman (94 baris / 175 kursi) tanpa duplikasi."
   },
   {
     "file_name": "CPNS_Kemenkes_Info_STR_.pdf",

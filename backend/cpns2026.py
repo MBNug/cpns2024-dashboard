@@ -311,7 +311,7 @@ def get_stats_2026() -> dict[str, Any]:
             "has_jenis_formasi": has_jenis,
             "instansi_summary": instansi_summary,
             "drive_audit": drive_audit,
-            "sumber_dokumen": "Pengumuman BPKP 02/2026 • Pengumuman Kemenkum SEK.2-KP.02.01-326 (KepmenPANRB 647/2026) • SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejagung), 674 (Passing Grade) • SE Kemenkes HK.02.02",
+            "sumber_dokumen": "SSCASN Live (Kejaksaan Agung, Kemenkop, BPK, BSSN) • Pengumuman BPKP 02/2026 • Pengumuman Kemenkum SEK.2-KP.02.01-326 (KepmenPANRB 647/2026) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
         }
     finally:
         conn.close()

@@ -35,8 +35,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
             row_count, kuota_sum = cur.execute(
                 "SELECT COUNT(*), SUM(jumlah_formasi) FROM formasi"
             ).fetchone()
-            self.assertEqual(row_count, 1169)
-            self.assertEqual(kuota_sum, 6546)
+            self.assertEqual(row_count, 1379)
+            self.assertEqual(kuota_sum, 9017)
 
             inst_counts = dict(
                 cur.execute(
@@ -48,10 +48,11 @@ class Cpns2026DashboardTests(unittest.TestCase):
                 {
                     "BPKP": 2007,
                     "KEMENKEU": 1915,
+                    "KEJAGUNG": 1660,
                     "KEMENKUM": 1297,
+                    "KEMENKOP": 986,
                     "BPK": 952,
                     "BSSN": 200,
-                    "KEJAGUNG": 175,
                     "KEMENKES": 0,
                 },
             )
@@ -87,7 +88,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
                 FROM formasi
                 """
             ).fetchone()
-            self.assertEqual(non_nulls, (652, 0, 0, 0, 0, 605, 605, 49))
+            self.assertEqual(non_nulls, (956, 0, 0, 0, 0, 911, 911, 49))
 
             # Ensure jurusan catalog merges case-variants (e.g. S-1 Informatika + S-1 INFORMATIKA)
             dup_jurusan = cur.execute(
@@ -106,11 +107,11 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r = self.client.get("/api/2026/stats")
         self.assertEqual(r.status_code, 200)
         d = r.json()
-        self.assertEqual(d["total_formasi_rows"], 1169)
-        self.assertEqual(d["total_kuota"], 6546)
-        self.assertEqual(d["pusat_rows"], 1169)
+        self.assertEqual(d["total_formasi_rows"], 1379)
+        self.assertEqual(d["total_kuota"], 9017)
+        self.assertEqual(d["pusat_rows"], 1379)
         self.assertEqual(d["daerah_rows"], 0)
-        self.assertEqual(d["distinct_instansi"], 7)
+        self.assertEqual(d["distinct_instansi"], 8)
         self.assertIsNone(d["total_pelamar"])
         self.assertIsNone(d["total_formasi_kosong"])
         self.assertIsNone(d["avg_rasio"])
@@ -124,12 +125,13 @@ class Cpns2026DashboardTests(unittest.TestCase):
         rf = self.client.get("/api/2026/filters")
         self.assertEqual(rf.status_code, 200)
         fd = rf.json()
-        self.assertEqual(len(fd["instansi"]), 7)
-        self.assertEqual(len(fd["unit_eselon1"]), 69)
-        self.assertEqual(len(fd["jabatan"]), 86)
+        self.assertEqual(len(fd["instansi"]), 8)
+        self.assertEqual(len(fd["unit_eselon1"]), 46)
+        self.assertEqual(len(fd["jabatan"]), 103)
         self.assertEqual(
             sorted(fd["jenis_formasi"]),
             [
+                "LULUSAN TERBAIK",
                 "ORANG ASLI PAPUA",
                 "PENYANDANG DISABILITAS",
                 "PUTRA/PUTRI LULUSAN TERBAIK",
@@ -140,9 +142,9 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(fd["status_keketatan"], [])
         k24_map = {x["status"]: x for x in fd["status_keketatan_2024"]}
         self.assertEqual(k24_map["Sangat Ketat"]["formasi_count"], 243)
-        self.assertEqual(k24_map["Moderat"]["formasi_count"], 130)
+        self.assertEqual(k24_map["Moderat"]["formasi_count"], 49)
         self.assertEqual(k24_map["Tanpa Pelamar"]["formasi_count"], 1)
-        self.assertEqual(fd["unmatched_2024_count"], 795)
+        self.assertEqual(fd["unmatched_2024_count"], 1086)
 
         r_k24_tight = self.client.get("/api/2026/formasi", params={"keketatan_2024": "Sangat Ketat"})
         self.assertEqual(r_k24_tight.status_code, 200)
@@ -152,8 +154,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_k24_mod = self.client.get("/api/2026/formasi", params={"keketatan_2024": "Moderat"})
         self.assertEqual(r_k24_mod.status_code, 200)
-        self.assertEqual(r_k24_mod.json()["total"], 130)
-        self.assertEqual(r_k24_mod.json()["total_kuota_filtered"], 384)
+        self.assertEqual(r_k24_mod.json()["total"], 49)
+        self.assertEqual(r_k24_mod.json()["total_kuota_filtered"], 925)
 
         r_k24_zero = self.client.get("/api/2026/formasi", params={"keketatan_2024": "Tanpa Pelamar"})
         self.assertEqual(r_k24_zero.status_code, 200)
@@ -162,8 +164,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_k24_none = self.client.get("/api/2026/formasi", params={"keketatan_2024": "__NONE__"})
         self.assertEqual(r_k24_none.status_code, 200)
-        self.assertEqual(r_k24_none.json()["total"], 795)
-        self.assertEqual(r_k24_none.json()["total_kuota_filtered"], 4051)
+        self.assertEqual(r_k24_none.json()["total"], 1086)
+        self.assertEqual(r_k24_none.json()["total_kuota_filtered"], 5981)
         self.assertTrue(all(x["status_keketatan_2024"] is None for x in r_k24_none.json()["items"]))
 
         r_k24_sorted = self.client.get(
@@ -181,8 +183,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_jf = self.client.get("/api/2026/formasi", params={"jenis_formasi": "PENYANDANG DISABILITAS"})
         self.assertEqual(r_jf.status_code, 200)
-        self.assertEqual(r_jf.json()["total"], 44)
-        self.assertEqual(r_jf.json()["total_kuota_filtered"], 91)
+        self.assertEqual(r_jf.json()["total"], 65)
+        self.assertEqual(r_jf.json()["total_kuota_filtered"], 145)
 
         r_terbaik = self.client.get("/api/2026/formasi", params={"jenis_formasi": "PUTRA/PUTRI LULUSAN TERBAIK"})
         self.assertEqual(r_terbaik.status_code, 200)
@@ -196,8 +198,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_papua = self.client.get("/api/2026/formasi", params={"jenis_formasi": "PUTRA/PUTRI PAPUA"})
         self.assertEqual(r_papua.status_code, 200)
-        self.assertEqual(r_papua.json()["total"], 2)
-        self.assertEqual(r_papua.json()["total_kuota_filtered"], 12)
+        self.assertEqual(r_papua.json()["total"], 9)
+        self.assertEqual(r_papua.json()["total_kuota_filtered"], 62)
 
         r_jur = self.client.get("/api/2026/filters/jurusan", params={"q": "SMA/SEDERAJAT"})
         self.assertEqual(r_jur.status_code, 200)
@@ -208,8 +210,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
         inf_exact = [x for x in r_inf.json() if x["jurusan_nm"].upper() == "S-1 INFORMATIKA"]
         self.assertEqual(len(inf_exact), 1)
         self.assertEqual(inf_exact[0]["jurusan_nm"], "S-1 Informatika")
-        self.assertEqual(inf_exact[0]["formasi_count"], 50)
-        self.assertEqual(inf_exact[0]["total_kuota"], 426)
+        self.assertEqual(inf_exact[0]["formasi_count"], 52)
+        self.assertEqual(inf_exact[0]["total_kuota"], 685)
 
         # Check Instansi filtering for BPKP, BPK (SSCASN live), BSSN, Kejaksaan Agung, and Kemenkes
         r_bpkp = self.client.get("/api/2026/formasi", params={"instansi": "Badan Pengawasan Keuangan dan Pembangunan"})
@@ -231,11 +233,14 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(r_bssn.status_code, 200)
         self.assertEqual(r_bssn.json()["total"], 2)
         self.assertEqual(r_bssn.json()["total_kuota_filtered"], 200)
+        self.assertEqual(r_bssn.json()["items"][0]["gaji_min"], 5100000)
+        self.assertEqual(r_bssn.json()["items"][0]["gaji_max"], 5800000)
 
         r_kej = self.client.get("/api/2026/formasi", params={"instansi": "Kejaksaan Agung"})
         self.assertEqual(r_kej.status_code, 200)
-        self.assertEqual(r_kej.json()["total"], 94)
-        self.assertEqual(r_kej.json()["total_kuota_filtered"], 175)
+        self.assertEqual(r_kej.json()["total"], 30)
+        self.assertEqual(r_kej.json()["total_kuota_filtered"], 1660)
+        self.assertGreater(r_kej.json()["items"][0]["gaji_min"], 0)
 
         r_kemenkes = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Kesehatan"})
         self.assertEqual(r_kemenkes.status_code, 200)
@@ -251,12 +256,19 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertIsNone(r_kemenkum.json()["items"][0]["gaji_min"])
         self.assertIsNone(r_kemenkum.json()["items"][0]["jumlah_pelamar"])
 
+        r_kemenkop = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Koperasi"})
+        self.assertEqual(r_kemenkop.status_code, 200)
+        self.assertEqual(r_kemenkop.json()["total"], 274)
+        self.assertEqual(r_kemenkop.json()["total_kuota_filtered"], 986)
+        self.assertGreater(r_kemenkop.json()["items"][0]["gaji_min"], 0)
+        self.assertIsNone(r_kemenkop.json()["items"][0]["jumlah_pelamar"])
+
         # Check Jabatan breakdown matches verified decree counts
         r_jab = self.client.get("/api/2026/formasi", params={"jabatan": "PENELAAH TEKNIS KEBIJAKAN"})
         self.assertEqual(r_jab.status_code, 200)
         jd = r_jab.json()
-        self.assertEqual(jd["total"], 152)
-        self.assertEqual(jd["total_kuota_filtered"], 1151)
+        self.assertEqual(jd["total"], 182)
+        self.assertEqual(jd["total_kuota_filtered"], 1192)
 
         # Ensure absent fields stay null in Kemenkeu items
         item = jd["items"][0]
@@ -273,15 +285,15 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(det["jumlah_formasi"], 43)
         self.assertEqual(det["golongan_kode"], "II/a")
 
-        # Verify Profesi tier resolves to III/b on Kejagung Apoteker and includes 2024 comparison
-        r_kej_det = self.client.get("/api/2026/formasi/2026-KEJAGUNG-B-001")
+        # Verify Profesi tier resolves to III/b on Kejagung Apoteker (SSCASN Live) and includes 2024 comparison
+        r_kej_det = self.client.get("/api/2026/formasi/64d932f9-724e-453b-a1a1-4db7a5135848")
         self.assertEqual(r_kej_det.status_code, 200)
         self.assertEqual(r_kej_det.json()["golongan_kode"], "III/b")
         self.assertEqual(r_kej_det.json()["kursi_2024"], 39)
         self.assertEqual(r_kej_det.json()["pelamar_2024"], 214)
 
         # Verify unmatched 2026 row returns explicit no-comparison message
-        r_bssn_det = self.client.get("/api/2026/formasi/2026-BSSN-001-UMUM")
+        r_bssn_det = self.client.get("/api/2026/formasi/c5f2e7f5-47b0-42e0-a175-00e144486667")
         self.assertEqual(r_bssn_det.status_code, 200)
         self.assertIsNone(r_bssn_det.json()["kursi_2024"])
         self.assertEqual(r_bssn_det.json()["match_label_2024"], "Tidak ada pembanding di 2024")
@@ -304,19 +316,22 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_batch = self.client.get(
             "/api/2026/formasi-batch",
-            params={"ids": "2026-KEMENKEU-001,2026-BSSN-001-UMUM"},
+            params={"ids": "2026-KEMENKEU-001,c5f2e7f5-47b0-42e0-a175-00e144486667"},
         )
         self.assertEqual(r_batch.status_code, 200)
-        self.assertEqual([x["formasi_id"] for x in r_batch.json()], ["2026-KEMENKEU-001", "2026-BSSN-001-UMUM"])
+        self.assertEqual(
+            [x["formasi_id"] for x in r_batch.json()],
+            ["2026-KEMENKEU-001", "c5f2e7f5-47b0-42e0-a175-00e144486667"],
+        )
 
         r_ana = self.client.get("/api/2026/analytics/top")
         self.assertEqual(r_ana.status_code, 200)
         ana = r_ana.json()
-        self.assertEqual(ana["total_rows"], 1169)
-        self.assertEqual(ana["total_kuota"], 6546)
-        self.assertEqual(len(ana["instansi_dist"]), 7)
+        self.assertEqual(ana["total_rows"], 1379)
+        self.assertEqual(ana["total_kuota"], 9017)
+        self.assertEqual(len(ana["instansi_dist"]), 8)
         self.assertEqual(ana["keketatan_dist"], [])
-        self.assertEqual(sum(x["formasi_count"] for x in ana["keketatan_2024_dist"]), 1169)
+        self.assertEqual(sum(x["formasi_count"] for x in ana["keketatan_2024_dist"]), 1379)
         self.assertFalse(ana["has_applicant_data"])
 
         r_ana_k24 = self.client.get("/api/2026/analytics/top", params={"keketatan_2024": "Sangat Ketat"})
@@ -327,7 +342,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_csv = self.client.get("/api/2026/export")
         self.assertEqual(r_csv.status_code, 200)
         reader = list(csv.reader(io.StringIO(r_csv.content.decode("utf-8-sig"))))
-        self.assertEqual(len(reader), 1170)  # 1 header + 1169 rows
+        self.assertEqual(len(reader), 1380)  # 1 header + 1379 rows
         # Empty columns for Pelamar & Gaji Min/Max on Kemenkeu row 1
         self.assertEqual(reader[1][10], "")  # Jenis Formasi
         self.assertEqual(reader[1][11], "")  # Jumlah Pelamar
@@ -336,7 +351,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_csv_mod = self.client.get("/api/2026/export", params={"keketatan_2024": "Moderat"})
         self.assertEqual(r_csv_mod.status_code, 200)
         reader_mod = list(csv.reader(io.StringIO(r_csv_mod.content.decode("utf-8-sig"))))
-        self.assertEqual(len(reader_mod), 131)  # 1 header + 130 rows
+        self.assertEqual(len(reader_mod), 50)  # 1 header + 49 rows
 
     def test_html_pages_and_2024_non_regression(self) -> None:
         r_root = self.client.get("/")
@@ -371,8 +386,6 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertIn("Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026", r_raw.text)
         self.assertIn("Pengumuman Kemenkum No. SEK.2-KP.02.01-326", r_raw.text)
         self.assertIn("KepmenPANRB No. 675 Tahun 2026", r_raw.text)
-        self.assertIn("KepmenPANRB No. 676 Tahun 2026", r_raw.text)
-        self.assertIn("KepmenPANRB No. 638 Tahun 2026", r_raw.text)
         self.assertIn("SSCASN BKN Resmi TA 2026", r_raw.text)
         self.assertIn("SE Dirjen SDMK Kemenkes No. HK.02.02/F/4023/2026", r_raw.text)
 
@@ -394,16 +407,16 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(r_2024.status_code, 200)
         self.assertIn("modal-nilai-2024-panel", r_2024.text)
 
-        # Unmatched BSSN 2026 row must keep null 2024 score stats
-        r_bssn = self.client.get("/api/2026/formasi/2026-BSSN-001-UMUM").json()
+        # Unmatched BSSN 2026 row (SSCASN Live) must keep null 2024 score stats
+        r_bssn = self.client.get("/api/2026/formasi/c5f2e7f5-47b0-42e0-a175-00e144486667").json()
         self.assertIsNone(r_bssn["nilai_akhir_2024_median"])
         self.assertIsNone(r_bssn["skd_2024_lulus_median"])
 
-        # Matched 2026 rows across BPKP, Kejagung, BPK, Kemenkeu, Kemenkes must satisfy valid score bounds
+        # Matched 2026 rows across BPKP, Kejagung (SSCASN Live), BPK, Kemenkeu, Kemenkes must satisfy valid score bounds
         matched_ids = (
             "2026-BPKP-001",
             "04e087a2-d153-4b01-8653-41a599cf29a4",  # BPK Pemerintah / Regional Jawa
-            "2026-KEJAGUNG-B-001",
+            "64d932f9-724e-453b-a1a1-4db7a5135848",  # Kejagung Apoteker Ahli Pertama (SSCASN Live)
             "2026-KEMENKES-01-KEAH-TIDAK",
             "2026-KEMENKEU-001",
         )
