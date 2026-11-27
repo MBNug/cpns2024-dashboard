@@ -1381,6 +1381,66 @@
     btn.className = saved ? 'btn btn-accent-soft btn-sm' : 'btn btn-secondary btn-sm';
   }
 
+  function renderModalNilai2024(n24) {
+    const panel = document.getElementById('modal-nilai-2024-panel');
+    const badge = document.getElementById('modal-nilai-2024-badge');
+    const grid = document.getElementById('modal-nilai-2024-grid');
+    const note = document.getElementById('modal-nilai-2024-note');
+    if (!panel || !badge || !grid || !note) return;
+
+    const fmtNum = (val, dec = 2) => {
+      if (val === null || val === undefined) return '—';
+      return Number(val).toLocaleString('id-ID', {
+        minimumFractionDigits: dec,
+        maximumFractionDigits: dec,
+      });
+    };
+    const fmtInt = (val) => (val === null || val === undefined ? '—' : Number(val).toLocaleString('id-ID'));
+
+    if (!n24) {
+      badge.className = 'badge badge-neutral';
+      badge.textContent = 'Belum tersedia';
+      grid.classList.add('is-hidden');
+      note.textContent =
+        'Data nilai SKD–SKB CPNS 2024 belum tersedia untuk instansi ini (baru mencakup 6 instansi CPNS 2026: BSSN, Kejagung, BPKP, Kemenkeu, Kemenkes, BPK).';
+      return;
+    }
+
+    const na = n24.nilai_akhir_lulus || {};
+    const skd = n24.skd_lulus || {};
+    const skb = n24.skb_lulus || {};
+    const skdAll = n24.skd_peserta_skb || {};
+    const hasScores = na.median !== null && na.median !== undefined;
+
+    if (!hasScores) {
+      badge.className = 'badge badge-neutral';
+      badge.textContent = '0 Peserta Lulus (P/L)';
+      grid.classList.add('is-hidden');
+      note.textContent =
+        'Pada lampiran resmi (' + (n24.sumber || 'BKN 2024') + '), formasi ini tidak memiliki peserta lulus akhir (P/L) atau pelamar SKB (' +
+        fmtInt(n24.peserta_skb) + ' peserta SKB).';
+      return;
+    }
+
+    badge.className = 'badge badge-accent';
+    badge.textContent = fmtInt(n24.n_lulus) + ' Lulus (P/L)';
+    grid.classList.remove('is-hidden');
+    document.getElementById('modal-nilai-2024-na').textContent = 'Median ' + fmtNum(na.median, 3);
+    document.getElementById('modal-nilai-2024-na-sub').textContent =
+      'Min ' + fmtNum(na.min, 3) + ' · Maks ' + fmtNum(na.max, 3);
+    document.getElementById('modal-nilai-2024-skd').textContent = 'Median ' + fmtNum(skd.median, 1);
+    document.getElementById('modal-nilai-2024-skd-sub').textContent =
+      'Min ' + fmtInt(skd.min) + ' · Maks ' + fmtInt(skd.max);
+    document.getElementById('modal-nilai-2024-skb-floor').textContent =
+      skdAll.min !== null && skdAll.min !== undefined ? 'SKD ≥ ' + fmtInt(skdAll.min) : '—';
+    document.getElementById('modal-nilai-2024-skb-floor-sub').textContent =
+      fmtInt(n24.peserta_skb) + ' peserta ikut SKB';
+    document.getElementById('modal-nilai-2024-skb').textContent = 'Median ' + fmtNum(skb.median, 2);
+    document.getElementById('modal-nilai-2024-skb-sub').textContent =
+      'Min ' + fmtNum(skb.min, 2) + ' · Maks ' + fmtNum(skb.max, 2);
+    note.textContent = 'Sumber resmi: ' + (n24.sumber || 'Hasil Integrasi SKD–SKB BKN 2024') + '.';
+  }
+
   function syncBodyScrollLock() {
     const anyOpen = ['modal-detail', 'modal-crowdsource', 'modal-compare'].some(id => {
       const el = document.getElementById(id);
@@ -1456,6 +1516,8 @@
       if (inlineBtn) inlineBtn.addEventListener('click', openCrowdsourceModalFromDetail);
 
       document.getElementById('modal-thp-sscasn').textContent = `Publikasi BKN: ${formatRp(d.gaji_min)} – ${formatRp(d.gaji_max)}`;
+
+      renderModalNilai2024(d.nilai_2024);
 
       initThpSimulator(d);
       updateModalBookmarkButton(d.formasi_id);

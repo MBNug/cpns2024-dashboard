@@ -45,6 +45,7 @@ from extra_sources_2026 import (  # noqa: E402
     DRIVE_AUDIT_SUMMARY,
     EXTRA_INSTANSI,
     compute_2024_comparison_map,
+    get_bpkp_rows,
     get_bssn_rows,
     get_kejagung_rows,
     get_kemenkes_str_rows,
@@ -520,12 +521,13 @@ def main():
     sscasn_csv = DATA_DIR / "sscasn_2026_live.csv"
     sscasn_rows = get_sscasn_live_rows(extract_jenjang_tier, sscasn_csv)
     kemenkes_rows = get_kemenkes_str_rows(extract_jenjang_tier, DATA_DIR / "kemenkes_str_tables.json")
+    bpkp_rows = get_bpkp_rows(extract_jenjang_tier, DATA_DIR / "bpkp_2026_verified.json")
     live_agencies = {r["instansi_nm"].strip().lower() for r in sscasn_rows}
 
     # Precedence rule: live SSCASN rows automatically supersede pre-release decree/SE rows
     # for the same agency so no agency is ever double-counted.
     decree_rows = [
-        r for r in (rows + bssn_rows + kejagung_rows + kemenkes_rows)
+        r for r in (rows + bssn_rows + kejagung_rows + kemenkes_rows + bpkp_rows)
         if r["instansi_nm"].strip().lower() not in live_agencies
     ]
     combined_raw = decree_rows + sscasn_rows
@@ -553,21 +555,17 @@ def main():
 
     rows = deduped_rows
     assert len(kemenkes_rows) == 49
-    assert len(rows) == 570, f"Expected 570 combined verified rows, got {len(rows)}"
-    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 3242, "Total combined alokasi must be 3242!"
+    assert len(bpkp_rows) == 554 and sum(r["jumlah_formasi"] for r in bpkp_rows) == 2007
+    assert len(rows) == 1124, f"Expected 1124 combined verified rows, got {len(rows)}"
+    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 5249, "Total combined alokasi must be 5249!"
 
-    # Enrich each 2026 row with verified CPNS 2024 historical benchmark (or explicit no-match)
+    # Enrich each 2026 row with verified CPNS 2024 historical benchmark & exam scores
     cmp_2024 = compute_2024_comparison_map(rows, DATA_DIR / "cpns2024.db")
     for r in rows:
         cinfo = cmp_2024[r["formasi_id"]]
-        r["kursi_2024"] = cinfo["kursi_2024"]
-        r["pelamar_2024"] = cinfo["pelamar_2024"]
-        r["rasio_2024"] = cinfo["rasio_2024"]
-        r["peluang_2024_pct"] = cinfo["peluang_2024_pct"]
-        r["status_keketatan_2024"] = cinfo["status_keketatan_2024"]
-        r["match_level_2024"] = cinfo["match_level_2024"]
-        r["match_label_2024"] = cinfo["match_label_2024"]
-        r["row_count_2024"] = cinfo["row_count_2024"]
+        for k, v in cinfo.items():
+            if k != "formasi_id":
+                r[k] = v
 
     # Sanity audit prints
     uw = Counter(w.rstrip(",") for r in rows for w in r["lokasi_nm"].split() if w != "|")
@@ -660,6 +658,19 @@ def main():
             peluang_2024_pct REAL,
             status_keketatan_2024 TEXT,
             row_count_2024 INTEGER NOT NULL DEFAULT 0,
+            n_peserta_skb_2024 INTEGER,
+            n_lulus_2024 INTEGER,
+            nilai_akhir_2024_min REAL,
+            nilai_akhir_2024_median REAL,
+            nilai_akhir_2024_max REAL,
+            skd_2024_lulus_min INTEGER,
+            skd_2024_lulus_median REAL,
+            skd_2024_lulus_max INTEGER,
+            skd_2024_skb_min INTEGER,
+            skb_2024_lulus_min REAL,
+            skb_2024_lulus_median REAL,
+            skb_2024_lulus_max REAL,
+            sumber_nilai_2024 TEXT,
             FOREIGN KEY (formasi_id) REFERENCES formasi(formasi_id)
         );
 
@@ -734,13 +745,25 @@ def main():
             INSERT INTO banding_2024 (
                 formasi_id, match_level_2024, match_label_2024,
                 kursi_2024, pelamar_2024, rasio_2024, peluang_2024_pct,
-                status_keketatan_2024, row_count_2024
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                status_keketatan_2024, row_count_2024,
+                n_peserta_skb_2024, n_lulus_2024,
+                nilai_akhir_2024_min, nilai_akhir_2024_median, nilai_akhir_2024_max,
+                skd_2024_lulus_min, skd_2024_lulus_median, skd_2024_lulus_max,
+                skd_2024_skb_min,
+                skb_2024_lulus_min, skb_2024_lulus_median, skb_2024_lulus_max,
+                sumber_nilai_2024
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 r["formasi_id"], r["match_level_2024"], r["match_label_2024"],
                 r["kursi_2024"], r["pelamar_2024"], r["rasio_2024"],
                 r["peluang_2024_pct"], r["status_keketatan_2024"], r["row_count_2024"],
+                r.get("n_peserta_skb_2024"), r.get("n_lulus_2024"),
+                r.get("nilai_akhir_2024_min"), r.get("nilai_akhir_2024_median"), r.get("nilai_akhir_2024_max"),
+                r.get("skd_2024_lulus_min"), r.get("skd_2024_lulus_median"), r.get("skd_2024_lulus_max"),
+                r.get("skd_2024_skb_min"),
+                r.get("skb_2024_lulus_min"), r.get("skb_2024_lulus_median"), r.get("skb_2024_lulus_max"),
+                r.get("sumber_nilai_2024"),
             ),
         )
 

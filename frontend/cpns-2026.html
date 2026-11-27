@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (5 Instansi Terverifikasi)</title>
-  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (BPK) serta dokumen resmi Kemenkeu, BSSN, Kejaksaan Agung (parsial), dan acuan kualifikasi STR Kemenkes (570 baris, 3.242 kursi teralokasi)." />
-  <link rel="icon" type="image/svg+xml" href="/static/tako_logo.svg" />
-  <link rel="stylesheet" href="/static/css/app.css?v=20261127e" />
+  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (6 Instansi Terverifikasi)</title>
+  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (BPK) serta dokumen resmi BPKP, Kemenkeu, BSSN, Kejaksaan Agung (parsial), dan acuan kualifikasi STR Kemenkes (1.124 baris, 5.249 kursi teralokasi)." />
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261127g" />
   <script>
     (function () {
       try {
@@ -105,8 +105,8 @@
         <span id="kpi-total-pelamar" class="ticker-value">—</span>
       </div>
       <div class="ticker-divider" aria-hidden="true"></div>
-      <div class="ticker-metric ticker-metric-desktop" title="Median Gaji BKN dari formasi SSCASN 2026 yang sudah dirilis">
-        <span class="ticker-label">Gaji BKN</span>
+      <div class="ticker-metric ticker-metric-desktop" title="Median kisaran gaji resmi yang sudah dipublikasikan (BPK SSCASN &amp; BPKP)">
+        <span class="ticker-label">Gaji Resmi</span>
         <span id="kpi-median-gaji" class="ticker-value">—</span>
       </div>
       <div class="ticker-divider" aria-hidden="true"></div>
@@ -114,8 +114,8 @@
         <span class="ticker-label">Rasio</span>
         <span id="kpi-avg-rasio" class="ticker-value">—</span>
       </div>
-      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejaksaan Agung) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
-        <span id="kpi-source-badge">5 Instansi Resmi • 2026</span>
+      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (BPK) • Pengumuman Resmi (BPKP) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejaksaan Agung) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
+        <span id="kpi-source-badge">6 Instansi Resmi • 2026</span>
       </a>
     </section>
 
@@ -201,7 +201,7 @@
         <div class="field-group col-span-3">
           <div class="field-label-row">
             <label for="filter-instansi" class="field-label">Instansi Pemerintah</label>
-            <span id="badge-instansi-count" class="field-hint">5 instansi</span>
+            <span id="badge-instansi-count" class="field-hint">6 instansi</span>
           </div>
           <select id="filter-instansi" class="control-select">
             <option value="">Semua Instansi</option>
@@ -273,7 +273,7 @@
       <!-- Quick Presets + Bookmarks -->
       <div class="workbench-footer">
         <div class="quick-presets-cluster">
-          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (570)</button>
+          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (1.124)</button>
           <button type="button" class="preset-chip" data-preset="sma">Lulusan SMA/SMK</button>
           <button type="button" class="preset-chip" data-preset="s1">Lulusan S-1 / D-IV</button>
           <button type="button" class="preset-chip mobile-secondary-presets" data-preset="d3">Lulusan D-III</button>
@@ -284,7 +284,7 @@
         </div>
 
         <span class="field-hint">
-          Kolom <strong>Pelamar</strong>, <strong>Keketatan</strong>, dan <strong>Gaji BKN</strong> sengaja dikosongkan (<span class="inline-code">—</span>) hingga SSCASN 2026 merilis data resmi.
+          Kolom <strong>Pelamar</strong> dan <strong>Keketatan</strong> sengaja dikosongkan (<span class="inline-code">—</span>) hingga SSCASN 2026 merilis statistik pendaftar.
         </span>
       </div>
 
@@ -403,7 +403,7 @@
               <th class="col-num">Alokasi / Pelamar</th>
               <th class="col-center">Keketatan</th>
               <th style="min-width: 155px;">Pembanding 2024</th>
-              <th>Gaji BKN</th>
+              <th>Gaji Resmi</th>
               <th class="col-center" style="width: 96px;">Aksi</th>
             </tr>
           </thead>
@@ -448,13 +448,14 @@
 
       <div class="reference-split">
         <div class="reference-col">
-          <h3>Sumber Data Masuk ke Database (570 Baris / 3.242 Kursi)</h3>
+          <h3>Sumber Data Masuk ke Database (1.124 Baris / 5.249 Kursi)</h3>
           <p class="prose-measure">
-            Seluruh entri diambil langsung dari API resmi SSCASN BKN yang mulai tayang dan dokumen resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
+            Seluruh entri diambil langsung dari API resmi SSCASN BKN dan dokumen pengumuman/penetapan resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
           </p>
           <ul class="spec-list">
-            <li><span>Badan Pemeriksa Keuangan (SSCASN Live)</span><strong>51 baris / 952 kursi (Umum, Disabilitas, Papua • Gaji BKN Rp 13–19 jt)</strong></li>
+            <li><span>BPKP (Pengumuman KP.00.01/PENG-2/SU/02/2026)</span><strong>554 baris / 2.007 kursi (KepmenPANRB 640/2026 • Gaji Rp 7,7–11,5 jt)</strong></li>
             <li><span>Kementerian Keuangan (KepmenPANRB 675/2026)</span><strong>374 baris / 1.915 kursi (19 Nov 2026 • lengkap 35 hal. lampiran)</strong></li>
+            <li><span>Badan Pemeriksa Keuangan (SSCASN Live + Pengumuman 01/2026)</span><strong>51 baris / 952 kursi (Umum, Disabilitas, Papua • Gaji BKN Rp 13–19 jt)</strong></li>
             <li><span>Badan Siber &amp; Sandi Negara (PENG.102/2026)</span><strong>2 baris / 200 kursi (KepmenPANRB 676/2026 • 196 Umum + 4 Disabilitas)</strong></li>
             <li><span>Kejaksaan Agung (KepmenPANRB 638/2026 Parsial)</span><strong>94 baris / 175 kursi (Hal. 1, 2, 8, 9, 10, 69 dari 69 • tidak direka)</strong></li>
             <li><span>Kementerian Kesehatan (SE HK.02.02/F/4023/2026)</span><strong>49 kelompok JF Kesehatan (30 jabatan • syarat pendidikan &amp; STR, kuota <span class="inline-code">—</span>)</strong></li>
@@ -467,11 +468,11 @@
             Setiap sumber diaudit silang SHA-256 dan kunci natural; field yang belum ada pada sumber tetap dibiarkan <span class="inline-code">NULL</span> (<span class="inline-code">—</span>).
           </p>
           <ul class="spec-list">
-            <li><span><span class="inline-code">CPNS_Kemenkeu.pdf</span> (39 hal.)</span><strong>Dilewati (Duplikat 100%) — 39/39 gambar identik dengan KepmenPANRB 675/2026</strong></li>
-            <li><span><span class="inline-code">CPNS_Polri.pdf</span> (Paparan Canva 24 Nov 2026)</span><strong>Dilewati — paparan estimasi 750 kursi tanpa kolom pendidikan/lokasi &amp; ketidakcocokan baris Keuangan/Kepegawaian</strong></li>
+            <li><span><span class="inline-code">BPK.pdf</span> + Duplikat (<span class="inline-code">Kemenkeu</span>, <span class="inline-code">Kejagung_1</span>, <span class="inline-code">Salinan Kemenkes</span>)</span><strong>Dilewati/dideduplikasi SHA-256 — 0 baris ganda masuk ke database</strong></li>
+            <li><span><span class="inline-code">Mekanisme CPNS &amp; Passing Grade.pdf</span> (KepmenPANRB 674/2026)</span><strong>Acuan Ambang Batas SKD 2026 (Umum 65/80/166; Cum Laude 311; Disabilitas 286)</strong></li>
             <li><span>Kuota Kementerian Kesehatan (<span class="inline-code">SE HK.02.02</span>)</span><strong>Dikosongkan (<span class="inline-code">—</span>) sesuai sumber karena hanya mengatur syarat prodi &amp; STR</strong></li>
-            <li><span>Gaji Resmi BKN (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada 51 baris BPK (SSCASN); <span class="inline-code">—</span> pada instansi berbasis PDF/SE</strong></li>
-            <li><span>Jumlah Pelamar, Rasio &amp; Keketatan</span><strong>Tetap <span class="inline-code">NULL</span> (<span class="inline-code">—</span>) di seluruh 570 baris hingga statistik pelamar dibuka</strong></li>
+            <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada BPK (SSCASN Rp 13–19 jt) &amp; BPKP (Lampiran I Rp 7,7–11,5 jt); <span class="inline-code">—</span> di PDF lainnya</strong></li>
+            <li><span>Pelamar, Rasio &amp; Data Nilai Minimal/Median 2024</span><strong>Pelamar 2026 <span class="inline-code">NULL</span> (<span class="inline-code">—</span>); data nilai ujian tidak ada di arsip SSCASN 2024</strong></li>
           </ul>
         </div>
       </div>
@@ -485,7 +486,7 @@
         </div>
         <ul class="disclaimer-list">
           <li>Jika instansi yang sama nantinya merilis rincian resmi di portal live <strong>SSCASN BKN</strong> (<span class="inline-code">api-rekrutmen.bkn.go.id/portal/api/spf</span>), data SSCASN otomatis menggantikan catatan pra-rilis tanpa menduplikasi baris.</li>
-          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, dan No. 109/2016 Kemenkes), terpisah dari kolom <strong>Gaji BKN</strong> resmi pada SSCASN.</li>
+          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 34/2023 BPKP, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, dan No. 109/2016 Kemenkes), terpisah dari kolom <strong>Gaji Resmi</strong> pengumuman/SSCASN.</li>
         </ul>
       </div>
     </section>
@@ -573,7 +574,7 @@
             <span class="modal-kpi-sub">Belum rilis SSCASN</span>
           </div>
           <div class="modal-kpi-cell">
-            <span class="modal-kpi-lbl">Gaji BKN (SSCASN)</span>
+            <span class="modal-kpi-lbl">Gaji Resmi</span>
             <span id="detail-kpi-gaji" class="modal-kpi-val">—</span>
             <span id="detail-kpi-gaji-sub" class="modal-kpi-sub">Belum dipublikasikan</span>
           </div>
@@ -586,10 +587,33 @@
 
         <div id="detail-compare-2024-panel" class="disclaimer-panel" style="margin-top: 0;">
           <div class="disclaimer-heading" style="justify-content: space-between; width: 100%;">
-            <span>Pembanding Historis CPNS 2024 (Posisi Sama / Serupa)</span>
+            <span>Pembanding Historis CPNS 2024 &amp; Ambang Batas Nilai SKD 2026</span>
             <span id="detail-compare-2024-badge" class="badge badge-neutral">—</span>
           </div>
           <p id="detail-compare-2024-text" style="margin: 6px 0 0; font-size: 0.85rem; color: var(--color-text-secondary);">—</p>
+          <div id="detail-compare-2024-scores-grid" class="modal-kpi-strip hidden" style="margin-top: 10px; padding-top: 10px; padding-bottom: 4px; border-top: 1px solid var(--color-border-subtle); border-bottom: none;">
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Nilai Akhir Lulus (0–100)</span>
+              <span id="detail-score-2024-na" class="modal-kpi-val">—</span>
+              <span id="detail-score-2024-na-sub" class="modal-kpi-sub">—</span>
+            </div>
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Skor SKD Lulus (0–550)</span>
+              <span id="detail-score-2024-skd" class="modal-kpi-val">—</span>
+              <span id="detail-score-2024-skd-sub" class="modal-kpi-sub">—</span>
+            </div>
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Batas SKD Masuk SKB</span>
+              <span id="detail-score-2024-skb-floor" class="modal-kpi-val">—</span>
+              <span id="detail-score-2024-skb-floor-sub" class="modal-kpi-sub">—</span>
+            </div>
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Nilai SKB Lulus (0–100)</span>
+              <span id="detail-score-2024-skb" class="modal-kpi-val">—</span>
+              <span id="detail-score-2024-skb-sub" class="modal-kpi-sub">—</span>
+            </div>
+          </div>
+          <p id="detail-compare-2024-nilai-note" style="margin: 6px 0 0; font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.45;">—</p>
         </div>
 
         <div class="detail-meta-grid">
@@ -622,7 +646,7 @@
             <div>
               <h3 style="font-size: 0.9rem; font-weight: 700;">Simulasi Referensi Regulasi (Opsional — Bukan Gaji Resmi BKN 2026)</h3>
               <p class="muted-note" style="font-size: 0.75rem; margin: 2px 0 0;">
-                Karena Gaji BKN pada SSCASN 2026 belum rilis (<span class="inline-code">—</span>), simulator ini hanya menghitung acuan PP No. 5/2024 + <span id="sim-tukin-source-note">Perpres Tukin Instansi</span>.
+                Simulasi ini menghitung acuan PP No. 5/2024 + <span id="sim-tukin-source-note">Perpres Tukin Instansi</span> untuk estimasi komponen gaji pokok &amp; tukin.
               </p>
             </div>
             <span id="thp-golongan-pill" class="badge badge-accent">Gol. —</span>
@@ -699,6 +723,6 @@
     <span id="toast-message"></span>
   </div>
 
-  <script src="/static/js/cpns2026.js?v=20261127e"></script>
+  <script src="/static/js/cpns2026.js?v=20261127g"></script>
 </body>
 </html>

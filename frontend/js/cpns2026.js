@@ -574,9 +574,10 @@
           : (item.jumlah_pelamar !== null && item.jumlah_pelamar !== undefined
               ? formatInt(item.jumlah_pelamar) + ' pelamar'
               : 'Pelamar: —');
+        const isSscasnSalary = (item.sumber_dokumen || '').includes('SSCASN');
         const gajiHtml =
           item.gaji_min && item.gaji_min > 0
-            ? '<div class="salary-range">' + formatSalaryRange(item.gaji_min, item.gaji_max) + '</div><div class="salary-sub" style="color:var(--color-accent-ink);">Resmi BKN</div>'
+            ? '<div class="salary-range">' + formatSalaryRange(item.gaji_min, item.gaji_max) + '</div><div class="salary-sub" style="color:var(--color-accent-ink);">' + (isSscasnSalary ? 'Resmi BKN' : 'Resmi Instansi') + '</div>'
             : '<div class="salary-range" style="color:var(--color-text-muted);">—</div><div class="salary-sub">Belum rilis</div>';
         const jalurHtml = item.jenis_formasi
           ? '<span class="badge badge-accent">' + escapeHtml(item.jenis_formasi) + '</span>'
@@ -704,7 +705,7 @@
           '<div><div class="metric-pair-label">Pelamar / Rasio</div><div class="metric-pair-val">' +
           (item.jumlah_pelamar !== null ? formatInt(item.jumlah_pelamar) : '— (Belum rilis)') +
           '</div></div>' +
-          '<div><div class="metric-pair-label">Gaji BKN</div><div class="metric-pair-val">' +
+          '<div><div class="metric-pair-label">Gaji Resmi</div><div class="metric-pair-val">' +
           formatSalaryRange(item.gaji_min, item.gaji_max) +
           '</div></div>' +
           '<div style="display:flex;align-items:flex-end;justify-content:flex-end;">' +
@@ -960,12 +961,26 @@
         item.jumlah_pelamar !== null ? formatInt(item.jumlah_pelamar) + ' (' + item.rasio_kompetisi + ')' : '—';
       $('detail-kpi-gaji').textContent = formatSalaryRange(item.gaji_min, item.gaji_max);
       if ($('detail-kpi-gaji-sub')) {
-        $('detail-kpi-gaji-sub').textContent = item.gaji_min > 0 ? 'Resmi BKN (SSCASN)' : 'Belum dipublikasikan';
+        const isSscasnSalary = (item.sumber_dokumen || '').includes('SSCASN');
+        $('detail-kpi-gaji-sub').textContent =
+          item.gaji_min > 0 ? (isSscasnSalary ? 'Resmi BKN (SSCASN)' : 'Pengumuman Instansi') : 'Belum dipublikasikan';
       }
       $('detail-kpi-no').textContent = 'No. ' + item.no_urut;
       if ($('detail-kpi-sumber')) {
         $('detail-kpi-sumber').textContent = item.sumber_dokumen || '—';
       }
+
+      const fmtNum = (val, dec = 2) => {
+        if (val === null || val === undefined) return '—';
+        return Number(val).toLocaleString('id-ID', {
+          minimumFractionDigits: dec,
+          maximumFractionDigits: dec,
+        });
+      };
+
+      const skd2026Note =
+        'Acuan Ambang Batas SKD 2026 (KepmenPANRB No. 674/2026): Umum TWK ≥ 65 · TIU ≥ 80 · TKP ≥ 166; Cum Laude & Diaspora ≥ 311 (TIU ≥ 85); Disabilitas & Papua ≥ 286 (TIU ≥ 60).';
+      const scoresGrid = $('detail-compare-2024-scores-grid');
 
       if ($('detail-compare-2024-text') && $('detail-compare-2024-badge')) {
         if (item.kursi_2024 !== null && item.kursi_2024 !== undefined) {
@@ -986,6 +1001,46 @@
           $('detail-compare-2024-badge').textContent = 'Tidak ada di 2024';
           $('detail-compare-2024-text').textContent =
             'Tidak ada pembanding di 2024 — tidak ditemukan formasi atau jabatan yang sama pada instansi ini di database SSCASN CPNS 2024.';
+        }
+      }
+
+      const has2024Scores =
+        item.nilai_akhir_2024_median !== null && item.nilai_akhir_2024_median !== undefined;
+      if (scoresGrid) {
+        if (has2024Scores) {
+          scoresGrid.classList.remove('hidden');
+          $('detail-score-2024-na').textContent = 'Median ' + fmtNum(item.nilai_akhir_2024_median, 3);
+          $('detail-score-2024-na-sub').textContent =
+            'Min ' + fmtNum(item.nilai_akhir_2024_min, 3) + ' · Maks ' + fmtNum(item.nilai_akhir_2024_max, 3);
+          $('detail-score-2024-skd').textContent = 'Median ' + fmtNum(item.skd_2024_lulus_median, 1);
+          $('detail-score-2024-skd-sub').textContent =
+            'Min ' + formatInt(item.skd_2024_lulus_min) + ' · Maks ' + formatInt(item.skd_2024_lulus_max);
+          $('detail-score-2024-skb-floor').textContent =
+            item.skd_2024_skb_min !== null && item.skd_2024_skb_min !== undefined
+              ? 'SKD ≥ ' + formatInt(item.skd_2024_skb_min)
+              : '—';
+          $('detail-score-2024-skb-floor-sub').textContent =
+            item.n_peserta_skb_2024 !== null && item.n_peserta_skb_2024 !== undefined
+              ? formatInt(item.n_peserta_skb_2024) + ' peserta ikut SKB'
+              : '—';
+          $('detail-score-2024-skb').textContent = 'Median ' + fmtNum(item.skb_2024_lulus_median, 2);
+          $('detail-score-2024-skb-sub').textContent =
+            'Min ' + fmtNum(item.skb_2024_lulus_min, 2) + ' · ' + formatInt(item.n_lulus_2024) + ' lulus P/L';
+        } else {
+          scoresGrid.classList.add('hidden');
+        }
+      }
+
+      if ($('detail-compare-2024-nilai-note')) {
+        if (has2024Scores) {
+          $('detail-compare-2024-nilai-note').textContent =
+            'Sumber nilai resmi 2024: ' + (item.sumber_nilai_2024 || 'Hasil Integrasi SKD–SKB BKN') + '. ' + skd2026Note;
+        } else if (item.kursi_2024 !== null && item.kursi_2024 !== undefined && item.sumber_nilai_2024) {
+          $('detail-compare-2024-nilai-note').textContent =
+            'Pada formasi pembanding 2024 ini tidak terdapat peserta lulus akhir (P/L) pada lampiran hasil integrasi (' +
+            item.sumber_nilai_2024 + '). ' + skd2026Note;
+        } else {
+          $('detail-compare-2024-nilai-note').textContent = skd2026Note;
         }
       }
 
@@ -1075,7 +1130,7 @@
         rowHtml('Alokasi CPNS', (it) => '<strong class="num">' + formatQuota(it.jumlah_formasi) + '</strong>') +
         rowHtml('Jalur Formasi', (it) => (it.jenis_formasi ? escapeHtml(it.jenis_formasi) : '<span class="muted-note">— (Belum rilis)</span>')) +
         rowHtml('Jumlah Pelamar', (it) => (it.jumlah_pelamar !== null ? formatInt(it.jumlah_pelamar) : '<span class="muted-note">— (Belum rilis)</span>')) +
-        rowHtml('Gaji BKN (SSCASN)', (it) => (it.gaji_min > 0 ? '<span class="num">' + formatSalaryRange(it.gaji_min, it.gaji_max) + '</span>' : '<span class="muted-note">— (Belum rilis)</span>')) +
+        rowHtml('Gaji Resmi', (it) => (it.gaji_min > 0 ? '<span class="num">' + formatSalaryRange(it.gaji_min, it.gaji_max) + '</span>' : '<span class="muted-note">— (Belum rilis)</span>')) +
         rowHtml('Pembanding CPNS 2024', (it) => (
           it.kursi_2024 !== null && it.kursi_2024 !== undefined
             ? '<span class="num">' + formatInt(it.kursi_2024) + ' kursi • ' + formatInt(it.pelamar_2024) + ' pelamar</span> (' + escapeHtml(it.status_keketatan_2024 || '') + ', ' + escapeHtml(formatRasio2024(it)) + ')'

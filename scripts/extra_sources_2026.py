@@ -48,17 +48,43 @@ EXTRA_INSTANSI = [
         26320000,
         "Perpres No. 109/2016 (Tukin Resmi Terverifikasi Kemenkes — Simulasi Acuan)",
     ),
+    (
+        "BPKP",
+        "Badan Pengawasan Keuangan dan Pembangunan",
+        "Pusat",
+        2575000,
+        41550000,
+        "Perpres No. 34/2023 (Tukin Resmi Terverifikasi BPKP — Simulasi Acuan)",
+    ),
 ]
 
 DRIVE_AUDIT_SUMMARY = [
     {
-        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf",
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + BPK.pdf",
         "status": "ingested_sscasn_live",
         "instansi": "Badan Pemeriksa Keuangan",
-        "referensi": "SSCASN BKN Resmi TA 2026 (Seleksi CASN Nasional 2026 • 27 Nov 2026)",
+        "referensi": "SSCASN BKN Live + Pengumuman BPK No. 01/B/S.Peng/SETJEN/KPG.02.01/11/2026 (KepmenPANRB No. 641/2026)",
         "rows_ingested": 51,
         "kuota_ingested": 952,
-        "catatan": "Data resmi langsung portal SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis).",
+        "catatan": "Data resmi SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis). File BPK.pdf di Drive memuat total alokasi identik 952 kursi sehingga tidak digandakan.",
+    },
+    {
+        "file_name": "BPKP_PENGUMUMAN.pdf + BPKP_RINCIAN.pdf + BPKP_ALOKASI.pdf",
+        "status": "ingested",
+        "instansi": "Badan Pengawasan Keuangan dan Pembangunan",
+        "referensi": "Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026 (KepmenPANRB No. 640/2026, 27 Nov 2026)",
+        "rows_ingested": 554,
+        "kuota_ingested": 2007,
+        "catatan": "Lampiran I & II lengkap: 21 kelompok jabatan/rumpun di 554 baris unit penempatan (Umum & Penyandang Disabilitas) beserta kualifikasi pendidikan dan kisaran penghasilan resmi Rp 7,7–11,5 jt.",
+    },
+    {
+        "file_name": "Mekanisme_CPNS_dan_Passing_Grade.pdf",
+        "status": "reference_policy",
+        "instansi": "Kementerian PANRB (Nasional)",
+        "referensi": "KepmenPANRB No. 674 Tahun 2026 (20 Nov 2026)",
+        "rows_ingested": 0,
+        "kuota_ingested": 0,
+        "catatan": "Regulasi mekanisme seleksi & Nilai Ambang Batas SKD CPNS 2026 (Umum: TWK >= 65, TIU >= 80, TKP >= 166; Cum Laude/Diaspora >= 311, TIU >= 85; Disabilitas/Papua >= 286, TIU >= 60; plus opsi pakai nilai SKD 2024). Ditampilkan sebagai acuan di Detail Formasi.",
     },
     {
         "file_name": "CPNS_BSSN.pdf",
@@ -76,7 +102,7 @@ DRIVE_AUDIT_SUMMARY = [
         "referensi": "KepmenPANRB No. 638/2026 (11 Nov 2026)",
         "rows_ingested": 94,
         "kuota_ingested": 175,
-        "catatan": "PDF yang diunggah hanya berisi 6 dari 69 halaman lampiran (hal. 1, 2, 8, 9, 10, 69 dari total 1.660 kursi nasional). Baris hilang tidak direka.",
+        "catatan": "PDF yang diunggah hanya berisi 6 dari 69 halaman lampiran (hal. 1, 2, 8, 9, 10, 69 dari total 1.660 kursi nasional). Berkas CPNS_KEJAKSAAN_AGUNG_1.pdf identik SHA-256 sehingga dilewati.",
     },
     {
         "file_name": "CPNS_Kemenkes_Info_STR_.pdf",
@@ -85,7 +111,7 @@ DRIVE_AUDIT_SUMMARY = [
         "referensi": "SE Dirjen SDMK No. HK.02.02/F/4023/2026 (22 Okt 2026)",
         "rows_ingested": 49,
         "kuota_ingested": 0,
-        "catatan": "Dimasukkan sesuai data dokumen persyaratan kualifikasi & STR bagi 30 Jabatan Fungsional Kesehatan (49 kelompok kategori/STR); kolom kuota dibiarkan kosong (NULL/—) karena tidak ada penetapan alokasi.",
+        "catatan": "Persyaratan kualifikasi & STR bagi 30 Jabatan Fungsional Kesehatan (49 kelompok kategori/STR); kuota dibiarkan NULL/—. Berkas salinan identik SHA-256 dilewati.",
     },
     {
         "file_name": "CPNS_Kemenkeu.pdf",
@@ -95,15 +121,6 @@ DRIVE_AUDIT_SUMMARY = [
         "rows_ingested": 0,
         "kuota_ingested": 0,
         "catatan": "Duplikat 100% (39/39 hash JPEG identik) dengan dokumen Kemenkeu yang sudah masuk (374 baris / 1.915 kursi). Dilewati agar tidak ganda.",
-    },
-    {
-        "file_name": "CPNS_Polri.pdf",
-        "status": "skipped_incomplete_draft",
-        "instansi": "Kepolisian Negara Republik Indonesia",
-        "referensi": "Paparan Canva Persiapan (24 Nov 2026, merujuk KepmenPANRB No. 653/2026)",
-        "rows_ingested": 0,
-        "kuota_ingested": 0,
-        "catatan": "Paparan estimasi 750 formasi tanpa kolom kualifikasi pendidikan & lokasi penempatan; panel Keuangan/Kepegawaian memiliki 16 jabatan vs 17 angka & angka teratas tumpang tindih sehingga tidak dimasukkan ke tabel terverifikasi.",
     },
 ]
 
@@ -508,6 +525,64 @@ def get_kemenkes_str_rows(extract_jenjang_fn, json_path) -> list[dict]:
     return rows
 
 
+SUMBER_BPKP = (
+    "Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026 — Pengadaan PNS BPKP TA 2026 "
+    "(KepmenPANRB No. 640 Tahun 2026, 27 November 2026)"
+)
+
+
+def _bpkp_unit_eselon1(unit: str) -> str:
+    u = re.sub(r"\s+", " ", unit).strip()
+    if u.startswith("Perwakilan BPKP"):
+        return "Perwakilan BPKP Daerah (34 Provinsi)"
+    if u.startswith("Deputi Bidang"):
+        return u
+    if u == "Inspektorat":
+        return "Inspektorat"
+    return "Sekretariat Utama / Biro / Pusat"
+
+
+def get_bpkp_rows(extract_jenjang_fn, json_path) -> list[dict]:
+    """Load 554 verified BPKP CPNS 2026 placement rows (2,007 seats) from Lampiran I & II."""
+    import json
+
+    if not json_path.exists():
+        return []
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    rows = []
+    for r in payload.get("rows", []):
+        no = int(r["no_lampiran2"])
+        jab = re.sub(r"\s+", " ", str(r["jabatan_nm"])).strip().upper()
+        unit = re.sub(r"\s+", " ", str(r["unit_penempatan"])).strip()
+        jf = re.sub(r"\s+", " ", str(r["jenis_formasi"])).strip().upper()
+        pend_parts = [re.sub(r"\s+", " ", p).strip() for p in str(r["pendidikan_raw"]).split(";") if p.strip()]
+        pend_nm = " | ".join(pend_parts)
+        rows.append(
+            {
+                "no_urut": no,
+                "formasi_id": f"2026-BPKP-{no:03d}",
+                "instansi_id": "BPKP",
+                "instansi_nm": "Badan Pengawasan Keuangan dan Pembangunan",
+                "kategori_instansi": "Pusat",
+                "unit_eselon1": _bpkp_unit_eselon1(unit),
+                "jabatan_nm": jab,
+                "pendidikan_nm": pend_nm,
+                "jenjang": extract_jenjang_fn(pend_nm),
+                "jumlah_formasi": int(r["jumlah_formasi"]),
+                "lokasi_nm": f"BPKP | {unit.upper()}",
+                "jenis_formasi": jf,
+                "jumlah_pelamar": None,
+                "rasio_kompetisi": None,
+                "peluang_lolos_pct": None,
+                "status_keketatan": None,
+                "gaji_min": int(r["gaji_min"]),
+                "gaji_max": int(r["gaji_max"]),
+                "sumber_dokumen": SUMBER_BPKP,
+            }
+        )
+    return rows
+
+
 def _classify_keketatan_2024(kursi: int, pelamar: int) -> tuple[float, float, str]:
     """Match cpns2024.db classification thresholds cleanly without rounding drift."""
     if not kursi or kursi <= 0:
@@ -534,10 +609,106 @@ def _norm_bpk_region(lokasi: str) -> str:
     return ""
 
 
+def _load_scores_2024_raw_map() -> dict[str, dict]:
+    """Load parsed CPNS 2024 per-formation score distributions keyed by cpns2024.db formasi_id."""
+    import json
+    from pathlib import Path
+
+    raw_path = Path(r"D:\AG Files\cpns2026-scraper\data\parsed\scores_2024_6instansi_raw.json")
+    summary_path = Path(__file__).resolve().parents[1] / "data" / "scores_2024_6instansi.json"
+    src = raw_path if raw_path.exists() else summary_path
+    if not src.exists():
+        return {}
+    payload = json.loads(src.read_text(encoding="utf-8"))
+    by_fid: dict[str, dict] = {}
+    for sec in payload.get("sections", []):
+        fid24 = sec.get("formasi_id_2024")
+        if fid24:
+            by_fid[fid24] = sec
+    return by_fid
+
+
+def _aggregate_2024_scores(fids: list[str], scores_by_fid: dict[str, dict]) -> dict:
+    """Aggregate exact sample score stats across one or more matched 2024 formations."""
+    import statistics
+
+    empty = {
+        "n_peserta_skb_2024": None,
+        "n_lulus_2024": None,
+        "nilai_akhir_2024_min": None,
+        "nilai_akhir_2024_median": None,
+        "nilai_akhir_2024_max": None,
+        "skd_2024_lulus_min": None,
+        "skd_2024_lulus_median": None,
+        "skd_2024_lulus_max": None,
+        "skd_2024_skb_min": None,
+        "skb_2024_lulus_min": None,
+        "skb_2024_lulus_median": None,
+        "skb_2024_lulus_max": None,
+        "sumber_nilai_2024": None,
+    }
+    secs = [scores_by_fid[f] for f in fids if f in scores_by_fid]
+    if not secs:
+        return empty
+
+    n_skb = sum(int(s.get("peserta_skb") or 0) for s in secs)
+    n_lulus = sum(int(s.get("n_lulus") or 0) for s in secs)
+    sumber = next((s.get("sumber") for s in secs if s.get("sumber")), None)
+
+    # Prefer pooling raw candidate lists (never median-of-medians). If single section summary only, use summary directly.
+    has_raw = all("pl_na" in s for s in secs)
+    if has_raw:
+        pl_na = [float(x) for s in secs for x in (s.get("pl_na") or [])]
+        pl_skd = [int(x) for s in secs for x in (s.get("pl_skd") or [])]
+        pl_skb = [float(x) for s in secs for x in (s.get("pl_skb") or [])]
+        skb_skd = [int(x) for s in secs for x in (s.get("skb_skd") or [])]
+        out = {
+            "n_peserta_skb_2024": n_skb,
+            "n_lulus_2024": len(pl_na),
+            "nilai_akhir_2024_min": round(min(pl_na), 3) if pl_na else None,
+            "nilai_akhir_2024_median": round(statistics.median(pl_na), 3) if pl_na else None,
+            "nilai_akhir_2024_max": round(max(pl_na), 3) if pl_na else None,
+            "skd_2024_lulus_min": min(pl_skd) if pl_skd else None,
+            "skd_2024_lulus_median": round(statistics.median(pl_skd), 1) if pl_skd else None,
+            "skd_2024_lulus_max": max(pl_skd) if pl_skd else None,
+            "skd_2024_skb_min": min(skb_skd) if skb_skd else None,
+            "skb_2024_lulus_min": round(min(pl_skb), 3) if pl_skb else None,
+            "skb_2024_lulus_median": round(statistics.median(pl_skb), 3) if pl_skb else None,
+            "skb_2024_lulus_max": round(max(pl_skb), 3) if pl_skb else None,
+            "sumber_nilai_2024": sumber,
+        }
+        return out
+
+    if len(secs) == 1:
+        s = secs[0]
+        na = s.get("nilai_akhir_lulus") or {}
+        skd_l = s.get("skd_lulus") or {}
+        skb_l = s.get("skb_lulus") or {}
+        skd_all = s.get("skd_peserta_skb") or {}
+        return {
+            "n_peserta_skb_2024": n_skb,
+            "n_lulus_2024": n_lulus,
+            "nilai_akhir_2024_min": na.get("min"),
+            "nilai_akhir_2024_median": na.get("median"),
+            "nilai_akhir_2024_max": na.get("max"),
+            "skd_2024_lulus_min": int(skd_l["min"]) if skd_l.get("min") is not None else None,
+            "skd_2024_lulus_median": skd_l.get("median"),
+            "skd_2024_lulus_max": int(skd_l["max"]) if skd_l.get("max") is not None else None,
+            "skd_2024_skb_min": int(skd_all["min"]) if skd_all.get("min") is not None else None,
+            "skb_2024_lulus_min": skb_l.get("min"),
+            "skb_2024_lulus_median": skb_l.get("median"),
+            "skb_2024_lulus_max": skb_l.get("max"),
+            "sumber_nilai_2024": sumber,
+        }
+
+    return {**empty, "n_peserta_skb_2024": n_skb, "n_lulus_2024": n_lulus, "sumber_nilai_2024": sumber}
+
+
 def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict[str, dict]:
     """Compute historical CPNS 2024 comparison records per 2026 formasi_id from cpns2024.db."""
     import sqlite3
 
+    empty_scores = _aggregate_2024_scores([], {})
     result: dict[str, dict] = {}
     if not cpns2024_db_path.exists():
         for r in rows_2026:
@@ -551,9 +722,11 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
                 "peluang_2024_pct": None,
                 "status_keketatan_2024": None,
                 "row_count_2024": 0,
+                **empty_scores,
             }
         return result
 
+    scores_by_fid = _load_scores_2024_raw_map()
     c24 = sqlite3.connect(f"file:{cpns2024_db_path}?mode=ro", uri=True)
     try:
         inst_map = {
@@ -564,28 +737,28 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
         needed_iids = {inst_map.get(r["instansi_nm"].strip().lower()) for r in rows_2026}
         needed_iids.discard(None)
 
-        by_inst_jab: dict[tuple[int, str], list[tuple[str, str, int, int]]] = {}
-        by_inst_all: dict[int, list[tuple[str, int, int]]] = {}
+        by_inst_jab: dict[tuple[int, str], list[tuple[str, str, str, int, int]]] = {}
+        by_inst_all: dict[int, list[tuple[str, str, int, int]]] = {}
         if needed_iids:
             placeholders = ",".join("?" for _ in needed_iids)
             q_rows = c24.execute(
                 f"""
-                SELECT instansi_id, UPPER(jabatan_nm), lokasi_nm, jenis_formasi,
+                SELECT formasi_id, instansi_id, UPPER(jabatan_nm), lokasi_nm, jenis_formasi,
                        COALESCE(jumlah_formasi, 0), COALESCE(jumlah_pelamar, 0)
                 FROM formasi
                 WHERE instansi_id IN ({placeholders})
                 """,
                 list(needed_iids),
             ).fetchall()
-            for iid, jab, lok, jf, k, p in q_rows:
-                by_inst_jab.setdefault((iid, jab), []).append((lok or "", jf or "", int(k), int(p)))
-                by_inst_all.setdefault(iid, []).append((jab, int(k), int(p)))
+            for fid24, iid, jab, lok, jf, k, p in q_rows:
+                by_inst_jab.setdefault((iid, jab), []).append((fid24, lok or "", jf or "", int(k), int(p)))
+                by_inst_all.setdefault(iid, []).append((fid24, jab, int(k), int(p)))
 
         for r in rows_2026:
             fid = r["formasi_id"]
             iid = inst_map.get(r["instansi_nm"].strip().lower())
             jab26 = (r.get("jabatan_nm") or "").strip().upper()
-            matched_rows: list[tuple[int, int]] = []
+            matched_rows: list[tuple[str, int, int]] = []
             match_level = None
             match_label = "Tidak ada pembanding di 2024"
 
@@ -596,27 +769,42 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
                 # Tier 1: Same Instansi + Exact Jabatan + Same Regional (e.g., BPK Regional)
                 if exact_list and reg26:
                     reg_matches = [
-                        (k, p, jf)
-                        for lok, jf, k, p in exact_list
+                        (fid24, k, p, jf)
+                        for fid24, lok, jf, k, p in exact_list
                         if _norm_bpk_region(lok) == reg26
                     ]
                     if reg_matches:
                         jf26 = (r.get("jenis_formasi") or "").upper()
-                        same_jf = [(k, p) for k, p, jf in reg_matches if jf26 and jf.upper() == jf26]
+                        same_jf = [(fid24, k, p) for fid24, k, p, jf in reg_matches if jf26 and jf.upper() == jf26]
                         if same_jf:
                             matched_rows = same_jf
                             match_level = "regional_exact"
                             match_label = f"Regional & jalur sama di 2024 ({jf26})"
                         else:
-                            matched_rows = [(k, p) for k, p, _ in reg_matches]
+                            matched_rows = [(fid24, k, p) for fid24, k, p, _ in reg_matches]
                             match_level = "regional_exact"
                             match_label = "Regional sama di 2024 (jalur Umum)" if jf26 else "Regional sama di 2024"
 
-                # Tier 2: Same Instansi + Exact Jabatan (Kemenkeu Kapal, Kejagung, BPK Analis Kerja Sama)
+                # Tier 2: Same Instansi + Exact Jabatan (Kemenkeu Kapal, Kejagung, BPK Analis Kerja Sama, BPKP)
                 if not matched_rows and exact_list:
-                    matched_rows = [(k, p) for _, _, k, p in exact_list]
+                    matched_rows = [(fid24, k, p) for fid24, _, _, k, p in exact_list]
                     match_level = "instansi_jabatan"
                     match_label = "Jabatan sama di instansi yang sama (2024)"
+
+                # Tier 2b: BPKP verified equivalents (KONSELOR SDM & Auditor Ahli Pertama parent rumpun)
+                if not matched_rows and r["instansi_id"] == "BPKP":
+                    if jab26 == "KONSELOR SUMBER DAYA MANUSIA":
+                        alt = by_inst_jab.get((iid, "KONSELOR SDM"), [])
+                        if alt:
+                            matched_rows = [(fid24, k, p) for fid24, _, _, k, p in alt]
+                            match_level = "instansi_jabatan"
+                            match_label = "Jabatan sama (KONSELOR SDM) di BPKP 2024"
+                    elif jab26.startswith("AUDITOR AHLI PERTAMA - RUMPUN"):
+                        alt = by_inst_jab.get((iid, "AUDITOR AHLI PERTAMA"), [])
+                        if alt:
+                            matched_rows = [(fid24, k, p) for fid24, _, _, k, p in alt]
+                            match_level = "instansi_jabatan"
+                            match_label = "Jabatan induk AUDITOR AHLI PERTAMA di BPKP 2024 (semua rumpun)"
 
                 # Tier 3: Kemenkes SE STR JF Rumpun + Kategori (Keahlian vs Keterampilan)
                 if not matched_rows and r["instansi_id"] == "KEMENKES":
@@ -624,8 +812,8 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
                     kat = "Keahlian" if "Keahlian" in ue1 else "Keterampilan"
                     clean = re.sub(r"\(\*\)", "", jab26).replace("*", "").strip()
                     aliases = [a.strip() for a in clean.split("/") if a.strip()]
-                    kat_rows: list[tuple[int, int]] = []
-                    for jab24, k24, p24 in by_inst_all.get(iid, []):
+                    kat_rows: list[tuple[str, int, int]] = []
+                    for fid24, jab24, k24, p24 in by_inst_all.get(iid, []):
                         if kat == "Keahlian" and any(t in jab24 for t in ("TERAMPIL", "PEMULA", "MAHIR", "PENYELIA")):
                             continue
                         if kat == "Keterampilan" and any(t in jab24 for t in ("AHLI", "SPESIALIS", "DOKTER")):
@@ -636,7 +824,7 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
                                 or jab24.startswith(al + " ")
                                 or jab24.startswith(al + " -")
                             ):
-                                kat_rows.append((k24, p24))
+                                kat_rows.append((fid24, k24, p24))
                                 break
                     if kat_rows:
                         matched_rows = kat_rows
@@ -644,10 +832,11 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
                         match_label = f"Rumpun JF {kat} Kemenkes di 2024 (rekap unit)"
 
             if matched_rows:
-                kursi24 = sum(k for k, _ in matched_rows)
-                pelamar24 = sum(p for _, p in matched_rows)
+                kursi24 = sum(k for _, k, _ in matched_rows)
+                pelamar24 = sum(p for _, _, p in matched_rows)
                 if kursi24 > 0:
                     rasio24, peluang24, status24 = _classify_keketatan_2024(kursi24, pelamar24)
+                    score_stats = _aggregate_2024_scores([fid24 for fid24, _, _ in matched_rows], scores_by_fid)
                     result[fid] = {
                         "formasi_id": fid,
                         "match_level_2024": match_level,
@@ -658,6 +847,7 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
                         "peluang_2024_pct": peluang24,
                         "status_keketatan_2024": status24,
                         "row_count_2024": len(matched_rows),
+                        **score_stats,
                     }
                     continue
 
@@ -671,6 +861,7 @@ def compute_2024_comparison_map(rows_2026: list[dict], cpns2024_db_path) -> dict
                 "peluang_2024_pct": None,
                 "status_keketatan_2024": None,
                 "row_count_2024": 0,
+                **empty_scores,
             }
     finally:
         c24.close()

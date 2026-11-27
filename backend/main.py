@@ -62,6 +62,41 @@ _analytics_tables_ready = False
 _fast_index_checked = False
 _has_fast_index = False
 _instansi_mem_map: Optional[Dict[int, Tuple[str, str]]] = None
+_scores_2024_lock = threading.Lock()
+_scores_2024_by_fid: Optional[Dict[str, Dict[str, Any]]] = None
+
+
+def _get_scores_2024_map() -> Dict[str, Dict[str, Any]]:
+    """Lazy-load verified 2024 exam score stats keyed by cpns2024.db formasi_id."""
+    global _scores_2024_by_fid
+    if _scores_2024_by_fid is not None:
+        return _scores_2024_by_fid
+    with _scores_2024_lock:
+        if _scores_2024_by_fid is not None:
+            return _scores_2024_by_fid
+        scores_path = DATA_DIR / "scores_2024_6instansi.json"
+        mapping: Dict[str, Dict[str, Any]] = {}
+        if scores_path.exists():
+            import json
+
+            payload = json.loads(scores_path.read_text(encoding="utf-8"))
+            for sec in payload.get("sections", []):
+                fid = sec.get("formasi_id_2024")
+                if fid:
+                    mapping[fid] = {
+                        "instansi_kode": sec.get("instansi_kode"),
+                        "peserta_skb": sec.get("peserta_skb"),
+                        "hadir_skb": sec.get("hadir_skb"),
+                        "n_lulus": sec.get("n_lulus"),
+                        "jenis_formasi": sec.get("jenis_formasi"),
+                        "nilai_akhir_lulus": sec.get("nilai_akhir_lulus"),
+                        "skd_lulus": sec.get("skd_lulus"),
+                        "skb_lulus": sec.get("skb_lulus"),
+                        "skd_peserta_skb": sec.get("skd_peserta_skb"),
+                        "sumber": sec.get("sumber"),
+                    }
+        _scores_2024_by_fid = mapping
+        return _scores_2024_by_fid
 
 _KAT_TO_ID = {"Pusat": 0, "Provinsi": 1, "Kabupaten/Kota": 2}
 _ID_TO_KAT = {0: "Pusat", 1: "Provinsi", 2: "Kabupaten/Kota"}
@@ -2002,7 +2037,8 @@ def get_formasi_detail(formasi_id: str):
             "gaji_pokok_cpns_80": cpns_80,
             "gaji_pokok_100": full_100,
             "pendidikan_raw": row["pendidikan_raw"],
-            "majors": majors
+            "majors": majors,
+            "nilai_2024": _get_scores_2024_map().get(row["formasi_id"]),
         }
     finally:
         if conn is not None:
@@ -2216,6 +2252,9 @@ def serve_cpns_2024():
 
 @app.get("/favicon.ico")
 def serve_favicon():
+    png_path = FRONTEND_DIR / "favicon.png"
+    if png_path.exists():
+        return FileResponse(str(png_path), media_type="image/png")
     svg_path = FRONTEND_DIR / "tako_logo.svg"
     if svg_path.exists():
         return FileResponse(str(svg_path), media_type="image/svg+xml")

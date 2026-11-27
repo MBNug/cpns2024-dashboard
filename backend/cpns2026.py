@@ -187,6 +187,31 @@ def _build_filter_clause(
     return " AND ".join(clauses), params
 
 
+_BANDING_2024_SQL = """
+                b.match_level_2024,
+                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024,
+                b.kursi_2024,
+                b.pelamar_2024,
+                b.rasio_2024,
+                b.peluang_2024_pct,
+                b.status_keketatan_2024,
+                COALESCE(b.row_count_2024, 0) AS row_count_2024,
+                b.n_peserta_skb_2024,
+                b.n_lulus_2024,
+                b.nilai_akhir_2024_min,
+                b.nilai_akhir_2024_median,
+                b.nilai_akhir_2024_max,
+                b.skd_2024_lulus_min,
+                b.skd_2024_lulus_median,
+                b.skd_2024_lulus_max,
+                b.skd_2024_skb_min,
+                b.skb_2024_lulus_min,
+                b.skb_2024_lulus_median,
+                b.skb_2024_lulus_max,
+                b.sumber_nilai_2024
+"""
+
+
 def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
     d = dict(row)
     d["jurusan_list"] = [m.strip() for m in (d.get("pendidikan_nm") or "").split(" | ") if m.strip()]
@@ -277,7 +302,7 @@ def get_stats_2026() -> dict[str, Any]:
             "has_jenis_formasi": has_jenis,
             "instansi_summary": instansi_summary,
             "drive_audit": drive_audit,
-            "sumber_dokumen": "SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejagung) • SE Kemenkes HK.02.02 (Syarat STR)",
+            "sumber_dokumen": "Pengumuman BPKP 02/2026 • SSCASN Live (BPK) • KepmenPANRB 675 (Kemenkeu), 676 (BSSN), 638 Parsial (Kejagung), 674 (Passing Grade) • SE Kemenkes HK.02.02",
         }
     finally:
         conn.close()
@@ -497,14 +522,7 @@ def list_formasi_2026(
                 i.tukin_min,
                 i.tukin_max,
                 i.tukin_sumber,
-                b.match_level_2024,
-                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024,
-                b.kursi_2024,
-                b.pelamar_2024,
-                b.rasio_2024,
-                b.peluang_2024_pct,
-                b.status_keketatan_2024,
-                COALESCE(b.row_count_2024, 0) AS row_count_2024
+                {_BANDING_2024_SQL.strip()}
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
             LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
@@ -544,14 +562,7 @@ def get_formasi_batch_2026(ids: str = Query(default="")) -> list[dict[str, Any]]
                 i.tukin_min,
                 i.tukin_max,
                 i.tukin_sumber,
-                b.match_level_2024,
-                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024,
-                b.kursi_2024,
-                b.pelamar_2024,
-                b.rasio_2024,
-                b.peluang_2024_pct,
-                b.status_keketatan_2024,
-                COALESCE(b.row_count_2024, 0) AS row_count_2024
+                {_BANDING_2024_SQL.strip()}
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
             LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
@@ -570,7 +581,7 @@ def get_formasi_detail_2026(formasi_id: str) -> dict[str, Any]:
     conn = _get_conn()
     try:
         row = conn.execute(
-            """
+            f"""
             SELECT
                 f.*,
                 i.instansi_nm,
@@ -578,14 +589,7 @@ def get_formasi_detail_2026(formasi_id: str) -> dict[str, Any]:
                 i.tukin_min,
                 i.tukin_max,
                 i.tukin_sumber,
-                b.match_level_2024,
-                COALESCE(b.match_label_2024, 'Tidak ada pembanding di 2024') AS match_label_2024,
-                b.kursi_2024,
-                b.pelamar_2024,
-                b.rasio_2024,
-                b.peluang_2024_pct,
-                b.status_keketatan_2024,
-                COALESCE(b.row_count_2024, 0) AS row_count_2024
+                {_BANDING_2024_SQL.strip()}
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
             LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id

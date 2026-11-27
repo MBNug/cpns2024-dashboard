@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portal Data Formasi CPNS 2024 | Eksplorasi &amp; Analitik SSCASN BKN</title>
   <meta name="description" content="Eksplorasi 111.921 formasi CPNS 2024 berdasarkan program studi, instansi, rasio kompetisi pelamar riil SSCASN BKN, dan simulasi penghasilan bersih PP No. 5 Tahun 2024." />
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
   <script>
     (function () {
       try {
@@ -16,7 +17,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/static/css/app.css?v=20261125d" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261127g" />
 </head>
 <body>
 
@@ -788,6 +789,37 @@
           </div>
         </div>
 
+        <!-- Hasil Integrasi Nilai SKD-SKB 2024 -->
+        <div id="modal-nilai-2024-panel" class="disclaimer-panel" style="margin-top:0;">
+          <div class="disclaimer-heading" style="justify-content:space-between;width:100%;">
+            <span>Statistik Nilai Ujian SKD–SKB CPNS 2024 (Hasil Integrasi Resmi)</span>
+            <span id="modal-nilai-2024-badge" class="badge badge-neutral">Menunggu</span>
+          </div>
+          <div id="modal-nilai-2024-grid" class="modal-kpi-strip is-hidden" style="margin-top:10px;padding-top:10px;padding-bottom:4px;border-top:1px solid var(--color-border-subtle);border-bottom:none;">
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Nilai Akhir Lulus (0–100)</span>
+              <span id="modal-nilai-2024-na" class="modal-kpi-val">---</span>
+              <span id="modal-nilai-2024-na-sub" class="modal-kpi-sub">---</span>
+            </div>
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Skor SKD Lulus (0–550)</span>
+              <span id="modal-nilai-2024-skd" class="modal-kpi-val">---</span>
+              <span id="modal-nilai-2024-skd-sub" class="modal-kpi-sub">---</span>
+            </div>
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Batas SKD Masuk SKB</span>
+              <span id="modal-nilai-2024-skb-floor" class="modal-kpi-val">---</span>
+              <span id="modal-nilai-2024-skb-floor-sub" class="modal-kpi-sub">---</span>
+            </div>
+            <div class="modal-kpi-cell">
+              <span class="modal-kpi-lbl">Nilai SKB Lulus (0–100)</span>
+              <span id="modal-nilai-2024-skb" class="modal-kpi-val">---</span>
+              <span id="modal-nilai-2024-skb-sub" class="modal-kpi-sub">---</span>
+            </div>
+          </div>
+          <p id="modal-nilai-2024-note" class="muted-note" style="margin-top:6px;">---</p>
+        </div>
+
         <!-- Unit Placement & Tukin Metadata -->
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
@@ -1054,6 +1086,6 @@
 
   <div id="toast-notification" class="toast-banner is-hidden" role="status" aria-live="polite"></div>
 
-  <script src="/static/js/app.js?v=20261125d"></script>
+  <script src="/static/js/app.js?v=20261127g"></script>
 </body>
 </html>

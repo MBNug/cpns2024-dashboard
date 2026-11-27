@@ -1,12 +1,30 @@
 [
   {
-    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf",
+    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + BPK.pdf",
     "status": "ingested_sscasn_live",
     "instansi": "Badan Pemeriksa Keuangan",
-    "referensi": "SSCASN BKN Resmi TA 2026 (Seleksi CASN Nasional 2026 • 27 Nov 2026)",
+    "referensi": "SSCASN BKN Live + Pengumuman BPK No. 01/B/S.Peng/SETJEN/KPG.02.01/11/2026 (KepmenPANRB No. 641/2026)",
     "rows_ingested": 51,
     "kuota_ingested": 952,
-    "catatan": "Data resmi langsung portal SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis)."
+    "catatan": "Data resmi SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis). File BPK.pdf di Drive memuat total alokasi identik 952 kursi sehingga tidak digandakan."
+  },
+  {
+    "file_name": "BPKP_PENGUMUMAN.pdf + BPKP_RINCIAN.pdf + BPKP_ALOKASI.pdf",
+    "status": "ingested",
+    "instansi": "Badan Pengawasan Keuangan dan Pembangunan",
+    "referensi": "Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026 (KepmenPANRB No. 640/2026, 27 Nov 2026)",
+    "rows_ingested": 554,
+    "kuota_ingested": 2007,
+    "catatan": "Lampiran I & II lengkap: 21 kelompok jabatan/rumpun di 554 baris unit penempatan (Umum & Penyandang Disabilitas) beserta kualifikasi pendidikan dan kisaran penghasilan resmi Rp 7,7–11,5 jt."
+  },
+  {
+    "file_name": "Mekanisme_CPNS_dan_Passing_Grade.pdf",
+    "status": "reference_policy",
+    "instansi": "Kementerian PANRB (Nasional)",
+    "referensi": "KepmenPANRB No. 674 Tahun 2026 (20 Nov 2026)",
+    "rows_ingested": 0,
+    "kuota_ingested": 0,
+    "catatan": "Regulasi mekanisme seleksi & Nilai Ambang Batas SKD CPNS 2026 (Umum: TWK >= 65, TIU >= 80, TKP >= 166; Cum Laude/Diaspora >= 311, TIU >= 85; Disabilitas/Papua >= 286, TIU >= 60; plus opsi pakai nilai SKD 2024). Ditampilkan sebagai acuan di Detail Formasi."
   },
   {
     "file_name": "CPNS_BSSN.pdf",
@@ -24,7 +42,7 @@
     "referensi": "KepmenPANRB No. 638/2026 (11 Nov 2026)",
     "rows_ingested": 94,
     "kuota_ingested": 175,
-    "catatan": "PDF yang diunggah hanya berisi 6 dari 69 halaman lampiran (hal. 1, 2, 8, 9, 10, 69 dari total 1.660 kursi nasional). Baris hilang tidak direka."
+    "catatan": "PDF yang diunggah hanya berisi 6 dari 69 halaman lampiran (hal. 1, 2, 8, 9, 10, 69 dari total 1.660 kursi nasional). Berkas CPNS_KEJAKSAAN_AGUNG_1.pdf identik SHA-256 sehingga dilewati."
   },
   {
     "file_name": "CPNS_Kemenkes_Info_STR_.pdf",
@@ -33,7 +51,7 @@
     "referensi": "SE Dirjen SDMK No. HK.02.02/F/4023/2026 (22 Okt 2026)",
     "rows_ingested": 49,
     "kuota_ingested": 0,
-    "catatan": "Dimasukkan sesuai data dokumen persyaratan kualifikasi & STR bagi 30 Jabatan Fungsional Kesehatan (49 kelompok kategori/STR); kolom kuota dibiarkan kosong (NULL/—) karena tidak ada penetapan alokasi."
+    "catatan": "Persyaratan kualifikasi & STR bagi 30 Jabatan Fungsional Kesehatan (49 kelompok kategori/STR); kuota dibiarkan NULL/—. Berkas salinan identik SHA-256 dilewati."
   },
   {
     "file_name": "CPNS_Kemenkeu.pdf",
@@ -43,14 +61,5 @@
     "rows_ingested": 0,
     "kuota_ingested": 0,
     "catatan": "Duplikat 100% (39/39 hash JPEG identik) dengan dokumen Kemenkeu yang sudah masuk (374 baris / 1.915 kursi). Dilewati agar tidak ganda."
-  },
-  {
-    "file_name": "CPNS_Polri.pdf",
-    "status": "skipped_incomplete_draft",
-    "instansi": "Kepolisian Negara Republik Indonesia",
-    "referensi": "Paparan Canva Persiapan (24 Nov 2026, merujuk KepmenPANRB No. 653/2026)",
-    "rows_ingested": 0,
-    "kuota_ingested": 0,
-    "catatan": "Paparan estimasi 750 formasi tanpa kolom kualifikasi pendidikan & lokasi penempatan; panel Keuangan/Kepegawaian memiliki 16 jabatan vs 17 angka & angka teratas tumpang tindih sehingga tidak dimasukkan ke tabel terverifikasi."
   }
 ]
