@@ -18,13 +18,13 @@
     "catatan": "Data resmi SSCASN BKN Live lengkap 274 baris penempatan unit Deputi/Inspektorat/Setmen (936 Umum, 10 Lulusan Terbaik, 20 Disabilitas, 20 Putra/Putri Papua; Gaji Resmi BKN Rp 5,0–8,3 jt; pelamar belum dirilis)."
   },
   {
-    "file_name": "BPKP_PENGUMUMAN.pdf + BPKP_RINCIAN.pdf + BPKP_ALOKASI.pdf",
-    "status": "ingested",
+    "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + BPKP_PENGUMUMAN/RINCIAN/ALOKASI.pdf",
+    "status": "ingested_sscasn_live",
     "instansi": "Badan Pengawasan Keuangan dan Pembangunan",
-    "referensi": "Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026 (KepmenPANRB No. 640/2026, 27 Nov 2026)",
-    "rows_ingested": 554,
+    "referensi": "SSCASN BKN Live + Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026 (KepmenPANRB No. 640/2026)",
+    "rows_ingested": 27,
     "kuota_ingested": 2007,
-    "catatan": "Lampiran I & II lengkap: 21 kelompok jabatan/rumpun di 554 baris unit penempatan (Umum & Penyandang Disabilitas) beserta kualifikasi pendidikan dan kisaran penghasilan resmi Rp 7,7–11,5 jt."
+    "catatan": "Data resmi SSCASN BKN Live 27 baris rumpun pelamaran nasional dengan total identik 2.007 kursi (1.966 Umum, 41 Penyandang Disabilitas) beserta Gaji Resmi BKN Rp 7,7–11,5 jt. Menggantikan 554 baris rincian unit PDF pra-rilis agar sesuai struktur pendaftaran SSCASN tanpa duplikasi."
   },
   {
     "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenkum.pdf",
