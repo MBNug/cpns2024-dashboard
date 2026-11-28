@@ -92,7 +92,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
                 FROM formasi
                 """
             ).fetchone()
-            self.assertEqual(non_nulls, (4889, 0, 0, 0, 0, 4256, 4256, 49))
+            self.assertEqual(non_nulls, (4889, 0, 0, 0, 0, 4888, 4888, 49))
 
             # Ensure jurusan catalog merges case-variants (e.g. S-1 Informatika + S-1 INFORMATIKA)
             dup_jurusan = cur.execute(
@@ -119,8 +119,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertIsNone(d["total_pelamar"])
         self.assertIsNone(d["total_formasi_kosong"])
         self.assertIsNone(d["avg_rasio"])
-        self.assertEqual(d["median_gaji_min"], 2485900)
-        self.assertEqual(d["median_gaji_max"], 6500000)
+        self.assertEqual(d["median_gaji_min"], 2785700)
+        self.assertEqual(d["median_gaji_max"], 8000000)
         self.assertFalse(d["has_applicant_data"])
         self.assertTrue(d["has_salary_data"])
         self.assertTrue(d["has_jenis_formasi"])
@@ -130,7 +130,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(rf.status_code, 200)
         fd = rf.json()
         self.assertEqual(len(fd["instansi"]), 12)
-        self.assertEqual(len(fd["unit_eselon1"]), 113)
+        self.assertEqual(len(fd["unit_eselon1"]), 132)
         self.assertEqual(len(fd["jabatan"]), 122)
         self.assertEqual(
             sorted(fd["jenis_formasi"]),
@@ -276,7 +276,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(r_polri.status_code, 200)
         self.assertEqual(r_polri.json()["total"], 633)
         self.assertEqual(r_polri.json()["total_kuota_filtered"], 750)
-        self.assertIsNone(r_polri.json()["items"][0]["gaji_min"])
+        self.assertEqual(r_polri.json()["items"][0]["gaji_min"], 5500000)
+        self.assertEqual(r_polri.json()["items"][0]["gaji_max"], 7500000)
 
         r_kemenhut = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Kehutanan"})
         self.assertEqual(r_kemenhut.status_code, 200)
@@ -407,7 +408,6 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_raw = self.client.get("/api/2026/download/raw-csv")
         self.assertEqual(r_raw.status_code, 200)
         self.assertIn("Pengumuman Kemenham No. SEK-1143.KP.02.01 Tahun 2026", r_raw.text)
-        self.assertIn("Pengumuman Kapolri No. Peng/33/XI/KEP./2026", r_raw.text)
         self.assertIn("Pengumuman Sekjen Kemenhut No. PG.2/MENHUT-SETJEN/ROSDM/PEG.02/11/2026", r_raw.text)
         self.assertIn("KepmenPANRB No. 675 Tahun 2026", r_raw.text)
         self.assertIn("SSCASN BKN Resmi TA 2026", r_raw.text)

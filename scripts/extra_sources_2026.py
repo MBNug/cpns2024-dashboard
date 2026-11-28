@@ -162,13 +162,13 @@ DRIVE_AUDIT_SUMMARY = [
         "catatan": "Lampiran I & II lengkap: 8 jabatan / 15 baris jalur (895 Umum, 25 Disabilitas, 10 Cum Laude, 70 Putra/Putri Papua) beserta rentang penghasilan resmi Rp 5,3–9,4 jt per bulan.",
     },
     {
-        "file_name": "POLRI CPNS.pdf",
-        "status": "ingested",
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + POLRI CPNS.pdf",
+        "status": "ingested_sscasn_live",
         "instansi": "Kepolisian Negara Republik Indonesia",
-        "referensi": "Pengumuman Kapolri No. Peng/33/XI/KEP./2026 (KepmenPANRB No. 653/2026, 27 Nov 2026)",
+        "referensi": "SSCASN BKN Live + Pengumuman Kapolri No. Peng/33/XI/KEP./2026 (KepmenPANRB No. 653/2026)",
         "rows_ingested": 633,
         "kuota_ingested": 750,
-        "catatan": "Lampiran A resmi lengkap 131 halaman (605 nomor penempatan Polda & Mabes Polri / 633 baris jalur: 722 Umum, 15 Disabilitas, 9 Cum Laude, 4 Putra/Putri Papua). Menggantikan dek Canva 73 MB sebelumnya; gaji resmi & pelamar dibiarkan NULL.",
+        "catatan": "Data resmi SSCASN BKN Live lengkap 633 baris penempatan satker Polda & Mabes Polri dengan total identik 750 kursi (722 Umum, 15 Disabilitas, 9 Lulusan Terbaik, 4 Putra/Putri Papua) beserta Gaji Resmi BKN Rp 5,5–7,5 jt (632/633 baris). Menggantikan POLRI CPNS.pdf pra-rilis tanpa duplikasi.",
     },
     {
         "file_name": "Kemenhut Pengumuman.pdf + LAMPIRAN RINCIAN KEBUTUHAN CPNS KEMENHUT 2026.pdf",
@@ -463,6 +463,7 @@ _INSTANSI_CODE_MAP = {
     "Sekretariat Mahkamah Agung": "MA",
     "Kementerian Hak Asasi Manusia": "KEMENHAM",
     "Kementerian Hak Asasi Manusia Republik Indonesia": "KEMENHAM",
+    "Kepolisian Negara": "POLRI",
     "Kepolisian Negara Republik Indonesia": "POLRI",
     "Polri": "POLRI",
     "Kementerian Kehutanan": "KEMENHUT",
@@ -482,6 +483,7 @@ _CANONICAL_INSTANSI_NM = {
     "Mahkamah Agung Republik Indonesia": "Mahkamah Agung RI",
     "Sekretariat Mahkamah Agung": "Mahkamah Agung RI",
     "Kementerian Hak Asasi Manusia Republik Indonesia": "Kementerian Hak Asasi Manusia",
+    "Kepolisian Negara": "Kepolisian Negara Republik Indonesia",
     "Kementerian Kehutanan Republik Indonesia": "Kementerian Kehutanan",
 }
 
