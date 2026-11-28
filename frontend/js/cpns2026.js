@@ -34,7 +34,7 @@
     viewMode: window.innerWidth < 768 ? 'cards' : 'table',
     hasApplicantData: false,
     hasSalaryData: false,
-    distinctInstansi: 13,
+    distinctInstansi: 14,
     bookmarks: [],
     currentItems: [],
     activeDetail: null,
@@ -253,7 +253,7 @@
       const d = await apiGet('/stats');
       state.hasApplicantData = !!d.has_applicant_data;
       state.hasSalaryData = !!d.has_salary_data;
-      state.distinctInstansi = Number(d.distinct_instansi) || 13;
+      state.distinctInstansi = Number(d.distinct_instansi) || 14;
       $('kpi-total-rows').textContent = formatInt(d.total_formasi_rows);
       $('kpi-total-kuota').textContent = formatInt(d.total_kuota) + ' kursi';
       $('kpi-total-instansi').textContent = formatInt(d.distinct_instansi) + ' instansi';

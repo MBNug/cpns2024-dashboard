@@ -112,6 +112,14 @@ EXTRA_INSTANSI = [
         33240000,
         "Perpres No. 136/2017 (Tukin Resmi Terverifikasi KKP — Simulasi Acuan)",
     ),
+    (
+        "BGN",
+        "Badan Gizi Nasional",
+        "Pusat",
+        2531250,
+        24930000,
+        "Estimasi Kisaran Standar KemenPAN-RB (Badan Gizi Nasional — Simulasi Acuan)",
+    ),
 ]
 
 DRIVE_AUDIT_SUMMARY = [
@@ -132,6 +140,15 @@ DRIVE_AUDIT_SUMMARY = [
         "rows_ingested": 606,
         "kuota_ingested": 2132,
         "catatan": "Data resmi SSCASN BKN Live lengkap 606 baris penempatan unit KKP seluruh Indonesia (2.091 Umum, 35 Putra/Putri Papua, 6 Penyandang Disabilitas) beserta Gaji Resmi BKN Rp 5,0–8,8 jt, usia 18–35 th, uraian tugas, dokumen/sertifikasi khusus per formasi, serta aturan lengkap Pengumuman B.1389/SJ/KP.310/XI/2026 (tanpa ambang IPK minimal, bobot SKB 50% CAT + 50% Tambahan, ikatan dinas 5 tahun).",
+    },
+    {
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf (Badan Gizi Nasional)",
+        "status": "ingested_sscasn_live",
+        "instansi": "Badan Gizi Nasional",
+        "referensi": "SSCASN BKN Live — Seleksi CASN Nasional 2026 (28 Nov 2026)",
+        "rows_ingested": 552,
+        "kuota_ingested": 1618,
+        "catatan": "Data resmi SSCASN BKN Live lengkap 552 baris penempatan KPPG Kelas II & Pusat Badan Gizi Nasional (1.563 Umum, 33 Disabilitas, 16 Lulusan Terbaik, 6 Putra/Putri Papua) beserta Gaji Resmi BKN Rp 6,36–8,73 jt, usia 18–35 th, uraian tugas, dan berkas SSCASN.",
     },
     {
         "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenkop.pdf",
@@ -188,13 +205,13 @@ DRIVE_AUDIT_SUMMARY = [
         "catatan": "Data resmi SSCASN BKN Live lengkap 633 baris penempatan satker Polda & Mabes Polri dengan total identik 750 kursi (722 Umum, 15 Disabilitas, 9 Lulusan Terbaik, 4 Putra/Putri Papua) beserta Gaji Resmi BKN Rp 5,5–7,5 jt (632/633 baris). Menggantikan POLRI CPNS.pdf pra-rilis tanpa duplikasi.",
     },
     {
-        "file_name": "Kemenhut Pengumuman.pdf + LAMPIRAN RINCIAN KEBUTUHAN CPNS KEMENHUT 2026.pdf",
-        "status": "ingested",
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenhut Pengumuman.pdf",
+        "status": "ingested_sscasn_live",
         "instansi": "Kementerian Kehutanan",
-        "referensi": "Pengumuman Sekjen Kemenhut No. PG.2/MENHUT-SETJEN/ROSDM/PEG.02/11/2026 (KepmenPANRB No. 639/2026, 27 Nov 2026)",
+        "referensi": "SSCASN BKN Live + Pengumuman Sekjen Kemenhut No. PG.2/MENHUT-SETJEN/ROSDM/PEG.02/11/2026 (KepmenPANRB No. 639/2026)",
         "rows_ingested": 3782,
         "kuota_ingested": 70000,
-        "catatan": "Lampiran lengkap 630 halaman (3.281 nomor unit penempatan / 3.782 baris jalur: 69.274 Umum, 26 Penyandang Disabilitas, 700 Putra/Putri Papua) untuk 32 jabatan (termasuk 60.000 Polisi Kehutanan & 5.465 Manggala Agni) beserta rentang penghasilan resmi Rp 2,18–8,50 jt dari Pengumuman Bagian III.",
+        "catatan": "Data resmi SSCASN BKN Live lengkap 3.782 baris / 70.000 kursi identik dengan lampiran 630 halaman PG.2/MENHUT/2026 (69.274 Umum, 26 Penyandang Disabilitas, 700 Putra/Putri Papua; 32 jabatan termasuk 60.000 Polisi Kehutanan & 5.465 Manggala Agni) beserta Gaji Resmi BKN Rp 2,18–8,50 jt, uraian tugas, dan berkas unggah SSCASN per formasi. Menggantikan ekstraksi PDF pra-rilis tanpa duplikasi.",
     },
     {
         "file_name": "Mekanisme_CPNS_dan_Passing_Grade.pdf",
@@ -285,6 +302,8 @@ _UPPER_ACRONYMS = {
     "Bpkp": "BPKP",
     "Bssn": "BSSN",
     "Kkp": "KKP",
+    "Bgn": "BGN",
+    "Kppg": "KPPG",
     "Diy": "DIY",
     "Dki": "DKI",
     "Ntb": "NTB",
@@ -530,6 +549,8 @@ _INSTANSI_CODE_MAP = {
     "Kementerian Kehutanan Republik Indonesia": "KEMENHUT",
     "Kementerian Kelautan dan Perikanan": "KKP",
     "Kementerian Kelautan dan Perikanan Republik Indonesia": "KKP",
+    "Badan Gizi Nasional": "BGN",
+    "Badan Gizi Nasional Republik Indonesia": "BGN",
 }
 
 _CANONICAL_INSTANSI_NM = {
@@ -548,6 +569,8 @@ _CANONICAL_INSTANSI_NM = {
     "Kepolisian Negara": "Kepolisian Negara Republik Indonesia",
     "Kementerian Kehutanan Republik Indonesia": "Kementerian Kehutanan",
     "Kementerian Kelautan dan Perikanan Republik Indonesia": "Kementerian Kelautan dan Perikanan",
+    "Badan Gizi Nasional": "Badan Gizi Nasional",
+    "Badan Gizi Nasional Republik Indonesia": "Badan Gizi Nasional",
 }
 
 SUMBER_SSCASN = (

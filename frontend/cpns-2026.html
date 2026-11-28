@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (13 Instansi Terverifikasi)</title>
-  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) serta pengumuman resmi Kemenhut (70.000 kursi), Kemenkeu, dan acuan STR Kemenkes (5.919 baris, 87.329 kursi teralokasi)." />
+  <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (14 Instansi Terverifikasi)</title>
+  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (MA RI, KKP, BPKP, Kejaksaan Agung, BGN, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) serta pengumuman resmi Kemenhut (70.000 kursi), Kemenkeu, dan acuan STR Kemenkes (6.471 baris, 88.947 kursi teralokasi)." />
   <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
-  <link rel="stylesheet" href="/static/css/app.css?v=20261128f" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261128g" />
   <script>
     (function () {
       try {
@@ -105,7 +105,7 @@
         <span id="kpi-total-pelamar" class="ticker-value">—</span>
       </div>
       <div class="ticker-divider" aria-hidden="true"></div>
-      <div class="ticker-metric ticker-metric-desktop" title="Median kisaran gaji resmi yang sudah dipublikasikan (10 instansi SSCASN Live &amp; Kemenhut)">
+      <div class="ticker-metric ticker-metric-desktop" title="Median kisaran gaji resmi yang sudah dipublikasikan (12 instansi SSCASN Live)">
         <span class="ticker-label">Gaji Resmi</span>
         <span id="kpi-median-gaji" class="ticker-value">—</span>
       </div>
@@ -114,8 +114,8 @@
         <span class="ticker-label">Rasio</span>
         <span id="kpi-avg-rasio" class="ticker-value">—</span>
       </div>
-      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut, Kemenkeu) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
-        <span id="kpi-source-badge">13 Instansi Resmi • 2026</span>
+      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (Kemenhut, MA RI, KKP, BPKP, Kejaksaan Agung, BGN, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • KepmenPANRB 675 (Kemenkeu) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
+        <span id="kpi-source-badge">14 Instansi Resmi • 2026</span>
       </a>
     </section>
 
@@ -201,7 +201,7 @@
         <div class="field-group col-span-3">
           <div class="field-label-row">
             <label for="filter-instansi" class="field-label">Instansi Pemerintah</label>
-            <span id="badge-instansi-count" class="field-hint">13 instansi</span>
+            <span id="badge-instansi-count" class="field-hint">14 instansi</span>
           </div>
           <select id="filter-instansi" class="control-select">
             <option value="">Semua Instansi</option>
@@ -211,7 +211,7 @@
         <div class="field-group col-span-3">
           <div class="field-label-row">
             <label for="filter-eselon1" class="field-label">Unit Eselon I / Satuan</label>
-            <span id="badge-eselon1-count" class="field-hint">139 unit</span>
+            <span id="badge-eselon1-count" class="field-hint">506 unit</span>
           </div>
           <select id="filter-eselon1" class="control-select">
             <option value="">Semua Unit Eselon I</option>
@@ -283,7 +283,7 @@
       <!-- Quick Presets + Bookmarks -->
       <div class="workbench-footer">
         <div class="quick-presets-cluster">
-          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (5.919)</button>
+          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (6.471)</button>
           <button type="button" class="preset-chip" data-preset="sma">Lulusan SMA/SMK</button>
           <button type="button" class="preset-chip" data-preset="s1">Lulusan S-1 / D-IV</button>
           <button type="button" class="preset-chip mobile-secondary-presets" data-preset="d3">Lulusan D-III</button>
@@ -462,17 +462,18 @@
 
       <div class="reference-split">
         <div class="reference-col">
-          <h3>Sumber Data Masuk ke Database (5.919 Baris / 87.329 Kursi)</h3>
+          <h3>Sumber Data Masuk ke Database (6.471 Baris / 88.947 Kursi)</h3>
           <p class="prose-measure">
             Seluruh entri diambil langsung dari API resmi SSCASN BKN dan dokumen pengumuman/penetapan resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
           </p>
           <ul class="spec-list">
-            <li><span>Kementerian Kehutanan (Pengumuman PG.2/MENHUT/2026)</span><strong>3.782 baris / 70.000 kursi (KepmenPANRB 639/2026 • 32 jabatan • Gaji Rp 2,18–8,50 jt)</strong></li>
+            <li><span>Kementerian Kehutanan (SSCASN Live + Pengumuman PG.2/MENHUT/2026)</span><strong>3.782 baris / 70.000 kursi (3 jalur • 32 jabatan • Gaji BKN Rp 2,18–8,50 jt • lengkap berkas SSCASN)</strong></li>
             <li><span>Mahkamah Agung RI (SSCASN Live + Pengumuman 34/SEK/2026)</span><strong>22 baris / 4.430 kursi (3 jalur • Gaji BKN Rp 2,5–10,9 jt)</strong></li>
             <li><span>Kementerian Kelautan dan Perikanan (SSCASN Live + Pengumuman B.1389/SJ/KP.310/XI/2026)</span><strong>606 baris / 2.132 kursi (3 jalur • Gaji BKN Rp 5,0–8,8 jt • lengkap syarat &amp; bobot SKB)</strong></li>
             <li><span>BPKP (SSCASN Live + Pengumuman KP.00.01/PENG-2/SU/02/2026)</span><strong>27 baris / 2.007 kursi (Umum &amp; Disabilitas • Gaji BKN Rp 7,7–11,5 jt)</strong></li>
             <li><span>Kementerian Keuangan (KepmenPANRB 675/2026)</span><strong>374 baris / 1.915 kursi (19 Nov 2026 • lengkap 35 hal. lampiran)</strong></li>
             <li><span>Kejaksaan Agung (SSCASN Live • Kejaksaan RI)</span><strong>30 baris / 1.660 kursi lengkap nasional (4 jalur • Gaji BKN Rp 7,0–11,2 jt)</strong></li>
+            <li><span>Badan Gizi Nasional / BGN (SSCASN Live)</span><strong>552 baris / 1.618 kursi (4 jalur • KPPG Kelas II &amp; Pusat • Gaji BKN Rp 6,36–8,73 jt)</strong></li>
             <li><span>Kementerian Hukum (SSCASN Live + Pengumuman SEK.2-KP.02.01-326)</span><strong>53 baris / 1.297 kursi (4 jalur • Gaji BKN Rp 5,3–9,8 jt)</strong></li>
             <li><span>Kementerian Hak Asasi Manusia (SSCASN Live + Pengumuman SEK-1143/2026)</span><strong>16 baris / 1.000 kursi (4 jalur • Gaji BKN Rp 5,3–9,4 jt • lengkap berkas SSCASN)</strong></li>
             <li><span>Kementerian Koperasi (SSCASN Live)</span><strong>274 baris / 986 kursi (4 jalur • Gaji BKN Rp 5,0–8,3 jt)</strong></li>
@@ -490,10 +491,10 @@
             Setiap sumber diaudit silang SHA-256 dan kunci natural; field yang belum ada pada sumber tetap dibiarkan <span class="inline-code">NULL</span> (<span class="inline-code">—</span>).
           </p>
           <ul class="spec-list">
-            <li><span><span class="inline-code">MA</span>, <span class="inline-code">BPKP</span>, <span class="inline-code">Kemenkum</span>, <span class="inline-code">Kemenham</span>, <span class="inline-code">Kemenkop</span>, <span class="inline-code">BPK</span>, <span class="inline-code">Polri</span>, <span class="inline-code">BSSN</span>, <span class="inline-code">Kejagung</span> (PDF pra-rilis)</span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
+            <li><span><span class="inline-code">Kemenhut</span>, <span class="inline-code">MA</span>, <span class="inline-code">BPKP</span>, <span class="inline-code">Kemenkum</span>, <span class="inline-code">Kemenham</span>, <span class="inline-code">Kemenkop</span>, <span class="inline-code">BPK</span>, <span class="inline-code">Polri</span>, <span class="inline-code">BSSN</span>, <span class="inline-code">Kejagung</span> (PDF pra-rilis)</span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
             <li><span><span class="inline-code">Mekanisme CPNS &amp; Passing Grade.pdf</span> (KepmenPANRB 674/2026)</span><strong>Acuan Ambang Batas SKD 2026 (Umum 65/80/166; Cum Laude 311; Disabilitas 286)</strong></li>
             <li><span>Kuota Kementerian Kesehatan (<span class="inline-code">SE HK.02.02</span>)</span><strong>Dikosongkan (<span class="inline-code">—</span>) sesuai sumber karena hanya mengatur syarat prodi &amp; STR</strong></li>
-            <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada 10 instansi SSCASN Live (MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) &amp; Kemenhut; <span class="inline-code">—</span> di Kemenkeu &amp; Kemenkes</strong></li>
+            <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada 12 instansi SSCASN Live (Kemenhut, MA RI, KKP, BPKP, Kejaksaan Agung, BGN, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN); <span class="inline-code">—</span> di Kemenkeu &amp; Kemenkes</strong></li>
             <li><span>Pelamar, Rasio &amp; Data Nilai Minimal/Median 2024</span><strong>Pelamar 2026 <span class="inline-code">NULL</span> (<span class="inline-code">—</span>); data nilai SKD–SKB 2024 bersumber dari pengumuman resmi instansi</strong></li>
           </ul>
         </div>
@@ -508,7 +509,7 @@
         </div>
         <ul class="disclaimer-list">
           <li>Jika instansi yang sama nantinya merilis rincian resmi di portal live <strong>SSCASN BKN</strong> (<span class="inline-code">api-rekrutmen.bkn.go.id/portal/api/spf</span>), data SSCASN otomatis menggantikan catatan pra-rilis tanpa menduplikasi baris.</li>
-          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 34/2023 BPKP, No. 8/2020 MA RI, No. 121/2017 Kemenhut, No. 136/2017 KKP, No. 130/2017 Kemenkum &amp; Kemenham, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, No. 109/2016 Kemenkes, serta acuan standar Kemenkop &amp; Polri), terpisah dari kolom <strong>Gaji Resmi</strong> pengumuman/SSCASN.</li>
+          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 34/2023 BPKP, No. 8/2020 MA RI, No. 121/2017 Kemenhut, No. 136/2017 KKP, No. 130/2017 Kemenkum &amp; Kemenham, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, No. 109/2016 Kemenkes, serta acuan standar BGN, Kemenkop &amp; Polri), terpisah dari kolom <strong>Gaji Resmi</strong> pengumuman/SSCASN.</li>
         </ul>
       </div>
     </section>
@@ -786,6 +787,6 @@
     <span id="toast-message"></span>
   </div>
 
-  <script src="/static/js/cpns2026.js?v=20261128f"></script>
+  <script src="/static/js/cpns2026.js?v=20261128g"></script>
 </body>
 </html>

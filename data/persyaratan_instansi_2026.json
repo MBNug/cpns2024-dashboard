@@ -430,6 +430,43 @@
     "tahapan_skb": "SKB CAT BKN (50%) + SKB Tambahan (50%): (1) Non-Awak Kapal S-2/S-1/D-IV/Profesi: Tes Potensi & Kepribadian Karakter 10% + SJT 20% + Tes IQ 20% (daring 2 perangkat); (2) Non-Awak Kapal D-III/SMA/SMK: Tes Potensi & Kepribadian Karakter 20% + SJT 30% (daring); (3) Awak Kapal Negara: Tes Potensi & Kepribadian Karakter 20% + Pengamatan Fisik & Kesamaptaan 30% (luring di UPT KKP). Afirmasi +10% nilai maks. SKB CAT bagi peserta KDKMP/KNMP dengan nilai TPK >= 120.",
     "catatan_penting": "Rincian formasi & dokumen unggah per jabatan bersumber langsung dari SSCASN Live (606 baris / 2.132 kursi) dan Pengumuman Sekjen KKP No. B.1389/SJ/KP.310/XI/2026 (27 Nov 2026). Layanan informasi resmi: https://sdmao.kkp.go.id/, WA 0851-5889-8203, Telegram @layanan_ai_kkp_bot."
   },
+  "BGN": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "SSCASN BKN Resmi TA 2026 — Badan Gizi Nasional (28 Nov 2026; menunggu PDF Pengumuman BGN untuk rincian IPK & bobot SKB tambahan)",
+    "portal_resmi": "https://www.bgn.go.id/",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB", "tanggal": "30 Mar – 12 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat mendaftar di SSCASN",
+    "ipk_minimal": null,
+    "akreditasi": "Perguruan tinggi dan/atau program studi terakreditasi BAN-PT/LAM pada saat kelulusan (khusus jalur Lulusan Terbaik wajib bukti predikat Cum Laude + akreditasi PT & Prodi A/Unggul).",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": null,
+    "ikatan_dinas": null,
+    "berkas_wajib": [
+      "Scan berwarna Surat Lamaran dan Pernyataan yang dihasilkan & diunduh dari SSCASN (ditandatangani & bermeterai/e-meterai Rp10.000)",
+      "Scan berwarna Transkrip Nilai Asli (bukan hasil legalisir) memuat IPK + bukti akreditasi PT/Prodi (lulusan LN sertakan penyetaraan ijazah & konversi IPK)",
+      "Surat Pernyataan Kesediaan Penempatan di seluruh unit kerja KPPG / Pusat Badan Gizi Nasional"
+    ],
+    "berkas_khusus_jalur": {
+      "LULUSAN TERBAIK": [
+        "Bukti predikat lulusan terbaik (Cum Laude) dan bukti akreditasi perguruan tinggi serta program studi pada saat kelulusan"
+      ],
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan dokter RS Pemerintah/Puskesmas yang menerangkan jenis dan derajat kedisabilitasan",
+        "Tautan video singkat kegiatan sehari-hari dalam menjalankan aktivitas sesuai jabatan yang dilamar"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Scan berwarna Akta Kelahiran atau Surat Keterangan Lahir",
+        "Scan berwarna Surat Keterangan dari Kepala Desa/Kepala Suku yang menyatakan Pelamar asli Papua"
+      ]
+    },
+    "tahapan_skb": null,
+    "catatan_penting": "Persyaratan usia, uraian tugas, dan daftar berkas unggah per formasi (552 baris / 1.618 kursi pada 4 jalur: Umum, Disabilitas, Lulusan Terbaik, Putra/Putri Papua) diambil langsung dari portal live SSCASN BKN 2026. Rincian ambang IPK dan bobot SKB tambahan akan dilengkapi segera setelah PDF Pengumuman resmi Badan Gizi Nasional terbit."
+  },
   "KEMENKEU": {
     "status_pengumuman": "menunggu_pengumuman",
     "nomor_pengumuman": "Baru terbit KepmenPANRB No. 675 Tahun 2026 (Penetapan Kebutuhan 1.915 kursi)",

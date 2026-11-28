@@ -1,8 +1,8 @@
 """FastAPI router and read-only SQLite layer for CPNS 2026 verified decrees & live SSCASN data.
 
-Sources currently ingested (13 agencies):
-- SSCASN BKN Live (10 agencies): MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN
-- Official PDFs (2 agencies): Kementerian Kehutanan (PG.2/2026), Kementerian Keuangan (KepmenPANRB 675/2026)
+Sources currently ingested (14 agencies):
+- SSCASN BKN Live (12 agencies): Kemenhut, MA RI, KKP, BPKP, Kejaksaan Agung, BGN, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN
+- Official PDF (1 agency): Kementerian Keuangan (KepmenPANRB 675/2026)
 - Official SE STR (1 agency): Kementerian Kesehatan (SE HK.02.02/F/4023/2026, quota NULL)
 
 Strictly enforces the no-hallucination rule: fields absent from published 2026 decrees
@@ -529,7 +529,7 @@ def get_stats_2026(response: Response) -> dict[str, Any]:
             "has_jenis_formasi": has_jenis,
             "instansi_summary": instansi_summary,
             "drive_audit": drive_audit,
-            "sumber_dokumen": "SSCASN Live (MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut PG.2/2026) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
+            "sumber_dokumen": "SSCASN Live (Kemenhut, MA RI, KKP, BPKP, Kejaksaan Agung, BGN, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
         }
         with _cache_2026_lock:
             _stats_cache_2026 = payload
@@ -791,6 +791,7 @@ _DEFAULT_ORDER_SQL = (
     "WHEN 'POLRI' THEN 11 "
     "WHEN 'KEMENHUT' THEN 12 "
     "WHEN 'KKP' THEN 13 "
+    "WHEN 'BGN' THEN 14 "
     "ELSE 99 END ASC, f.instansi_id ASC, f.no_urut ASC, f.formasi_id ASC"
 )
 
