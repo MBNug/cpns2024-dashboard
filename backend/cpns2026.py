@@ -221,10 +221,83 @@ _BANDING_2024_SQL = """
 """
 
 
-def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
+def _build_persyaratan_daftar(row_dict: dict[str, Any]) -> dict[str, Any]:
+    raw_inst = row_dict.pop("pers_ringkasan_json", None)
+    inst_data: dict[str, Any] = {}
+    if raw_inst:
+        try:
+            inst_data = json.loads(raw_inst)
+        except Exception:
+            inst_data = {}
+
+    raw_formasi_pers = row_dict.pop("persyaratan_json", None)
+    berkas_sscasn: list[dict[str, Any]] = []
+    if raw_formasi_pers:
+        try:
+            parsed = json.loads(raw_formasi_pers)
+            if isinstance(parsed, list):
+                berkas_sscasn = parsed
+        except Exception:
+            berkas_sscasn = []
+
+    jf_raw = (row_dict.get("jenis_formasi") or "").strip().upper()
+    khusus_map = inst_data.get("berkas_khusus_jalur") or {}
+    berkas_jalur: list[str] = []
+    if jf_raw and isinstance(khusus_map, dict):
+        if jf_raw in khusus_map:
+            berkas_jalur = list(khusus_map[jf_raw] or [])
+        else:
+            for k, v in khusus_map.items():
+                ku = str(k).upper()
+                if ("DISABILITAS" in jf_raw and "DISABILITAS" in ku) or (
+                    "PAPUA" in jf_raw and "PAPUA" in ku
+                ) or (
+                    ("TERBAIK" in jf_raw or "CUMLAUDE" in jf_raw or "CUM LAUDE" in jf_raw)
+                    and ("TERBAIK" in ku or "CUMLAUDE" in ku)
+                ):
+                    berkas_jalur = list(v or [])
+                    break
+
+    usia_min = row_dict.get("usia_min")
+    usia_max = row_dict.get("usia_max")
+    usia_formasi = f"{usia_min} – {usia_max} tahun" if (usia_min and usia_max) else None
+
+    return {
+        "status_pengumuman": inst_data.get("status_pengumuman") or "menunggu_pengumuman",
+        "nomor_pengumuman": inst_data.get("nomor_pengumuman"),
+        "portal_resmi": inst_data.get("portal_resmi"),
+        "portal_sscasn": "https://sscasn.bkn.go.id",
+        "jadwal_pendaftaran": inst_data.get("jadwal_pendaftaran"),
+        "jadwal_ringkas": inst_data.get("jadwal_ringkas") or [],
+        "usia_min": usia_min,
+        "usia_max": usia_max,
+        "usia_formasi": usia_formasi,
+        "usia_ringkas": inst_data.get("usia_ringkas"),
+        "ipk_minimal": inst_data.get("ipk_minimal"),
+        "akreditasi": inst_data.get("akreditasi"),
+        "syarat_bahasa": inst_data.get("syarat_bahasa"),
+        "syarat_fisik_khusus": inst_data.get("syarat_fisik_khusus"),
+        "ikatan_dinas": inst_data.get("ikatan_dinas"),
+        "tahapan_skb": inst_data.get("tahapan_skb"),
+        "catatan_penting": inst_data.get("catatan_penting"),
+        "jobdesc": row_dict.get("jobdesc"),
+        "berkas_formasi_sscasn": berkas_sscasn,
+        "berkas_wajib_instansi": list(inst_data.get("berkas_wajib") or []),
+        "berkas_khusus_jalur": berkas_jalur,
+        "jalur_aktif": row_dict.get("jenis_formasi"),
+    }
+
+
+def _row_to_dict(row: sqlite3.Row, *, include_detail: bool = False) -> dict[str, Any]:
     d = dict(row)
     d["jurusan_list"] = [m.strip() for m in (d.get("pendidikan_nm") or "").split(" | ") if m.strip()]
     d.update(_resolve_golongan(d.get("jenjang", "")))
+    if include_detail:
+        d["persyaratan_daftar"] = _build_persyaratan_daftar(d)
+    else:
+        d.pop("persyaratan_json", None)
+        d.pop("jobdesc", None)
+        d.pop("pers_ringkasan_json", None)
     return d
 
 
@@ -643,9 +716,11 @@ def get_formasi_detail_2026(formasi_id: str) -> dict[str, Any]:
                 i.tukin_min,
                 i.tukin_max,
                 i.tukin_sumber,
+                p.ringkasan_json AS pers_ringkasan_json,
                 {_BANDING_2024_SQL.strip()}
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
+            LEFT JOIN persyaratan_instansi p ON p.instansi_id = f.instansi_id
             LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE f.formasi_id = ?
             """,
@@ -653,7 +728,7 @@ def get_formasi_detail_2026(formasi_id: str) -> dict[str, Any]:
         ).fetchone()
         if not row:
             raise HTTPException(status_code=404, detail=f"Formasi {formasi_id} tidak ditemukan.")
-        return _row_to_dict(row)
+        return _row_to_dict(row, include_detail=True)
     finally:
         conn.close()
 

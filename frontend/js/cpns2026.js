@@ -8,6 +8,7 @@
 
   const API_BASE = '/api/2026';
   const BOOKMARK_STORAGE_KEY = 'cpns2026_bookmarks_v1';
+  const CHECKLIST_STORAGE_KEY = 'cpns2026_checklist_v1';
   const THEME_STORAGE_KEY = 'cpns2024_theme';
   const MAX_BOOKMARKS = 4;
 
@@ -1023,6 +1024,315 @@
     }
   }
 
+  function loadChecklistMap() {
+    try {
+      const raw = localStorage.getItem(CHECKLIST_STORAGE_KEY);
+      const obj = raw ? JSON.parse(raw) : {};
+      return obj && typeof obj === 'object' ? obj : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveChecklistMap(map) {
+    try {
+      localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(map));
+    } catch (e) {}
+  }
+
+  function getFormasiChecklist(formasiId) {
+    const all = loadChecklistMap();
+    const cur = all[formasiId];
+    return cur && typeof cur === 'object' ? cur : {};
+  }
+
+  function setFormasiChecklistItem(formasiId, key, checked) {
+    const all = loadChecklistMap();
+    if (!all[formasiId] || typeof all[formasiId] !== 'object') {
+      all[formasiId] = {};
+    }
+    if (checked) {
+      all[formasiId][key] = true;
+    } else {
+      delete all[formasiId][key];
+    }
+    saveChecklistMap(all);
+  }
+
+  function clearFormasiChecklist(formasiId) {
+    const all = loadChecklistMap();
+    delete all[formasiId];
+    saveChecklistMap(all);
+  }
+
+  function updateChecklistProgress(formasiId) {
+    const body = $('detail-req-checklist-body');
+    const prog = $('detail-req-progress');
+    if (!body || !prog) return;
+    const boxes = Array.from(body.querySelectorAll('input[type="checkbox"][data-check-key]'));
+    const total = boxes.length;
+    const done = boxes.filter((b) => b.checked).length;
+    prog.textContent = done + ' / ' + total + ' siap';
+    prog.className = 'badge ' + (total > 0 && done === total ? 'badge-loose' : 'badge-accent');
+  }
+
+  function renderRequirementsPanel(item) {
+    const panel = $('detail-req-panel');
+    if (!panel) return;
+    const p = item && item.persyaratan_daftar ? item.persyaratan_daftar : null;
+    if (!p) {
+      panel.classList.add('hidden');
+      return;
+    }
+    panel.classList.remove('hidden');
+
+    const isComplete = p.status_pengumuman === 'lengkap';
+    const badge = $('detail-req-status-badge');
+    if (badge) {
+      badge.className = 'badge ' + (isComplete ? 'badge-loose' : 'badge-mod');
+      badge.textContent = isComplete ? 'Pengumuman Lengkap 2026' : 'Menunggu Pengumuman Resmi';
+    }
+    if ($('detail-req-nomor')) {
+      $('detail-req-nomor').textContent = p.nomor_pengumuman || '—';
+    }
+
+    const linksEl = $('detail-req-links');
+    if (linksEl) {
+      const links = [];
+      if (p.portal_resmi) {
+        links.push(
+          '<a href="' +
+            escapeHtml(p.portal_resmi) +
+            '" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Portal Instansi ↗</a>'
+        );
+      }
+      if (p.portal_sscasn) {
+        links.push(
+          '<a href="' +
+            escapeHtml(p.portal_sscasn) +
+            '" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Daftar SSCASN ↗</a>'
+        );
+      }
+      linksEl.innerHTML = links.join('');
+    }
+
+    const pendingEl = $('detail-req-pending-notice');
+    if (pendingEl) {
+      if (!isComplete) {
+        pendingEl.classList.remove('hidden');
+        pendingEl.textContent =
+          p.catatan_penting ||
+          'Pengumuman pendaftaran resmi CPNS 2026 untuk instansi ini belum diterbitkan. Syarat usia, IPK, dan daftar berkas tidak ditebak dan akan diperbarui otomatis setelah pengumuman resmi terbit.';
+      } else {
+        pendingEl.classList.add('hidden');
+        pendingEl.textContent = '';
+      }
+    }
+
+    const schedEl = $('detail-req-schedule-strip');
+    if (schedEl) {
+      const sched = Array.isArray(p.jadwal_ringkas) ? p.jadwal_ringkas : [];
+      if (sched.length) {
+        schedEl.classList.remove('hidden');
+        schedEl.innerHTML = sched
+          .map(
+            (s) =>
+              '<div class="req-schedule-pill">' +
+              '<span class="req-schedule-pill-stage">' +
+              escapeHtml(s.tahap) +
+              '</span>' +
+              '<span class="req-schedule-pill-date">' +
+              escapeHtml(s.tanggal) +
+              '</span></div>'
+          )
+          .join('');
+      } else {
+        schedEl.classList.add('hidden');
+        schedEl.innerHTML = '';
+      }
+    }
+
+    const rulesEl = $('detail-req-rules-grid');
+    if (rulesEl) {
+      const cards = [];
+      if (p.usia_formasi || p.usia_ringkas) {
+        const val = p.usia_formasi ? p.usia_formasi + ' (formasi ini)' : p.usia_ringkas;
+        const sub = p.usia_formasi && p.usia_ringkas ? 'Ketentuan instansi: ' + p.usia_ringkas : '';
+        cards.push({ label: 'Batas Usia Pelamar', val, sub, full: false });
+      }
+      if (p.ipk_minimal || p.akreditasi) {
+        cards.push({
+          label: 'IPK / Nilai & Akreditasi',
+          val: p.ipk_minimal || '—',
+          sub: p.akreditasi || '',
+          full: false,
+        });
+      }
+      if (p.syarat_bahasa) {
+        cards.push({ label: 'Syarat Bahasa Inggris', val: p.syarat_bahasa, sub: '', full: false });
+      }
+      if (p.syarat_fisik_khusus) {
+        cards.push({
+          label: 'Syarat Fisik & Kondisi Khusus',
+          val: p.syarat_fisik_khusus,
+          sub: '',
+          full: !p.syarat_bahasa,
+        });
+      }
+      if (p.tahapan_skb) {
+        cards.push({
+          label: 'Tahapan & Bobot SKB',
+          val: p.tahapan_skb,
+          sub: p.ikatan_dinas ? 'Ikatan Dinas / Mutasi: ' + p.ikatan_dinas : '',
+          full: true,
+        });
+      } else if (p.ikatan_dinas) {
+        cards.push({ label: 'Ikatan Dinas & Mutasi', val: p.ikatan_dinas, sub: '', full: true });
+      }
+
+      if (cards.length) {
+        rulesEl.classList.remove('hidden');
+        rulesEl.innerHTML = cards
+          .map(
+            (c) =>
+              '<div class="req-rule-card' +
+              (c.full ? ' is-full' : '') +
+              '">' +
+              '<div class="req-rule-label">' +
+              escapeHtml(c.label) +
+              '</div>' +
+              '<div class="req-rule-val">' +
+              escapeHtml(c.val) +
+              '</div>' +
+              (c.sub ? '<div class="req-rule-sub">' + escapeHtml(c.sub) + '</div>' : '') +
+              '</div>'
+          )
+          .join('');
+      } else {
+        rulesEl.classList.add('hidden');
+        rulesEl.innerHTML = '';
+      }
+    }
+
+    const jdWrap = $('detail-req-jobdesc-wrap');
+    const jdText = $('detail-req-jobdesc-text');
+    if (jdWrap && jdText) {
+      if (p.jobdesc) {
+        jdWrap.classList.remove('hidden');
+        jdWrap.open = false;
+        jdText.textContent = p.jobdesc;
+      } else {
+        jdWrap.classList.add('hidden');
+        jdText.textContent = '';
+      }
+    }
+
+    const clWrap = $('detail-req-checklist-wrap');
+    const clBody = $('detail-req-checklist-body');
+    if (clWrap && clBody) {
+      const savedMap = getFormasiChecklist(item.formasi_id);
+      const groups = [];
+      const sscasnDocs = Array.isArray(p.berkas_formasi_sscasn) ? p.berkas_formasi_sscasn : [];
+      if (sscasnDocs.length) {
+        groups.push({
+          title: 'Dokumen Unggah Resmi di Portal SSCASN (Khusus Formasi Ini)',
+          special: false,
+          items: sscasnDocs.map((d, idx) => ({
+            key: 'sscasn_' + idx,
+            text: d.nama,
+            tag: d.wajib ? 'Wajib' : 'Opsional',
+            isWajib: !!d.wajib,
+          })),
+        });
+      }
+      const jalurDocs = Array.isArray(p.berkas_khusus_jalur) ? p.berkas_khusus_jalur : [];
+      if (jalurDocs.length) {
+        groups.push({
+          title: 'Berkas Tambahan Jalur ' + (p.jalur_aktif || 'Khusus'),
+          special: true,
+          items: jalurDocs.map((txt, idx) => ({
+            key: 'jalur_' + idx,
+            text: txt,
+            tag: 'Jalur Khusus',
+            isWajib: true,
+          })),
+        });
+      }
+      const instDocs = Array.isArray(p.berkas_wajib_instansi) ? p.berkas_wajib_instansi : [];
+      if (instDocs.length) {
+        groups.push({
+          title: sscasnDocs.length
+            ? 'Ringkasan Kelengkapan Pengumuman Instansi (Panduan PDF)'
+            : 'Berkas Persyaratan Resmi Pengumuman Instansi',
+          special: false,
+          items: instDocs.map((txt, idx) => ({
+            key: 'inst_' + idx,
+            text: txt,
+            tag: '',
+            isWajib: true,
+          })),
+        });
+      }
+
+      if (groups.length) {
+        clWrap.classList.remove('hidden');
+        clBody.innerHTML = groups
+          .map((g) => {
+            const listHtml = g.items
+              .map((it) => {
+                const isChecked = !!savedMap[it.key];
+                const tagHtml = it.tag
+                  ? '<span class="req-check-tag ' +
+                    (it.isWajib ? 'is-wajib' : 'is-opsional') +
+                    '">' +
+                    escapeHtml(it.tag) +
+                    '</span>'
+                  : '';
+                return (
+                  '<label class="req-check-item' +
+                  (g.special ? ' is-special' : '') +
+                  (isChecked ? ' is-checked' : '') +
+                  '">' +
+                  '<input type="checkbox" class="req-check-box" data-check-key="' +
+                  escapeHtml(it.key) +
+                  '"' +
+                  (isChecked ? ' checked' : '') +
+                  ' />' +
+                  '<span class="req-check-text">' +
+                  tagHtml +
+                  escapeHtml(it.text) +
+                  '</span></label>'
+                );
+              })
+              .join('');
+            return (
+              '<div><div class="req-group-title">' +
+              escapeHtml(g.title) +
+              '</div><div class="req-check-list">' +
+              listHtml +
+              '</div></div>'
+            );
+          })
+          .join('');
+        updateChecklistProgress(item.formasi_id);
+      } else {
+        clWrap.classList.add('hidden');
+        clBody.innerHTML = '';
+      }
+    }
+
+    const catEl = $('detail-req-catatan');
+    if (catEl) {
+      if (isComplete && p.catatan_penting) {
+        catEl.classList.remove('hidden');
+        catEl.textContent = 'Catatan resmi: ' + p.catatan_penting;
+      } else {
+        catEl.classList.add('hidden');
+        catEl.textContent = '';
+      }
+    }
+  }
+
   function recalculateSimulation() {
     const item = state.activeDetail;
     if (!item) return;
@@ -1192,6 +1502,7 @@
         )
         .join('');
 
+      renderRequirementsPanel(item);
       updateDetailBookmarkBtn();
       recalculateSimulation();
     } catch (e) {
@@ -1598,6 +1909,35 @@
 
     $('btn-close-detail').addEventListener('click', () => closeModal('modal-detail'));
     $('btn-detail-close-footer').addEventListener('click', () => closeModal('modal-detail'));
+
+    if ($('detail-req-checklist-body')) {
+      $('detail-req-checklist-body').addEventListener('change', (e) => {
+        const cb = e.target.closest('input[type="checkbox"][data-check-key]');
+        if (!cb || !state.activeDetail) return;
+        const key = cb.getAttribute('data-check-key');
+        setFormasiChecklistItem(state.activeDetail.formasi_id, key, cb.checked);
+        const label = cb.closest('.req-check-item');
+        if (label) label.classList.toggle('is-checked', cb.checked);
+        updateChecklistProgress(state.activeDetail.formasi_id);
+      });
+    }
+
+    if ($('btn-reset-checklist')) {
+      $('btn-reset-checklist').addEventListener('click', () => {
+        if (!state.activeDetail) return;
+        clearFormasiChecklist(state.activeDetail.formasi_id);
+        const body = $('detail-req-checklist-body');
+        if (body) {
+          body.querySelectorAll('input[type="checkbox"][data-check-key]').forEach((cb) => {
+            cb.checked = false;
+            const lbl = cb.closest('.req-check-item');
+            if (lbl) lbl.classList.remove('is-checked');
+          });
+        }
+        updateChecklistProgress(state.activeDetail.formasi_id);
+        showToast('Checklist berkas untuk formasi ini direset.', 'warn');
+      });
+    }
     $('btn-detail-bookmark').addEventListener('click', () => {
       if (state.activeDetail) toggleBookmark(state.activeDetail.formasi_id);
     });

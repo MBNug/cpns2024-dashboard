@@ -6,7 +6,7 @@
   <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (12 Instansi Terverifikasi)</title>
   <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, Polri, BSSN) serta pengumuman resmi Kemenhut (70.000 kursi), Kemenkeu, Kemenham, dan acuan STR Kemenkes (5.312 baris, 85.197 kursi teralokasi)." />
   <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
-  <link rel="stylesheet" href="/static/css/app.css?v=20261127h" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261128a" />
   <script>
     (function () {
       try {
@@ -661,6 +661,47 @@
           <div id="detail-majors-cloud" class="majors-pill-cloud"></div>
         </div>
 
+        <!-- Official Registration Requirements & Interactive Document Checklist -->
+        <section id="detail-req-panel" class="req-panel" aria-label="Syarat dan Checklist Berkas Pendaftaran Resmi">
+          <div class="req-panel-header">
+            <div style="min-width: 0;">
+              <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+                <h3 style="font-size: 0.925rem; font-weight: 700; margin: 0;">Syarat &amp; Checklist Berkas Pendaftaran Resmi</h3>
+                <span id="detail-req-status-badge" class="badge badge-neutral">—</span>
+              </div>
+              <p id="detail-req-nomor" class="muted-note" style="font-size: 0.75rem; margin: 4px 0 0;">—</p>
+            </div>
+            <div id="detail-req-links" class="req-links-row"></div>
+          </div>
+
+          <div id="detail-req-pending-notice" class="req-pending-box hidden"></div>
+
+          <div id="detail-req-schedule-strip" class="req-schedule-strip hidden"></div>
+
+          <div id="detail-req-rules-grid" class="req-rules-grid hidden"></div>
+
+          <details id="detail-req-jobdesc-wrap" class="req-jobdesc-box hidden">
+            <summary class="req-jobdesc-summary">Uraian Tugas Jabatan (Resmi SSCASN)</summary>
+            <p id="detail-req-jobdesc-text" class="req-jobdesc-text"></p>
+          </details>
+
+          <div id="detail-req-checklist-wrap" class="req-checklist-wrap hidden">
+            <div class="req-checklist-head">
+              <div>
+                <div style="font-size: 0.8125rem; font-weight: 700; color: var(--color-text-primary);">Checklist Persiapan Berkas Pendaftaran</div>
+                <div style="font-size: 0.72rem; color: var(--color-text-muted);">Centang berkas yang sudah siap — progres tersimpan otomatis di browser Anda.</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span id="detail-req-progress" class="badge badge-accent">0 / 0 siap</span>
+                <button type="button" id="btn-reset-checklist" class="btn btn-ghost btn-sm" style="padding: 3px 8px; font-size: 0.72rem;">Reset</button>
+              </div>
+            </div>
+            <div id="detail-req-checklist-body" class="req-checklist-groups"></div>
+          </div>
+
+          <p id="detail-req-catatan" class="req-catatan-note hidden"></p>
+        </section>
+
         <!-- Statutory THP Simulator (Explicitly Labeled as Regulation Reference Only) -->
         <div class="thp-workbench">
           <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px;">
@@ -744,6 +785,6 @@
     <span id="toast-message"></span>
   </div>
 
-  <script src="/static/js/cpns2026.js?v=20261127h"></script>
+  <script src="/static/js/cpns2026.js?v=20261128a"></script>
 </body>
 </html>

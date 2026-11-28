@@ -520,6 +520,53 @@ class Cpns2026DashboardTests(unittest.TestCase):
         other_fid = r_unpub["items"][0]["formasi_id"]
         self.assertIsNone(self.client.get(f"/api/formasi/{other_fid}").json().get("nilai_2024"))
 
+    def test_persyaratan_pendaftaran_resmi_2026(self) -> None:
+        # HTML detail modal must expose the requirements & interactive checklist containers
+        r_root = self.client.get("/")
+        self.assertEqual(r_root.status_code, 200)
+        self.assertIn("detail-req-panel", r_root.text)
+        self.assertIn("detail-req-checklist-wrap", r_root.text)
+
+        # List endpoint must stay lightweight (no raw persyaratan_json / persyaratan_daftar blob)
+        r_list = self.client.get("/api/2026/formasi", params={"limit": 3}).json()
+        for row in r_list["items"]:
+            self.assertNotIn("persyaratan_json", row)
+            self.assertNotIn("persyaratan_daftar", row)
+
+        # SSCASN Live agency (Kejaksaan Agung Apoteker): complete rules + sanitized SSCASN docs + jobdesc
+        r_kej = self.client.get("/api/2026/formasi/64d932f9-724e-453b-a1a1-4db7a5135848")
+        self.assertEqual(r_kej.status_code, 200)
+        pk = r_kej.json().get("persyaratan_daftar")
+        self.assertIsNotNone(pk)
+        self.assertEqual(pk["status_pengumuman"], "lengkap")
+        self.assertEqual(pk["usia_min"], 18)
+        self.assertEqual(pk["usia_max"], 35)
+        self.assertTrue(pk["jobdesc"])
+        self.assertGreaterEqual(len(pk["berkas_formasi_sscasn"]), 3)
+        self.assertTrue(all("<b>" not in d["nama"] and "</b>" not in d["nama"] for d in pk["berkas_formasi_sscasn"]))
+        self.assertIn("rekrutmen.kejaksaan.go.id", pk["portal_resmi"])
+        self.assertIn("TOEFL", pk["syarat_bahasa"])
+
+        # PDF-sourced agency (Kemenhut): complete rules + verified 18-35 age + official portal
+        r_hut_list = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Kehutanan", "limit": 1}).json()
+        hut_fid = r_hut_list["items"][0]["formasi_id"]
+        ph = self.client.get(f"/api/2026/formasi/{hut_fid}").json().get("persyaratan_daftar")
+        self.assertEqual(ph["status_pengumuman"], "lengkap")
+        self.assertEqual(ph["usia_min"], 18)
+        self.assertEqual(ph["usia_max"], 35)
+        self.assertGreaterEqual(len(ph["berkas_wajib_instansi"]), 3)
+        self.assertIn("kehutanan.go.id", ph["portal_resmi"])
+
+        # Zero-hallucination pending agencies (Kemenkeu & Kemenkes): no fabricated IPK/age/dates
+        for fid in ("2026-KEMENKEU-001", "2026-KEMENKES-01-KEAH-TIDAK"):
+            pp = self.client.get(f"/api/2026/formasi/{fid}").json().get("persyaratan_daftar")
+            self.assertEqual(pp["status_pengumuman"], "menunggu_pengumuman")
+            self.assertIsNone(pp["usia_min"])
+            self.assertIsNone(pp["usia_max"])
+            self.assertIsNone(pp["ipk_minimal"])
+            self.assertIsNone(pp["jadwal_pendaftaran"])
+            self.assertEqual(pp["jadwal_ringkas"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

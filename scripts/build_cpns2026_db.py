@@ -36,6 +36,7 @@ CSV_PATH = DATA_DIR / "raw_cpns_2026.csv"
 VERIFIED_JSON_PATH = DATA_DIR / "kemenkeu_2026_verified.json"
 ALL_VERIFIED_JSON_PATH = DATA_DIR / "cpns_2026_verified.json"
 AUDIT_JSON_PATH = DATA_DIR / "drive_audit_2026.json"
+PERSYARATAN_JSON_PATH = DATA_DIR / "persyaratan_instansi_2026.json"
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -653,9 +654,23 @@ def main():
             status_keketatan TEXT,
             gaji_min INTEGER,
             gaji_max INTEGER,
+            usia_min INTEGER,
+            usia_max INTEGER,
+            jobdesc TEXT,
+            persyaratan_json TEXT,
             pendidikan_nm TEXT NOT NULL,
             jenjang TEXT NOT NULL,
             sumber_dokumen TEXT NOT NULL,
+            FOREIGN KEY (instansi_id) REFERENCES instansi(instansi_id)
+        );
+
+        CREATE TABLE persyaratan_instansi (
+            instansi_id TEXT PRIMARY KEY,
+            status_pengumuman TEXT NOT NULL,
+            nomor_pengumuman TEXT,
+            portal_resmi TEXT,
+            jadwal_pendaftaran TEXT,
+            ringkasan_json TEXT NOT NULL,
             FOREIGN KEY (instansi_id) REFERENCES instansi(instansi_id)
         );
 
@@ -731,6 +746,28 @@ def main():
         instansi_rows,
     )
 
+    if PERSYARATAN_JSON_PATH.exists():
+        pers_map = json.loads(PERSYARATAN_JSON_PATH.read_text(encoding="utf-8"))
+        for iid, pdata in pers_map.items():
+            if iid not in known_instansi_ids:
+                continue
+            cur.execute(
+                """
+                INSERT INTO persyaratan_instansi (
+                    instansi_id, status_pengumuman, nomor_pengumuman,
+                    portal_resmi, jadwal_pendaftaran, ringkasan_json
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    iid,
+                    pdata.get("status_pengumuman") or "menunggu_pengumuman",
+                    pdata.get("nomor_pengumuman"),
+                    pdata.get("portal_resmi"),
+                    pdata.get("jadwal_pendaftaran"),
+                    json.dumps(pdata, ensure_ascii=False),
+                ),
+            )
+
     # Collapse case-insensitive major variants (e.g. "S-1 INFORMATIKA" + "S-1 Informatika")
     variants_by_key: dict[str, Counter[str]] = {}
     for row in rows:
@@ -773,13 +810,15 @@ def main():
                 formasi_id, no_urut, instansi_id, unit_eselon1, jabatan_nm, lokasi_nm,
                 jenis_formasi, jumlah_formasi, jumlah_pelamar, rasio_kompetisi,
                 peluang_lolos_pct, status_keketatan, gaji_min, gaji_max,
+                usia_min, usia_max, jobdesc, persyaratan_json,
                 pendidikan_nm, jenjang, sumber_dokumen
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 r["formasi_id"], r["no_urut"], r["instansi_id"], r["unit_eselon1"],
                 r["jabatan_nm"], r["lokasi_nm"], r["jenis_formasi"], r["jumlah_formasi"],
                 None, None, None, None, r["gaji_min"], r["gaji_max"],
+                r.get("usia_min"), r.get("usia_max"), r.get("jobdesc"), r.get("persyaratan_json"),
                 r["pendidikan_nm"], r["jenjang"], r["sumber_dokumen"],
             ),
         )

@@ -1,0 +1,431 @@
+{
+  "BPK": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman BPK RI No. 01/B/S.Peng/SETJEN/KPG.02.01/11/2026",
+    "portal_resmi": "https://rekrutmen-asn.bpk.go.id/",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB (CAT & Tambahan)", "tanggal": "30 Mar – 12 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat melamar",
+    "ipk_minimal": "Minimal 3,00 (skala 4,00) untuk semua jalur; lulusan PT Luar Negeri wajib penyetaraan & konversi IPK.",
+    "akreditasi": "Perguruan tinggi dan/atau program studi terakreditasi BAN-PT / PDDikti pada saat kelulusan.",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": "Sehat jasmani dan rohani, bebas narkoba; tidak bertato/bertindik melanggar ketentuan etika kerja; siap ditempatkan di seluruh unit BPK RI.",
+    "ikatan_dinas": "Tidak mengajukan mutasi minimal 5 tahun sejak pengangkatan PNS (khusus penempatan Kalimantan & Sulawesi/Maluku/Papua minimal 8 tahun).",
+    "berkas_wajib": [
+      "e-KTP asli atau Surat Keterangan Perekaman Dukcapil (verifikasi akun SSCASN)",
+      "Swafoto / pas foto terbaru berpakaian formal pada akun SSCASN",
+      "Scan berwarna Surat Lamaran & Pernyataan (unduh dari SSCASN, tanda tangan, meterai/e-meterai Rp10.000)",
+      "Scan berwarna Surat Pernyataan BPK bermeterai Rp10.000 (format dari rekrutmen-asn.bpk.go.id: bebas masalah hukum, kesehatan, bersedia tidak mutasi)",
+      "Scan berwarna Transkrip Nilai Asli (bukan legalisir) memuat IPK (PTLN wajib gabung dengan penyetaraan ijazah)",
+      "Sertifikat atau tangkapan layar akreditasi PT dan/atau Prodi dari BAN-PT / PDDikti saat kelulusan (digabung 1 PDF)"
+    ],
+    "berkas_khusus_jalur": {
+      "PENYANDANG DISABILITAS": [
+        "Surat Keterangan Dokter RS Pemerintah tentang jenis & derajat disabilitas + Surat Pernyataan Disabilitas bermeterai Rp10.000 (format rekrutmen-asn.bpk.go.id, digabung 1 PDF)",
+        "Tautan video singkat (tidak dikunci/dapat diakses panitia) yang menunjukkan aktivitas sehari-hari sesuai jabatan"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Scan berwarna Akta Kelahiran / Surat Keterangan Lahir",
+        "Scan berwarna Surat Keterangan asli dari Lurah/Kepala Desa/Kepala Kampung/Kepala Suku bermeterai Rp10.000 dan berstempel (format rekrutmen-asn.bpk.go.id, digabung 1 PDF dengan Akta)"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): SKB CAT BKN + SKB Tambahan berupa Tes Psikologi (ambang batas 51), Tes Psikiatri/Kesehatan Jiwa (ambang batas 51), dan Wawancara User.",
+    "catatan_penting": "Seluruh unggahan wajib scan berwarna dari dokumen asli (bukan fotokopi/legalisir). SKD 2024 dapat digunakan kembali sesuai KepmenPANRB 674/2026."
+  },
+  "BPKP": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman BPKP No. KP.00.01/PENG-2/SU/02/2026",
+    "portal_resmi": "https://rekrutmen.bpkp.go.id",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB CAT", "tanggal": "30 Mar – 6 Apr 2027"},
+      {"tahap": "Pelaksanaan SKB Tambahan", "tanggal": "3 – 12 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat mendaftar",
+    "ipk_minimal": "Minimal 3,00 (skala 4,00); lulusan PT Luar Negeri wajib melampirkan konversi nilai IPK dari Kemendiktisaintek.",
+    "akreditasi": "Institusi perguruan tinggi dan program studi terakreditasi pada pangkalan data BAN-PT.",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": "Sehat jasmani dan rohani sesuai persyaratan jabatan; bersedia ditempatkan di seluruh wilayah NKRI atau negara lain yang ditentukan BPKP.",
+    "ikatan_dinas": "Ikatan wajib kerja selama 5 (lima) tahun sejak diangkat CPNS; mengundurkan diri dalam masa ikatan kerja dikenakan ganti rugi Rp50.000.000.",
+    "berkas_wajib": [
+      "Scan KTP atau Surat Keterangan Kependudukan Dukcapil yang masih berlaku",
+      "Swafoto menggunakan pakaian formal pada akun SSCASN",
+      "Scan berwarna Transkrip Nilai Asli (bukan transkrip sementara/fotokopi/legalisir; PTLN wajib lampirkan konversi IPK)",
+      "Surat Pernyataan dan Surat Lamaran (sesuai Lampiran III, diunduh dari SSCASN, ditandatangani & dibubuhi meterai/e-meterai Rp10.000)"
+    ],
+    "berkas_khusus_jalur": {
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan dari dokter RS Pemerintah / Puskesmas yang menerangkan jenis dan derajat kedisabilitasan",
+        "Tautan video singkat yang menunjukkan kegiatan sehari-hari sesuai jabatan yang dilamar (wajib dapat diakses Panitia)"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): SKB CAT BKN (bobot 50% SKB / 30% total) + SKB Tambahan Psikotes (bobot 40% SKB / 24% total, ambang batas minimal 61) + Wawancara (bobot 10% SKB / 6% total).",
+    "catatan_penting": "BPKP mengenakan ikatan wajib kerja 5 tahun dengan sanksi ganti rugi Rp50 juta jika mengundurkan diri. Nilai SKD CAT BKN 2024 dapat digunakan kembali."
+  },
+  "BSSN": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman BSSN No. PENG.102/BSSN/SU/KP.02.01/11/2026",
+    "portal_resmi": "https://www.bssn.go.id/cpns-bssn-2026/",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB (CAT & Tambahan)", "tanggal": "30 Mar – 12 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun 0 bulan 0 hari saat menyelesaikan pendaftaran online (berdasarkan tanggal lahir di Ijazah)",
+    "ipk_minimal": "Lulusan SMA/MA/SMK sederajat: Nilai Rapor Matematika dan Bahasa Inggris (teori/pengetahuan) masing-masing minimal 80,00 (skala 100) pada semester I s.d. VI. Wajib sudah memiliki ijazah asli (SKL tidak berlaku).",
+    "akreditasi": "Sekolah terdaftar; jika rapor memakai skala huruf wajib lampirkan surat konversi 0–100 dilegalisasi Kepala Sekolah.",
+    "syarat_bahasa": "Nilai rapor Bahasa Inggris (teori/pengetahuan) minimal 80,00 per semester (Semester I–VI).",
+    "syarat_fisik_khusus": "Tidak buta warna (parsial maupun total), sehat jasmani & rohani, bebas NAPZA, serta bersedia bekerja dengan pola piket 24/7 termasuk hari libur.",
+    "ikatan_dinas": "Bersedia mengabdi di BSSN dan tidak mengajukan pindah dengan alasan pribadi paling singkat 5 tahun sejak diangkat PNS.",
+    "berkas_wajib": [
+      "Scan berwarna asli e-KTP / Surat Keterangan Perekaman Dukcapil yang masih berlaku",
+      "Pas foto 4x6 terbaru (3 bulan terakhir) berlatar belakang merah & swafoto close-up (maks 200 KB JPG/JPEG)",
+      "Scan berwarna Surat Lamaran ditujukan kepada Kepala BSSN di Jakarta (ketik komputer, tinta hitam, e-meterai Rp10.000; format di bssn.go.id/cpns-bssn-2026/ atau s.id/FormatCPNSBSSN2026 kode CPNSBSSN2026)",
+      "Scan berwarna Surat Pernyataan (ketik komputer, tinta hitam, e-meterai Rp10.000; format resmi BSSN)",
+      "Scan berwarna Ijazah asli sesuai kualifikasi pendidikan (SKL tidak berlaku)",
+      "Scan Rapor Asli (digabung 1 PDF: biodata siswa + nilai Matematika & Bahasa Inggris Semester I–VI min. 80,00 + surat konversi jika skala huruf)",
+      "Scan berwarna Surat Keterangan Tidak Buta Warna"
+    ],
+    "berkas_khusus_jalur": {
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan resmi dari dokter RS Pemerintah/Puskesmas menerangkan jenis & derajat disabilitas fisik (bukan gangguan fungsi jaringan otak)",
+        "Tautan video singkat (YouTube/Google Drive/Dropbox, dapat diakses panitia) menunjukkan aktivitas sehari-hari sesuai jabatan"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): Substansi Jabatan CAT BKN (50%) + Seleksi Potensi (50%) + Seleksi Kesehatan (sistem gugur) + Penelitian Personel / Litpers (sistem gugur). SKB Tambahan dilaksanakan di Jakarta/Depok/Bogor.",
+    "catatan_penting": "Wajib tidak buta warna (parsial/total), nilai rapor Matematika & B. Inggris >= 80 di seluruh semester I–VI, dan siap sistem piket 24/7."
+  },
+  "KEJAGUNG": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman Kejaksaan RI No. PENG-1/C/Cp.2/11/2026",
+    "portal_resmi": "https://rekrutmen.kejaksaan.go.id/",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB (CAT & Tambahan)", "tanggal": "30 Mar – 12 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "Min 18 tahun; Maks 24 tahun (Jaksa Ahli Pertama), 35 tahun (Sandiman, Prakom, Nakes umum), 40 tahun (Dokter Spesialis/Subspesialis)",
+    "ipk_minimal": "Umum: min 3,00 (skala 4,00); Disabilitas & Putra/Putri Papua: min 2,75; Cum Laude: berpredikat Dengan Pujian.",
+    "akreditasi": "Umum & Disabilitas: PT dan Prodi minimal B/Sangat Baik saat kelulusan; Cum Laude: PT & Prodi A/Unggul; Papua: Terakreditasi (BAN-PT / Pusdiknakes / LAM-PTKes).",
+    "syarat_bahasa": "S-1/D-IV/S-2/Profesi: TOEFL PBT/Prediction ≥ 450, iBT ≥ 45, CBT ≥ 131, IELTS ≥ 5.0, atau TOEIC ≥ 440. D-III: TOEFL PBT ≥ 400, iBT ≥ 32, CBT ≥ 97, IELTS ≥ 4.5, atau TOEIC ≥ 350.",
+    "syarat_fisik_khusus": "Tinggi badan min Pria 160 cm / Wanita 155 cm (dikecualikan Disabilitas). BMI: Jaksa 18,5–25; Sandiman/Prakom/Nakes 18,5–28. Tidak buta warna, tidak bertato, tidak bertindik (pria). Khusus Jaksa: belum pernah menikah & bersedia tidak menikah hingga diangkat PNS.",
+    "ikatan_dinas": "Tidak mengajukan pindah antarsatker maupun pindah instansi paling singkat 5 tahun sejak diangkat CPNS.",
+    "berkas_wajib": [
+      "Surat Pernyataan Pelamar (unduh otomatis dari SSCASN, tanda tangan tinta hitam, meterai/e-meterai Rp10.000)",
+      "Surat Pernyataan Diri format Kejaksaan RI (unduh di biropeg.kejaksaan.go.id / rekrutmen.kejaksaan.go.id, tinta hitam, meterai/e-meterai Rp10.000)",
+      "Scan berwarna Transkrip Nilai Asli + Bukti/Screenshot Akreditasi PT & Prodi saat kelulusan (digabung 1 PDF; PTLN wajib lampirkan Penyetaraan Ijazah & Konversi IPK)",
+      "Scan berwarna Sertifikat Kemampuan Bahasa Inggris asli yang masih berlaku (TOEFL/IELTS/TOEIC) sesuai jenjang",
+      "Scan berwarna Surat Keterangan Dokter (RS Pemerintah/Puskesmas/dokter PNS ber-NIP) memuat Tinggi Badan, Berat Badan, dan perhitungan BMI",
+      "Khusus Jaksa Ahli Pertama: Surat Keterangan Belum Pernah Menikah dari Lurah/Kepala Desa sesuai alamat KTP",
+      "Khusus Tenaga Kesehatan: Scan berwarna STR asli yang masih berlaku (bukan STR internsip)"
+    ],
+    "berkas_khusus_jalur": {
+      "LULUSAN TERBAIK": [
+        "Scan berwarna Ijazah/Transkrip Nilai yang mencantumkan predikat Dengan Pujian (cum laude) dari PT & Prodi terakreditasi A/Unggul (PTLN: surat kesetaraan cum laude)"
+      ],
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan dokter RS Pemerintah/Puskesmas menerangkan jenis & derajat disabilitas fisik (derajat 1 atau 2) beserta kemampuan fungsional",
+        "Video singkat aktivitas sehari-hari relevan dengan tugas jabatan (komputer, mengetik, mobilisasi)"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Scan berwarna Akta Kelahiran asli atau Surat Keterangan Lahir",
+        "Scan berwarna Surat Keterangan dari Kepala Desa atau Kepala Suku yang menerangkan keturunan asli Papua (ayah dan/atau ibu)"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): SKB CAT BKN (50%) + Tes Praktik Kerja / Analisis Kasus (40%) + Tes Wawancara (10%) + Tes Kesehatan Jasmani, Jiwa & Psikotes (sistem gugur MS/TMS).",
+    "catatan_penting": "Perhatikan batas usia ketat Jaksa (maks 24 tahun), BMI 18,5–25 (Jaksa) / 18,5–28 (lainnya), serta kewajiban sertifikat Bahasa Inggris sejak pendaftaran."
+  },
+  "KEMENKUM": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman Kemenkum No. SEK.2-KP.02.01-326",
+    "portal_resmi": "https://casn.kemenkum.go.id/download/1",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB CAT", "tanggal": "30 Mar – 6 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "Per 27 Nov 2026: S-2/S-1/D-IV: 18–35 tahun; D-III: 18–30 tahun; SLTA/sederajat: 18–28 tahun",
+    "ipk_minimal": "Minimal 2,75 (skala 4,00) untuk lulusan S-2, S-1, D-IV, dan D-III. Lulusan SLTA/sederajat meliputi SMA/SMK/MA/MAK/Paket C.",
+    "akreditasi": "PT dan/atau Prodi terakreditasi pada tahun kelulusan (BAN-PT Bianglala / surat akreditasi Kemendiktisaintek). Khusus Cum Laude: PT & Prodi A/Unggul.",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": "Sehat jasmani & rohani, bebas narkotika, tidak pernah melakukan pelanggaran seleksi CASN dalam 3 periode sebelumnya.",
+    "ikatan_dinas": "Bersedia ditempatkan pada unit kerja Kementerian Hukum di seluruh Indonesia; mundur setelah lulus akhir/NIP dikenai sanksi blokir 2 tahun anggaran.",
+    "berkas_wajib": [
+      "e-KTP asli & swafoto berpakaian formal/sopan (verifikasi akun SSCASN)",
+      "Surat Lamaran dan Surat Pernyataan digabung dalam 1 PDF (unduh dari SSCASN, tanda tangan pena tinta hitam, meterai tempel atau e-meterai Rp10.000)",
+      "Dokumen Riwayat Pendidikan digabung dalam 1 PDF: Scan berwarna Ijazah asli + Transkrip/Daftar Nilai asli (IPK ≥ 2,75 untuk D-III/D-IV/S-1/S-2) + Bukti Akreditasi PT & Prodi saat kelulusan (lulusan luar negeri wajib penyetaraan)"
+    ],
+    "berkas_khusus_jalur": {
+      "LULUSAN TERBAIK": [
+        "Predikat Dengan Pujian (cum laude) pada ijazah/transkrip + PT & Prodi akreditasi A/Unggul (dokumen akreditasi diunggah terpisah). Lulus mulai 28 Agustus 2025 wajib lampirkan dokumen kriteria predikat kelulusan PT (Permendiktisaintek 39/2025)"
+      ],
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan dokter RS Pemerintah atau RS TNI/Polri yang menerangkan jenis disabilitas fisik",
+        "Tautan video singkat di YouTube (diisi pada menu Profil → Biodata Diri SSCASN) yang memperlihatkan kondisi fisik & aktivitas kerja secara mandiri"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Scan berwarna Akta Kelahiran / Surat Keterangan Lahir dari Disdukcapil",
+        "Scan berwarna Surat Keterangan dari Lurah/Kepala Desa/Kepala Suku/Ketua MRP yang menerangkan garis keturunan suku asli Papua"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): 100% menggunakan SKB CAT BKN (100 soal, 90 menit, skor maks 500) tanpa SKB Non-CAT tambahan.",
+    "catatan_penting": "Kemenkum menggunakan 100% CAT BKN untuk SKB (tanpa wawancara/kesamaptaan). Perhatikan batas usia D-III (maks 30 th) & SLTA (maks 28 th) per 27 Nov 2026."
+  },
+  "KEMENKOP": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman Kementerian Koperasi No. 12/Pum/SM.KOP/2026",
+    "portal_resmi": "https://kop.go.id/pengumuman-cpns2026",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB CAT", "tanggal": "30 Mar – 6 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat mendaftar (hingga 40 tahun khusus jabatan Dokter/Dokter Gigi Spesialis)",
+    "ipk_minimal": "Minimal 2,75 (skala 4,00) untuk lulusan S-1, D-IV, dan D-III.",
+    "akreditasi": "PT dan/atau Prodi terakreditasi BAN-PT (wajib sudah memiliki Ijazah asli, BUKAN SKL). Khusus Cum Laude: PT & Prodi A/Unggul saat kelulusan.",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": "Sehat jasmani dan rohani; khusus Disabilitas mampu menganalisa, mengoperasikan komputer & berdiskusi (kecuali sensorik netra/rungu/wicara, mental, intelektual, dan ganda).",
+    "ikatan_dinas": "Tidak diperkenankan mengundurkan diri dan tidak mengajukan pindah instansi dengan alasan apa pun minimal 5 tahun sejak diangkat CPNS.",
+    "berkas_wajib": [
+      "Scan berwarna e-KTP asli atau Surat Keterangan Kependudukan Dukcapil asli",
+      "Scan berwarna Surat Lamaran (ketik komputer, ditujukan kepada Menteri Koperasi, tinta hitam, meterai/e-meterai Rp10.000 sesuai Lampiran II)",
+      "Scan berwarna Surat Pernyataan Pelamar SSCASN bermeterai Rp10.000",
+      "Scan berwarna Ijazah asli (BUKAN SKL) dan Transkrip Nilai asli (IPK ≥ 2,75; PTLN wajib penyetaraan ijazah)",
+      "Sertifikasi keahlian / STR yang masih berlaku bagi jabatan yang mempersyaratkan (mis. Dokter, Dokter Gigi, Apoteker, Terapis Gigi)"
+    ],
+    "berkas_khusus_jalur": {
+      "LULUSAN TERBAIK": [
+        "Ijazah/Transkrip berpredikat Dengan Pujian (cum laude) minimal jenjang Sarjana dari PT & Prodi terakreditasi A/Unggul saat kelulusan (PTLN: surat penyetaraan & kesetaraan cum laude)"
+      ],
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan resmi dari dokter RS Pemerintah/Puskesmas menyatakan jenis & derajat kedisabilitasan",
+        "Video singkat kegiatan sehari-hari menjalankan aktivitas sesuai jabatan yang dilamar"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Akta Kelahiran atau Surat Keterangan Lahir",
+        "Surat keterangan dari Kepala Desa/Kepala Suku menyatakan keturunan asli Papua (bapak dan/atau ibu)"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): 100% menggunakan SKB CAT BKN. Peserta eks seleksi SDM KDKMP/KNMP dengan skor TPK ≥ 120 memperoleh afirmasi penambahan nilai +10% dari nilai maksimal SKB.",
+    "catatan_penting": "Kementerian Koperasi menggunakan 100% SKB CAT BKN. Informasi resmi & format lampiran di https://kop.go.id/pengumuman-cpns2026 (Call Center 1500 587)."
+  },
+  "KEMENHAM": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman Kemenham No. SEK-1143.KP.02.01 Tahun 2026",
+    "portal_resmi": "https://kemenham.go.id",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB (CAT & Non-CAT)", "tanggal": "30 Mar – 12 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat melakukan pendaftaran di SSCASN",
+    "ipk_minimal": "Minimal 2,75 (skala 4,00) untuk lulusan S-2, S-1, dan D-IV. Lulusan SLTA/sederajat terdaftar di Kemendikdasmen/Kemenag.",
+    "akreditasi": "PT dan/atau Prodi terakreditasi BAN-PT / LAM saat kelulusan (dibuktikan tanggal kelulusan di ijazah). Cum Laude: PT & Prodi A/Unggul.",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": "Sehat jasmani & rohani serta bebas narkoba/NAPZA (surat dokter pemerintah/RS TNI-Polri & bebas narkoba diunggah saat pengisian DRH jika lulus akhir).",
+    "ikatan_dinas": "Bersedia ditempatkan pada Unit Pusat & 20 Kantor Wilayah Kementerian HAM seluruh Indonesia; mundur pasca lulus/NIP diblokir 2 tahun anggaran.",
+    "berkas_wajib": [
+      "Data kependudukan (e-KTP/KK/Suket Perekaman Dukcapil) untuk akun SSCASN",
+      "Scan berwarna Surat Lamaran dan Pernyataan yang diunduh dari SSCASN (tanda tangan basah/elektronik, meterai tempel atau e-meterai Rp10.000)",
+      "Non-SLTA: Scan berwarna Transkrip Nilai asli (IPK ≥ 2,75; PTLN gabung dengan Surat Penyetaraan Ijazah)",
+      "Non-SLTA: Tangkapan layar Direktori Akreditasi BAN-PT/PDDIKTI/LAM atau surat akreditasi perguruan tinggi",
+      "SLTA luar negeri: Scan berwarna Surat Penyetaraan Ijazah asli dari Kemendikdasmen/Kemenag (digabung daftar nilai)"
+    ],
+    "berkas_khusus_jalur": {
+      "LULUSAN TERBAIK": [
+        "Scan berwarna Transkrip Nilai atau SKL yang mencantumkan predikat Dengan Pujian (cum laude) + bukti akreditasi A/Unggul PT & Prodi saat kelulusan (PTLN: dokumen penyetaraan & kesetaraan cum laude)"
+      ],
+      "PENYANDANG DISABILITAS": [
+        "Scan berwarna Surat Keterangan Dokter RS Pemerintah/Puskesmas menerangkan jenis & derajat disabilitas",
+        "Video singkat kegiatan sehari-hari dalam menjalankan aktivitas sesuai jabatan yang dilamar"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Scan berwarna Akta Kelahiran atau Surat Keterangan Lahir",
+        "Scan berwarna Surat Keterangan dari Kepala Desa atau Kepala Suku"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): Substansi Jabatan CAT BKN (50%) + Tes Praktik Kerja (40%) + Wawancara (10%).",
+    "catatan_penting": "Ijazah asli, Surat Keterangan Sehat, dan Surat Bebas Narkoba diunggah saat tahap DRH setelah lulus akhir. Layanan WA teks resmi: +62 811-9961-012."
+  },
+  "MA": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman Sekretaris MA RI No. 34/SEK/PENG.KP1.1.2/XI/2026",
+    "portal_resmi": "https://www.mahkamahagung.go.id/media/15383",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB (CAT & Non-CAT)", "tanggal": "30 Mar – 12 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 25 tahun (Petugas Pengamanan Persidangan / SLTA); 18 – 35 tahun (Calon Hakim & seluruh jabatan D-III/S-1 lainnya)",
+    "ipk_minimal": "Calon Hakim (CHU/CHG/CHT): IPK minimal 3,00; Jabatan D-III & S-1 lainnya: IPK minimal 2,75; SLTA (Pengamanan Persidangan): rata-rata ijazah minimal 7,0 (skala 10,0).",
+    "akreditasi": "PT dan/atau Prodi terakreditasi BAN-PT / PDDIKTI pada saat kelulusan (SKL/Ijazah sementara tidak diterima).",
+    "syarat_bahasa": "Sertifikat Bahasa Inggris (terbit maks 2 th sebelum daftar, dilengkapi pasca lulus SKD di rekrutmen.mahkamahagung.go.id/cpns2026): Calon Hakim TOEFL PBT/ITP ≥ 475, iBT ≥ 50, atau IELTS ≥ 5.0; Jabatan lain (kecuali SLTA) TOEFL PBT/ITP ≥ 450, iBT ≥ 45, atau IELTS ≥ 5.0.",
+    "syarat_fisik_khusus": "Khusus Pengadministrasi Perkantoran/Petugas Pengamanan Persidangan (SLTA): Tinggi badan minimal Pria 165 cm / Wanita 158 cm, belum/tidak pernah menikah hingga pendidikan, diutamakan punya sertifikat bela diri.",
+    "ikatan_dinas": "Tidak mengajukan mutasi dari satuan kerja minimal 5 tahun sebagai PNS (khusus Pengamanan Persidangan: juga tidak mengajukan penyesuaian pendidikan/tugas belajar selama 5 tahun).",
+    "berkas_wajib": [
+      "Scan berwarna Ijazah asli sesuai jabatan (SKL tidak berlaku; PTLN wajib SK Penyetaraan) + Bukti Akreditasi PT/Prodi saat kelulusan (PDDIKTI/BAN-PT)",
+      "Scan berwarna Transkrip Nilai asli (D-III/S-1; PTLN wajib konversi IPK) atau Ijazah/Daftar Nilai SLTA (rata-rata ≥ 7,0)",
+      "Scan berwarna Surat Lamaran dan Pernyataan (unduh dari SSCASN, ditandatangani & bermeterai/e-meterai Rp10.000)",
+      "Scan berwarna Surat Keterangan Sehat dari Dokter Pemerintah terbit mulai tanggal pendaftaran (khusus Pengamanan Persidangan wajib mencantumkan Tinggi Badan, Berat Badan, dan IMT)",
+      "Khusus Perawat Terampil: STR yang masih berlaku saat pelamaran",
+      "Khusus Pengamanan Persidangan: Surat Keterangan Belum/Tidak Pernah Menikah dari Kelurahan/Desa (+ opsional/diutamakan Sertifikat Bela Diri)",
+      "Pasca Lulus SKD (Non-SLTA): Sertifikat Bahasa Inggris resmi (CoA TOEFL/IELTS) diunggah di rekrutmen.mahkamahagung.go.id/cpns2026"
+    ],
+    "berkas_khusus_jalur": {
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan dokter RS Pemerintah/Puskesmas menerangkan jenis & derajat disabilitas serta dinyatakan memenuhi syarat seleksi PNS",
+        "Tautan video singkat durasi 1–2 menit (berjalan, mengetik komputer, berkomunikasi mandiri) yang dapat diakses panitia"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Akta Kelahiran atau Surat Keterangan Lahir",
+        "Surat keterangan asli dari Kepala Desa/Kepala Suku yang menerangkan keturunan asli Papua (Bapak dan/atau Ibu)"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): Calon Hakim = CAT 50% + Potensi Akademik 25% + Psikotes 15% + Wawancara 10% (Calon Hakim Agama: + Baca Kitab Kuning); Pengamanan Persidangan = CAT 50% + Kesamaptaan 30% (menggugurkan) + Psikotes 10% + Wawancara 10%; Jabatan lain = CAT 50% + Potensi Akademik MA 40% + Wawancara 10%.",
+    "catatan_penting": "Sertifikat TOEFL/IELTS wajib dimiliki jabatan D-III/S-1 namun diunggah setelah lulus SKD (bukan saat pendaftaran awal SSCASN)."
+  },
+  "POLRI": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman Kapolri No. Peng/33/XI/KEP./2026",
+    "portal_resmi": null,
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB (CAT & Rikkes/PMK/Psikologi)", "tanggal": "30 Mar – 12 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat mendaftar (atau hingga 40 tahun untuk jabatan tertentu seperti Dokter Spesialis/Dosen Lektor sesuai ketentuan)",
+    "ipk_minimal": "Formasi Umum: IPK minimal 2,75 (skala 4,00) dari PTN/PTS terakreditasi.",
+    "akreditasi": "PTN/PTS dan Program Studi terakreditasi BAN-PT / LAM-PTKes / Pusdiknakes saat ijazah dikeluarkan. Cum Laude: PT & Prodi A/Unggul saat kelulusan.",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": "Tinggi badan minimal Pria 155 cm / Wanita 150 cm; tidak bertato dan tidak bertindik di telinga/anggota badan lain (kecuali ketentuan adat dengan surat ketua adat & tidak terlihat saat berseragam); sehat jasmani, rohani & bebas narkoba; berkelakuan baik (wajib SKCK).",
+    "ikatan_dinas": "Ikatan dinas minimal 5 tahun di wilayah formasi sejak diangkat CPNS Polri; mengundurkan diri wajib mengembalikan 20x biaya seleksi + biaya Latsar.",
+    "berkas_wajib": [
+      "Scan berwarna e-KTP asli & swafoto pada akun SSCASN",
+      "Scan berwarna Surat Lamaran (ketik komputer, ditujukan kepada Kapolri u.p. As SDM Kapolri di Jakarta, meterai/e-meterai Rp10.000) & Surat Pernyataan Pelamar",
+      "Surat Pernyataan Keterangan Diri (5 butir) & Surat Pernyataan Ikatan Dinas (3 butir) bermeterai Rp10.000",
+      "Scan berwarna Transkrip Nilai & Ijazah asli + Sertifikat Akreditasi Prodi (BAN-PT / LAM-PTKes / Pusdiknakes)",
+      "Scan berwarna Surat Keterangan Catatan Kepolisian (SKCK) yang menyatakan berkelakuan baik",
+      "Sertifikat Profesi & Surat Tanda Registrasi (STR) masih berlaku (khusus formasi Tenaga Kesehatan / jabatan yang mensyaratkan)"
+    ],
+    "berkas_khusus_jalur": {
+      "LULUSAN TERBAIK": [
+        "Ijazah/Transkrip berpredikat Dengan Pujian (cum laude) dari PT & Prodi terakreditasi A/Unggul saat kelulusan (PTLN: dokumen penyetaraan ijazah & kesetaraan cum laude)"
+      ],
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan dokter RS Pemerintah/Puskesmas menerangkan jenis & tingkat kedisabilitasan",
+        "Tautan video singkat kegiatan sehari-hari dalam menjalankan aktivitas sesuai jabatan"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Akta Kelahiran dan/atau Surat Keterangan Lahir",
+        "Surat keterangan dari Kepala Desa atau Kepala Suku"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): SKB CAT BKN (70% SKB) + Tes Psikologi Polri (30% SKB) + Pemeriksaan Kesehatan / Rikkes (MS/TMS menggugurkan) + Penelusuran Mental Kepribadian / PMK (skor minimal 60, menggugurkan). SKB Tambahan di Panda sesuai lokasi formasi.",
+    "catatan_penting": "Wajib mengunggah SKCK saat pendaftaran. Perhatikan sanksi ikatan dinas 5 tahun (pengembalian 20x biaya seleksi jika mengundurkan diri)."
+  },
+  "KEMENHUT": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "Pengumuman Sekjen Kemenhut No. PG.2/MENHUT-SETJEN/ROSDM/PEG.02/11/2026",
+    "portal_resmi": "http://casn.kehutanan.go.id",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pengumuman Administrasi", "tanggal": "5 – 8 Jan 2027"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB CAT", "tanggal": "30 Mar – 6 Apr 2027"},
+      {"tahap": "Pelaksanaan SKB Non-CAT", "tanggal": "3 – 12 Apr 2027"},
+      {"tahap": "Pengumuman Hasil Akhir", "tanggal": "15 – 20 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat mendaftar di SSCASN",
+    "ipk_minimal": "SLTA/SMK: nilai rata-rata ijazah minimal 7,00 (skala 10) / 70 (skala 100); D-III & S-1/D-IV: IPK minimal 3,00; S-2: IPK minimal 3,25 (skala 4,00).",
+    "akreditasi": "PT dan/atau Prodi terakreditasi BAN-PT / LAM saat kelulusan (PTLN wajib penyetaraan ijazah & konversi IPK).",
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": "Khusus Polisi Kehutanan & Manggala Agni: Tinggi minimal Ahli Pertama/Terampil Pria 165 cm / Wanita 160 cm (Pemula: Pria 162 cm / Wanita 158 cm) dengan IMT ideal; pelamar wanita tidak sedang hamil; khusus Manggala Agni tidak buta warna, tidak berkacamata (minus/plus), dan tidak cacat badan.",
+    "ikatan_dinas": "Mundur setelah lulus tahap akhir/NIP dikenai sanksi blokir tidak boleh melamar ASN selama 2 tahun anggaran berikutnya.",
+    "berkas_wajib": [
+      "Scan berwarna Surat Lamaran dan Pernyataan (unduh dari SSCASN, tanda tangan basah/elektronik, meterai tempel atau e-meterai Rp10.000)",
+      "Pas foto terbaru berpakaian formal/kemeja",
+      "Scan asli Transkrip Nilai (atau daftar nilai ijazah bagi lulusan SLTA/SMK)",
+      "Khusus Tenaga Kesehatan: Scan asli STR masih berlaku (bukan internsip)",
+      "Khusus Juru Mudi: Sertifikat keterampilan BST/SCRB/SAT/AFF/RATING DEK",
+      "Opsional (+10% SKB bagi Polhut/Manggala Agni/PEH/Penyuluh/Pelatih Satwa): Sertifikat Kompetensi/Pelatihan/Magang Kerja bidang kehutanan/karhutla dari BNSP/LSP/Kemenhut/Dinas/Mitra"
+    ],
+    "berkas_khusus_jalur": {
+      "PENYANDANG DISABILITAS": [
+        "Scan asli Surat Keterangan Dokter RS Pemerintah/Puskesmas menerangkan jenis & derajat disabilitas (daksa dan/atau sensorik rungu; jabatan lapangan seperti Polhut/Manggala Agni/PEH/Penyuluh/Pelatih Satwa tidak dialokasikan untuk disabilitas)",
+        "Tautan video singkat kegiatan sehari-hari dalam menjalankan aktivitas sesuai jabatan"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Scan asli Akta Kelahiran atau Surat Keterangan Lahir",
+        "Scan asli Surat Keterangan dari Kepala Desa/Kepala Suku yang menjelaskan asli keturunan Papua"
+      ]
+    },
+    "tahapan_skb": "SKB (60% nilai akhir): Polhut Ahli Pertama = CAT 60% + Tes Kesehatan (MS/TMS gugur) + Kesamaptaan 30% + Sertifikat 10%; Polhut Terampil/Pemula & Manggala Agni = CAT 50% + Tes Kesehatan (MS/TMS gugur) + Kesamaptaan 40% + Sertifikat 10%; PEH/Penyuluh/Pelatih Satwa = CAT 90% + Sertifikat 10%; Jabatan lain = CAT BKN.",
+    "catatan_penting": "Perhatikan syarat fisik ketat Polhut & Manggala Agni (tinggi badan, IMT ideal, tes kesehatan 2 tahap gugur, lari 12 menit + pull up/sit up/push up/shuttle run). Surat sehat tinggi/berat/tidak buta warna wajib dibawa saat tes kesamaptaan Manggala Agni."
+  },
+  "KEMENKEU": {
+    "status_pengumuman": "menunggu_pengumuman",
+    "nomor_pengumuman": "Baru terbit KepmenPANRB No. 675 Tahun 2026 (Penetapan Kebutuhan 1.915 kursi)",
+    "portal_resmi": "https://rekrutmen.kemenkeu.go.id/",
+    "jadwal_pendaftaran": null,
+    "jadwal_ringkas": [],
+    "usia_ringkas": null,
+    "ipk_minimal": null,
+    "akreditasi": null,
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": null,
+    "ikatan_dinas": null,
+    "berkas_wajib": [],
+    "berkas_khusus_jalur": {},
+    "tahapan_skb": null,
+    "catatan_penting": "Pengumuman pendaftaran resmi CPNS 2026 Kementerian Keuangan (batas usia, IPK minimal, syarat TOEFL, daftar berkas unggah, dan jadwal SKB) belum diterbitkan. Data yang tampil saat ini bersumber dari KepmenPANRB No. 675/2026 (rincian alokasi 1.915 kursi). Pantau https://rekrutmen.kemenkeu.go.id/ dan https://sscasn.bkn.go.id."
+  },
+  "KEMENKES": {
+    "status_pengumuman": "menunggu_pengumuman",
+    "nomor_pengumuman": "Baru terbit SE Dirjen SDMK No. HK.02.02/F/4023/2026 (Acuan Kualifikasi & STR JF Kesehatan)",
+    "portal_resmi": "https://casn.kemkes.go.id/",
+    "jadwal_pendaftaran": null,
+    "jadwal_ringkas": [],
+    "usia_ringkas": null,
+    "ipk_minimal": null,
+    "akreditasi": null,
+    "syarat_bahasa": null,
+    "syarat_fisik_khusus": null,
+    "ikatan_dinas": null,
+    "berkas_wajib": [
+      "Surat Tanda Registrasi (STR) masih berlaku — khusus JF Kesehatan yang berstatus 'YA (Wajib STR)' pada SE HK.02.02/F/4023/2026"
+    ],
+    "berkas_khusus_jalur": {},
+    "tahapan_skb": null,
+    "catatan_penting": "Pengumuman pendaftaran resmi & rincian kuota CPNS 2026 Kementerian Kesehatan belum diterbitkan. Baris saat ini bersumber dari Surat Edaran Dirjen SDMK No. HK.02.02/F/4023/2026 sebagai acuan kualifikasi pendidikan dan kewajiban STR. Pantau https://casn.kemkes.go.id/ dan https://sscasn.bkn.go.id."
+  }
+}

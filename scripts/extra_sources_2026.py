@@ -509,6 +509,42 @@ def _sscasn_kategori(instansi_nm: str) -> str:
     return "Pusat"
 
 
+def _clean_html_text(val: str) -> str:
+    txt = re.sub(r"<[^>]+>", "", str(val or ""))
+    return re.sub(r"\s+", " ", txt).strip()
+
+
+def _parse_sscasn_persyaratan(raw_json: str) -> str | None:
+    """Sanitize SSCASN persyaratan_json into a compact, plain-text JSON list."""
+    import json
+
+    raw = (raw_json or "").strip()
+    if not raw or raw == "[]":
+        return None
+    try:
+        items = json.loads(raw)
+    except Exception:
+        return None
+    if not isinstance(items, list) or not items:
+        return None
+    cleaned = []
+    seen: set[tuple[str, bool]] = set()
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        nama = _clean_html_text(it.get("nama") or "")
+        if not nama:
+            continue
+        wajib = bool(it.get("mandatory", 1))
+        jf = _clean_html_text(it.get("jenis_formasi_nama") or "") or None
+        key = (nama.lower(), wajib)
+        if key in seen:
+            continue
+        seen.add(key)
+        cleaned.append({"nama": nama, "wajib": wajib, "jenis_formasi": jf})
+    return json.dumps(cleaned, ensure_ascii=False) if cleaned else None
+
+
 def get_sscasn_live_rows(extract_jenjang_fn, csv_path) -> list[dict]:
     """Load official SSCASN 2026 CPNS rows saved by the live scraper without inventing missing pelamar."""
     import csv
@@ -549,6 +585,12 @@ def get_sscasn_live_rows(extract_jenjang_fn, csv_path) -> list[dict]:
             gmax_raw = int(float(r.get("penghasilan_max") or 0))
             gaji_min = gmin_raw if gmin_raw > 0 else None
             gaji_max = gmax_raw if gmax_raw > 0 else None
+            umin_raw = int(float(r.get("usia_min") or 0))
+            umax_raw = int(float(r.get("usia_max") or 0))
+            usia_min = umin_raw if umin_raw > 0 else None
+            usia_max = umax_raw if umax_raw > 0 else None
+            jobdesc = _clean_html_text(r.get("jobdesc") or "") or None
+            persyaratan_json = _parse_sscasn_persyaratan(r.get("persyaratan_json") or "")
 
             rows.append(
                 {
@@ -570,6 +612,10 @@ def get_sscasn_live_rows(extract_jenjang_fn, csv_path) -> list[dict]:
                     "status_keketatan": None,
                     "gaji_min": gaji_min,
                     "gaji_max": gaji_max,
+                    "usia_min": usia_min,
+                    "usia_max": usia_max,
+                    "jobdesc": jobdesc,
+                    "persyaratan_json": persyaratan_json,
                     "sumber_dokumen": SUMBER_SSCASN,
                 }
             )
@@ -880,6 +926,8 @@ def get_kemenham_rows(extract_jenjang_fn, json_path) -> list[dict]:
                 "status_keketatan": None,
                 "gaji_min": int(r["gaji_min"]),
                 "gaji_max": int(r["gaji_max"]),
+                "usia_min": 18,
+                "usia_max": 35,
                 "sumber_dokumen": SUMBER_KEMENHAM,
             }
         )
@@ -971,6 +1019,8 @@ def get_kemenhut_rows(extract_jenjang_fn, json_path) -> list[dict]:
                 "status_keketatan": None,
                 "gaji_min": int(r["gaji_min"]),
                 "gaji_max": int(r["gaji_max"]),
+                "usia_min": 18,
+                "usia_max": 35,
                 "sumber_dokumen": SUMBER_KEMENHUT,
             }
         )
