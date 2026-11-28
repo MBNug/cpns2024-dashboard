@@ -34,7 +34,7 @@
     viewMode: window.innerWidth < 768 ? 'cards' : 'table',
     hasApplicantData: false,
     hasSalaryData: false,
-    distinctInstansi: 12,
+    distinctInstansi: 13,
     bookmarks: [],
     currentItems: [],
     activeDetail: null,
@@ -42,8 +42,27 @@
     detailAbortController: null,
     tableAbortController: null,
     analyticsAbortController: null,
+    jurusanAbortController: null,
+    compareAbortController: null,
+    lastFocusedEl: null,
     toastTimer: null,
   };
+
+  let qTimer = null;
+  let lokTimer = null;
+  let jurusanTimer = null;
+  let jurTableTimer = null;
+
+  function cancelFilterTimers() {
+    clearTimeout(qTimer);
+    clearTimeout(lokTimer);
+    clearTimeout(jurusanTimer);
+    clearTimeout(jurTableTimer);
+    if (state.jurusanAbortController) {
+      state.jurusanAbortController.abort();
+      state.jurusanAbortController = null;
+    }
+  }
 
   function $(id) {
     return document.getElementById(id);
@@ -234,7 +253,7 @@
       const d = await apiGet('/stats');
       state.hasApplicantData = !!d.has_applicant_data;
       state.hasSalaryData = !!d.has_salary_data;
-      state.distinctInstansi = Number(d.distinct_instansi) || 12;
+      state.distinctInstansi = Number(d.distinct_instansi) || 13;
       $('kpi-total-rows').textContent = formatInt(d.total_formasi_rows);
       $('kpi-total-kuota').textContent = formatInt(d.total_kuota) + ' kursi';
       $('kpi-total-instansi').textContent = formatInt(d.distinct_instansi) + ' instansi';
@@ -382,21 +401,27 @@
     }
   }
 
-  let jurusanTimer = null;
   function handleJurusanInput(val) {
     clearTimeout(jurusanTimer);
+    if (state.jurusanAbortController) {
+      state.jurusanAbortController.abort();
+      state.jurusanAbortController = null;
+    }
     jurusanTimer = setTimeout(async () => {
       const pop = $('jurusan-popover');
       if (!pop) return;
+      const controller = new AbortController();
+      state.jurusanAbortController = controller;
       try {
-        const items = await apiGet('/filters/jurusan', { q: val, limit: 25 });
+        const items = await apiGet('/filters/jurusan', { q: val, limit: 25 }, { signal: controller.signal });
+        if (state.jurusanAbortController !== controller) return;
         if (!items.length) {
           pop.innerHTML = '<div class="autocomplete-empty">Program studi tidak ditemukan</div>';
         } else {
           pop.innerHTML = items
             .map(
               (it) =>
-                '<button type="button" class="autocomplete-item" data-val="' +
+                '<button type="button" role="option" class="autocomplete-item" data-val="' +
                 escapeHtml(it.jurusan_nm) +
                 '">' +
                 '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
@@ -410,6 +435,7 @@
         }
         pop.classList.remove('hidden');
       } catch (e) {
+        if (e && e.name === 'AbortError') return;
         pop.classList.add('hidden');
       }
     }, 180);
@@ -450,24 +476,29 @@
     if (!bar || !list) return;
 
     const chips = [];
-    if (state.only_saved) chips.push({ key: 'saved', label: 'Mode: Tersimpan (' + state.bookmarks.length + ')' });
-    if (state.q) chips.push({ key: 'q', label: 'Cari: "' + state.q + '"' });
-    if (state.instansi) chips.push({ key: 'instansi', label: 'Instansi: ' + state.instansi });
-    if (state.jurusan) chips.push({ key: 'jurusan', label: 'Prodi: ' + state.jurusan });
-    if (state.eselon1) chips.push({ key: 'eselon1', label: 'Unit: ' + state.eselon1 });
-    if (state.jabatan) chips.push({ key: 'jabatan', label: 'Jabatan: ' + state.jabatan });
-    if (state.lokasi) chips.push({ key: 'lokasi', label: 'Penempatan: ' + state.lokasi });
-    if (state.jenjang) chips.push({ key: 'jenjang', label: 'Jenjang: ' + state.jenjang });
-    if (state.jenis_formasi) chips.push({ key: 'jenis_formasi', label: 'Jalur: ' + state.jenis_formasi });
-    if (state.min_kuota) chips.push({ key: 'min_kuota', label: 'Alokasi >= ' + state.min_kuota });
-    if (state.keketatan_2024) {
-      chips.push({
-        key: 'keketatan_2024',
-        label: 'Keketatan 2024: ' + (state.keketatan_2024 === '__NONE__' ? 'Tanpa Pembanding' : state.keketatan_2024),
-      });
+    if (state.only_saved) {
+      chips.push({ key: 'saved', label: 'Mode: Tersimpan (' + state.bookmarks.length + ')' });
+    } else {
+      if (state.q) chips.push({ key: 'q', label: 'Cari: "' + state.q + '"' });
+      if (state.instansi) chips.push({ key: 'instansi', label: 'Instansi: ' + state.instansi });
+      if (state.jurusan) chips.push({ key: 'jurusan', label: 'Prodi: ' + state.jurusan });
+      if (state.eselon1) chips.push({ key: 'eselon1', label: 'Unit: ' + state.eselon1 });
+      if (state.jabatan) chips.push({ key: 'jabatan', label: 'Jabatan: ' + state.jabatan });
+      if (state.lokasi) chips.push({ key: 'lokasi', label: 'Penempatan: ' + state.lokasi });
+      if (state.jenjang) chips.push({ key: 'jenjang', label: 'Jenjang: ' + state.jenjang });
+      if (state.jenis_formasi) chips.push({ key: 'jenis_formasi', label: 'Jalur: ' + state.jenis_formasi });
+      if (state.min_kuota) chips.push({ key: 'min_kuota', label: 'Alokasi >= ' + state.min_kuota });
+      if (state.keketatan_2024) {
+        chips.push({
+          key: 'keketatan_2024',
+          label: 'Keketatan 2024: ' + (state.keketatan_2024 === '__NONE__' ? 'Tanpa Pembanding' : state.keketatan_2024),
+        });
+      }
     }
     if ($('telemetry-active-instansi')) {
-      $('telemetry-active-instansi').textContent = state.instansi || 'Semua Instansi (' + formatInt(state.distinctInstansi) + ' K/L)';
+      $('telemetry-active-instansi').textContent = state.only_saved
+        ? 'Mode Tersimpan (' + state.bookmarks.length + ')'
+        : state.instansi || 'Semua Instansi (' + formatInt(state.distinctInstansi) + ' K/L)';
     }
 
     if (!chips.length) {
@@ -487,6 +518,42 @@
           '</span><span aria-hidden="true">×</span></button>'
       )
       .join('');
+  }
+
+  function sortSavedItems(items, sortBy) {
+    const arr = items.slice();
+    const numAsc = (a, b, fn) => {
+      const va = fn(a);
+      const vb = fn(b);
+      if (va === null || va === undefined) return vb === null || vb === undefined ? 0 : 1;
+      if (vb === null || vb === undefined) return -1;
+      return va - vb;
+    };
+    const numDesc = (a, b, fn) => {
+      const va = fn(a);
+      const vb = fn(b);
+      if (va === null || va === undefined) return vb === null || vb === undefined ? 0 : 1;
+      if (vb === null || vb === undefined) return -1;
+      return vb - va;
+    };
+    if (sortBy === 'kuota_desc') arr.sort((a, b) => numDesc(a, b, (x) => x.jumlah_formasi));
+    else if (sortBy === 'kuota_asc') arr.sort((a, b) => numAsc(a, b, (x) => x.jumlah_formasi));
+    else if (sortBy === 'jabatan_asc') arr.sort((a, b) => String(a.jabatan_nm || '').localeCompare(String(b.jabatan_nm || '')));
+    else if (sortBy === 'eselon1_asc') arr.sort((a, b) => String(a.unit_eselon1 || '').localeCompare(String(b.unit_eselon1 || '')));
+    else if (sortBy === 'gaji_desc') arr.sort((a, b) => numDesc(a, b, (x) => x.gaji_max));
+    else if (sortBy === 'rasio_2024_asc') arr.sort((a, b) => numAsc(a, b, (x) => x.rasio_2024));
+    else if (sortBy === 'rasio_2024_desc') arr.sort((a, b) => numDesc(a, b, (x) => x.rasio_2024));
+    return arr;
+  }
+
+  function pruneOrphanedBookmarks(returnedItems) {
+    if (!Array.isArray(returnedItems)) return;
+    const validSet = new Set(returnedItems.map((it) => it.formasi_id));
+    const pruned = state.bookmarks.filter((id) => validSet.has(id));
+    if (pruned.length !== state.bookmarks.length) {
+      state.bookmarks = pruned;
+      saveBookmarks();
+    }
   }
 
   async function loadFormasiTable() {
@@ -512,10 +579,13 @@
         } else {
           const items = await apiGet('/formasi-batch', { ids: state.bookmarks.join(',') }, { signal: controller.signal });
           if (state.tableAbortController !== controller) return;
-          state.currentItems = items;
-          state.total = items.length;
-          state.totalKuotaFiltered = items.reduce((acc, it) => acc + (it.jumlah_formasi || 0), 0);
+          pruneOrphanedBookmarks(items);
+          const sorted = sortSavedItems(items, state.sort_by);
+          state.currentItems = sorted;
+          state.total = sorted.length;
+          state.totalKuotaFiltered = sorted.reduce((acc, it) => acc + (it.jumlah_formasi || 0), 0);
           state.totalPages = 1;
+          renderActiveChips();
         }
       } else {
         const res = await apiGet(
@@ -538,7 +608,7 @@
       $('telemetry-filtered-kuota').textContent = formatInt(state.totalKuotaFiltered);
       renderCurrentView();
       renderPagination();
-      if (state.analyticsOpen) {
+      if (state.analyticsOpen && !state.only_saved) {
         loadAnalytics();
       }
     } catch (err) {
@@ -587,12 +657,14 @@
     const tableWrap = $('table-view-wrap');
     const cardsWrap = $('cards-view-wrap');
     const pagBar = $('pagination-bar');
+    const scrollNotice = $('mobile-scroll-notice');
 
     if (!state.currentItems.length) {
       emptyEl.classList.remove('hidden');
       tableWrap.classList.add('hidden');
       cardsWrap.classList.add('hidden');
       pagBar.classList.add('hidden');
+      if (scrollNotice) scrollNotice.classList.add('hidden');
       return;
     }
 
@@ -607,6 +679,7 @@
 
     tableWrap.classList.toggle('hidden', isCards);
     cardsWrap.classList.toggle('hidden', !isCards);
+    if (scrollNotice) scrollNotice.classList.toggle('hidden', isCards);
 
     if (isCards) {
       renderMobileCards();
@@ -695,7 +768,9 @@
           escapeHtml(item.formasi_id) +
           '" title="' +
           (saved ? 'Hapus dari Bandingkan' : 'Simpan ke Bandingkan') +
-          '" aria-label="Simpan formasi">★</button>' +
+          '" aria-label="Simpan formasi" aria-pressed="' +
+          String(saved) +
+          '">★</button>' +
           '<button type="button" class="btn btn-secondary btn-sm" data-open-detail="' +
           escapeHtml(item.formasi_id) +
           '">Detail</button>' +
@@ -809,7 +884,7 @@
     const uniq = Array.from(new Set(pages)).sort((a, b) => a - b);
 
     let html =
-      '<button type="button" class="page-btn" data-page="' +
+      '<button type="button" class="page-btn" aria-label="Halaman sebelumnya" data-page="' +
       Math.max(1, state.page - 1) +
       '"' +
       (state.page <= 1 ? ' disabled' : '') +
@@ -830,7 +905,7 @@
     });
 
     html +=
-      '<button type="button" class="page-btn" data-page="' +
+      '<button type="button" class="page-btn" aria-label="Halaman berikutnya" data-page="' +
       Math.min(state.totalPages, state.page + 1) +
       '"' +
       (state.page >= state.totalPages ? ' disabled' : '') +
@@ -1438,8 +1513,13 @@
     const backdrop = $('modal-detail');
     const loading = $('modal-detail-loading');
     const loadingLabel = loading ? loading.querySelector('span') : null;
+    if (backdrop.classList.contains('hidden')) {
+      state.lastFocusedEl = document.activeElement;
+    }
     backdrop.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
+    const modalBody = backdrop.querySelector('.modal-body');
+    if (modalBody) modalBody.scrollTop = 0;
 
     if (state.detailAbortController) {
       state.detailAbortController.abort();
@@ -1447,6 +1527,7 @@
     const controller = new AbortController();
     state.detailAbortController = controller;
 
+    let didTimeout = false;
     let slowTimer = null;
     let timeoutTimer = null;
     const cached = state.detailCache.get(formasiId);
@@ -1459,7 +1540,8 @@
         }
       }, 3500);
       timeoutTimer = setTimeout(() => {
-        controller.abort('timeout');
+        didTimeout = true;
+        controller.abort();
       }, 25000);
     } else {
       loading.classList.add('hidden');
@@ -1485,7 +1567,10 @@
 
       $('detail-kpi-kuota').textContent = formatQuota(item.jumlah_formasi);
       $('detail-kpi-rasio').textContent =
-        item.jumlah_pelamar !== null ? formatInt(item.jumlah_pelamar) + ' (' + item.rasio_kompetisi + ')' : '—';
+        item.jumlah_pelamar !== null && item.jumlah_pelamar !== undefined
+          ? formatInt(item.jumlah_pelamar) +
+            (item.rasio_kompetisi !== null && item.rasio_kompetisi !== undefined ? ' (' + item.rasio_kompetisi + ')' : '')
+          : '—';
       $('detail-kpi-gaji').textContent = formatSalaryRange(item.gaji_min, item.gaji_max);
       if ($('detail-kpi-gaji-sub')) {
         const isSscasnSalary = (item.sumber_dokumen || '').includes('SSCASN');
@@ -1598,12 +1683,12 @@
       renderRequirementsPanel(item);
       updateDetailBookmarkBtn();
       recalculateSimulation();
+      if ($('btn-close-detail')) $('btn-close-detail').focus();
     } catch (e) {
-      if (e && e.name === 'AbortError' && controller.signal.reason !== 'timeout') {
-        return;
-      }
+      if (state.detailAbortController !== controller) return;
+      if (controller.signal.aborted && !didTimeout) return;
       showToast(
-        controller.signal.reason === 'timeout'
+        didTimeout
           ? 'Server terlalu lama merespons (timeout). Silakan coba klik ulang.'
           : 'Gagal memuat detail formasi.',
         'warn'
@@ -1621,18 +1706,31 @@
   async function openCompareModal() {
     const backdrop = $('modal-compare');
     const body = $('compare-body');
+    if (backdrop.classList.contains('hidden')) {
+      state.lastFocusedEl = document.activeElement;
+    }
     backdrop.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
+
+    if (state.compareAbortController) {
+      state.compareAbortController.abort();
+      state.compareAbortController = null;
+    }
 
     if (!state.bookmarks.length) {
       body.innerHTML =
         '<div class="empty-state" style="padding:28px;"><p class="empty-desc">Belum ada formasi yang disimpan. Klik ikon ★ di daftar tabel untuk menyimpan hingga 4 formasi.</p></div>';
+      if ($('btn-close-compare')) $('btn-close-compare').focus();
       return;
     }
 
+    const controller = new AbortController();
+    state.compareAbortController = controller;
     body.innerHTML = '<div style="padding:24px;text-align:center;">Memuat perbandingan...</div>';
     try {
-      const items = await apiGet('/formasi-batch', { ids: state.bookmarks.join(',') });
+      const items = await apiGet('/formasi-batch', { ids: state.bookmarks.join(',') }, { signal: controller.signal });
+      if (state.compareAbortController !== controller) return;
+      pruneOrphanedBookmarks(items);
       if (!items.length) {
         body.innerHTML = '<div class="empty-state"><p class="empty-desc">Formasi tersimpan tidak ditemukan.</p></div>';
         return;
@@ -1681,7 +1779,9 @@
         rowHtml('Simulasi Gapok CPNS 80%', (it) => '<span class="num">' + formatRp(it.gapok_cpns_80) + ' (Gol. ' + escapeHtml(it.golongan_kode) + ')</span>') +
         rowHtml('Tukin Instansi (Regulasi)', (it) => (it.tukin_min && it.tukin_max ? '<span class="num">' + formatRp(it.tukin_min) + ' – ' + formatRp(it.tukin_max) + '</span>' : '<span class="muted-note">—</span>')) +
         '</tbody></table></div>';
+      if ($('btn-close-compare')) $('btn-close-compare').focus();
     } catch (e) {
+      if (state.compareAbortController !== controller || (e && e.name === 'AbortError')) return;
       body.innerHTML = '<div class="empty-state"><p class="empty-desc">Gagal memuat data perbandingan.</p></div>';
     }
   }
@@ -1691,18 +1791,29 @@
       state.detailAbortController.abort();
       state.detailAbortController = null;
     }
+    if (id === 'modal-compare' && state.compareAbortController) {
+      state.compareAbortController.abort();
+      state.compareAbortController = null;
+    }
     const el = $(id);
     if (!el) return;
+    const wasVisible = !el.classList.contains('hidden');
     el.classList.add('hidden');
     if (id === 'modal-detail' && $('modal-detail-loading')) {
       $('modal-detail-loading').classList.add('hidden');
     }
     if ($('modal-detail').classList.contains('hidden') && $('modal-compare').classList.contains('hidden')) {
       document.body.classList.remove('overflow-hidden');
+      if (wasVisible && state.lastFocusedEl && typeof state.lastFocusedEl.focus === 'function') {
+        try { state.lastFocusedEl.focus(); } catch (e) {}
+        state.lastFocusedEl = null;
+      }
     }
   }
 
-  function resetAllFilters() {
+  function resetAllFilters(skipLoad) {
+    cancelFilterTimers();
+    if ($('jurusan-popover')) $('jurusan-popover').classList.add('hidden');
     state.page = 1;
     state.only_saved = false;
     state.q = '';
@@ -1728,7 +1839,9 @@
     $('filter-min-kuota').value = '';
     if ($('filter-keketatan-2024')) $('filter-keketatan-2024').value = '';
     $('filter-sort').value = 'no_urut';
-    loadFormasiTable();
+    if (!skipLoad) {
+      loadFormasiTable();
+    }
   }
 
   function updateThemeUi(theme) {
@@ -1764,10 +1877,14 @@
       if (state.analyticsOpen) loadAnalytics();
     });
 
-    $('btn-reset-filters').addEventListener('click', resetAllFilters);
-    $('btn-empty-reset').addEventListener('click', resetAllFilters);
+    $('btn-reset-filters').addEventListener('click', () => resetAllFilters(false));
+    $('btn-empty-reset').addEventListener('click', () => resetAllFilters(false));
 
     $('btn-export-csv').addEventListener('click', () => {
+      if (state.only_saved && !state.bookmarks.length) {
+        showToast('Tidak ada formasi tersimpan untuk diekspor.', 'warn');
+        return;
+      }
       const url = new URL(API_BASE + '/export', window.location.origin);
       if (state.only_saved && state.bookmarks.length) {
         url.searchParams.set('ids', state.bookmarks.join(','));
@@ -1781,7 +1898,6 @@
       window.location.href = url.toString();
     });
 
-    let qTimer = null;
     $('filter-q').addEventListener('input', (e) => {
       state.q = e.target.value;
       state.only_saved = false;
@@ -1790,13 +1906,13 @@
       qTimer = setTimeout(loadFormasiTable, 260);
     });
     $('btn-clear-q').addEventListener('click', () => {
+      clearTimeout(qTimer);
       state.q = '';
       state.page = 1;
       $('filter-q').value = '';
       loadFormasiTable();
     });
 
-    let lokTimer = null;
     $('filter-lokasi').addEventListener('input', (e) => {
       state.lokasi = e.target.value;
       state.only_saved = false;
@@ -1805,6 +1921,7 @@
       lokTimer = setTimeout(loadFormasiTable, 260);
     });
     $('btn-clear-lokasi').addEventListener('click', () => {
+      clearTimeout(lokTimer);
       state.lokasi = '';
       state.page = 1;
       $('filter-lokasi').value = '';
@@ -1812,7 +1929,6 @@
     });
 
     const jurInput = $('filter-jurusan');
-    let jurTableTimer = null;
     jurInput.addEventListener('input', (e) => {
       state.jurusan = e.target.value;
       state.only_saved = false;
@@ -1823,6 +1939,7 @@
     });
     jurInput.addEventListener('focus', () => handleJurusanInput(jurInput.value));
     $('btn-clear-jurusan').addEventListener('click', () => {
+      cancelFilterTimers();
       state.jurusan = '';
       state.page = 1;
       jurInput.value = '';
@@ -1833,6 +1950,7 @@
     $('jurusan-popover').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-val]');
       if (!btn) return;
+      cancelFilterTimers();
       state.jurusan = btn.getAttribute('data-val') || '';
       jurInput.value = state.jurusan;
       state.only_saved = false;
@@ -1911,7 +2029,7 @@
         loadFormasiTable();
         return;
       }
-      resetAllFilters();
+      resetAllFilters(true);
       if (p === 'sma') {
         state.jenjang = 'SMA/SMK';
         $('filter-jenjang').value = 'SMA/SMK';
@@ -1931,6 +2049,7 @@
     $('active-chips-list').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-clear-key]');
       if (!btn) return;
+      cancelFilterTimers();
       const key = btn.getAttribute('data-clear-key');
       if (key === 'saved') state.only_saved = false;
       else if (key === 'q') { state.q = ''; $('filter-q').value = ''; }
@@ -2095,8 +2214,36 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        if ($('jurusan-popover') && !$('jurusan-popover').classList.contains('hidden')) {
+          cancelFilterTimers();
+          $('jurusan-popover').classList.add('hidden');
+        }
         closeModal('modal-detail');
         closeModal('modal-compare');
+        return;
+      }
+      if (e.key === 'Tab') {
+        const openModal = !$('modal-detail').classList.contains('hidden')
+          ? $('modal-detail')
+          : !$('modal-compare').classList.contains('hidden')
+          ? $('modal-compare')
+          : null;
+        if (openModal) {
+          const focusables = Array.from(
+            openModal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), summary, [tabindex]:not([tabindex="-1"])')
+          ).filter((el) => el.offsetParent !== null);
+          if (focusables.length) {
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
       }
     });
 

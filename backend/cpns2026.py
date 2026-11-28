@@ -1,7 +1,7 @@
 """FastAPI router and read-only SQLite layer for CPNS 2026 verified decrees & live SSCASN data.
 
-Sources currently ingested (12 agencies):
-- SSCASN BKN Live (9 agencies): MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN
+Sources currently ingested (13 agencies):
+- SSCASN BKN Live (10 agencies): MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN
 - Official PDFs (2 agencies): Kementerian Kehutanan (PG.2/2026), Kementerian Keuangan (KepmenPANRB 675/2026)
 - Official SE STR (1 agency): Kementerian Kesehatan (SE HK.02.02/F/4023/2026, quota NULL)
 
@@ -53,26 +53,43 @@ GOLONGAN_STATUTORY: list[tuple[str, str, int, str]] = [
 router = APIRouter(prefix="/api/2026", tags=["cpns2026"])
 _db_2026_lock = threading.Lock()
 _cache_2026_lock = threading.Lock()
-_cache_2026_sig: Optional[tuple[int, int]] = None
+_cache_2026_sig: Optional[tuple[Optional[tuple[int, int]], Optional[tuple[int, int]]]] = None
 _stats_cache_2026: Optional[dict[str, Any]] = None
 _filters_cache_2026: Optional[dict[str, Any]] = None
 _list_cache_2026: "OrderedDict[tuple[Any, ...], dict[str, Any]]" = OrderedDict()
+_jurusan_cache_2026: "OrderedDict[tuple[Any, ...], list[dict[str, Any]]]" = OrderedDict()
+_instansi_cache_2026: "OrderedDict[tuple[Any, ...], list[dict[str, Any]]]" = OrderedDict()
+_batch_cache_2026: "OrderedDict[tuple[str, ...], list[dict[str, Any]]]" = OrderedDict()
 _detail_cache_2026: "OrderedDict[str, dict[str, Any]]" = OrderedDict()
 _analytics_cache_2026: "OrderedDict[tuple[Any, ...], dict[str, Any]]" = OrderedDict()
 _MAX_LIST_CACHE_2026 = 128
+_MAX_JURUSAN_CACHE_2026 = 128
+_MAX_INSTANSI_CACHE_2026 = 64
+_MAX_BATCH_CACHE_2026 = 64
 _MAX_DETAIL_CACHE_2026 = 256
 _MAX_ANALYTICS_CACHE_2026 = 64
-_CDN_CACHE_HEADER = "public, max-age=120, s-maxage=300, stale-while-revalidate=600"
+_CDN_CACHE_HEADER = "public, max-age=120, s-maxage=3600, stale-while-revalidate=86400"
+
+_FORMASI_LIST_COLS = (
+    "f.formasi_id, f.no_urut, f.instansi_id, f.unit_eselon1, f.jabatan_nm, f.lokasi_nm, "
+    "f.jenis_formasi, f.jumlah_formasi, f.jumlah_pelamar, f.rasio_kompetisi, "
+    "f.peluang_lolos_pct, f.status_keketatan, f.gaji_min, f.gaji_max, "
+    "f.usia_min, f.usia_max, f.pendidikan_nm, f.jenjang, f.sumber_dokumen"
+)
+
+
+def _file_sig(path: Path) -> Optional[tuple[int, int]]:
+    try:
+        st = path.stat()
+        return (st.st_mtime_ns, st.st_size)
+    except OSError:
+        return None
 
 
 def _sync_2026_cache_version() -> None:
-    """Clear read-only 2026 caches automatically whenever cpns2026.db changes on disk."""
+    """Clear read-only 2026 caches automatically whenever cpns2026.db or drive_audit changes on disk."""
     global _cache_2026_sig, _stats_cache_2026, _filters_cache_2026
-    try:
-        st = DB_PATH.stat()
-        sig = (st.st_mtime_ns, st.st_size)
-    except OSError:
-        sig = None
+    sig = (_file_sig(DB_PATH), _file_sig(AUDIT_JSON_PATH))
     if sig == _cache_2026_sig:
         return
     with _cache_2026_lock:
@@ -82,6 +99,9 @@ def _sync_2026_cache_version() -> None:
         _stats_cache_2026 = None
         _filters_cache_2026 = None
         _list_cache_2026.clear()
+        _jurusan_cache_2026.clear()
+        _instansi_cache_2026.clear()
+        _batch_cache_2026.clear()
         _detail_cache_2026.clear()
         _analytics_cache_2026.clear()
 
@@ -156,11 +176,23 @@ def _get_conn() -> sqlite3.Connection:
 
 
 def warm_2026_caches() -> None:
-    """Pre-warm lightweight CPNS 2026 stats & filters caches in <50ms at startup."""
+    """Pre-warm lightweight CPNS 2026 default caches at startup to avoid Render cold-boot stampedes."""
     ensure_2026_database_ready()
     if DB_PATH.exists():
         get_stats_2026(Response())
         get_filters_2026(Response())
+        search_jurusan_2026(Response(), q="", limit=25)
+        list_formasi_2026(
+            Response(), q="", instansi="", eselon1="", kategori="", jenjang="",
+            jurusan="", jabatan="", lokasi="", jenis_formasi="", keketatan="",
+            keketatan_2024="", min_kuota=None, only_zero_pelamar=False,
+            sort_by="no_urut", page=1, limit=20,
+        )
+        get_top_analytics_2026(
+            Response(), q="", instansi="", eselon1="", kategori="", jenjang="",
+            jurusan="", jabatan="", lokasi="", jenis_formasi="", keketatan="",
+            keketatan_2024="", min_kuota=None, only_zero_pelamar=False,
+        )
 
 
 def _sanitize_csv_cell(val: Any) -> str:
@@ -218,7 +250,9 @@ def _build_filter_clause(
         params.extend([like, like, like, like, like])
 
     if (instansi or "").strip():
-        clauses.append("i.instansi_nm LIKE ?")
+        clauses.append(
+            "f.instansi_id IN (SELECT instansi_id FROM instansi WHERE instansi_nm LIKE ?)"
+        )
         params.append(f"%{instansi.strip()}%")
 
     if (eselon1 or "").strip():
@@ -388,7 +422,14 @@ def _build_persyaratan_daftar(row_dict: dict[str, Any]) -> dict[str, Any]:
 
 def _row_to_dict(row: sqlite3.Row, *, include_detail: bool = False) -> dict[str, Any]:
     d = dict(row)
-    d["jurusan_list"] = [m.strip() for m in (d.get("pendidikan_nm") or "").split(" | ") if m.strip()]
+    seen_majors: set[str] = set()
+    uniq_majors: list[str] = []
+    for m in (d.get("pendidikan_nm") or "").split(" | "):
+        cm = m.strip()
+        if cm and cm.upper() not in seen_majors:
+            seen_majors.add(cm.upper())
+            uniq_majors.append(cm)
+    d["jurusan_list"] = uniq_majors
     d.update(_resolve_golongan(d.get("jenjang", "")))
     if include_detail:
         d["persyaratan_daftar"] = _build_persyaratan_daftar(d)
@@ -540,10 +581,15 @@ def get_filters_2026(response: Response) -> dict[str, Any]:
             }
             for r in cur.execute(
                 """
-                SELECT f.unit_eselon1, COUNT(*) AS cnt, COALESCE(SUM(f.jumlah_formasi), 0) AS kuota, i.instansi_nm, COUNT(f.jumlah_formasi) AS known_kuota_cnt
+                SELECT
+                    f.unit_eselon1,
+                    COUNT(*) AS cnt,
+                    COALESCE(SUM(f.jumlah_formasi), 0) AS kuota,
+                    CASE WHEN COUNT(DISTINCT i.instansi_nm) = 1 THEN MIN(i.instansi_nm) ELSE 'Lintas Instansi' END AS instansi_nm,
+                    COUNT(f.jumlah_formasi) AS known_kuota_cnt
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
-                GROUP BY f.unit_eselon1, i.instansi_nm
+                GROUP BY f.unit_eselon1
                 ORDER BY kuota DESC, cnt DESC, f.unit_eselon1 ASC
                 """
             ).fetchall()
@@ -655,28 +701,40 @@ def search_jurusan_2026(
     _sync_2026_cache_version()
     response.headers["Cache-Control"] = _CDN_CACHE_HEADER
     q_clean = (q or "").strip()
-    cache_key = ("jur", q_clean.upper(), limit)
-    cached = _lru_get(_list_cache_2026, cache_key)
+    cache_key = (q_clean.upper(), limit)
+    cached = _lru_get(_jurusan_cache_2026, cache_key)
     if cached is not None:
         return cached
     conn = _get_conn()
     try:
         like = f"%{q_clean}%"
-        rows = conn.execute(
-            """
-            SELECT j.jurusan_nm, COUNT(DISTINCT fj.formasi_id) AS formasi_count, COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
-            FROM jurusan j
-            CROSS JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id
-            JOIN formasi f ON f.formasi_id = fj.formasi_id
-            WHERE UPPER(j.jurusan_nm) LIKE UPPER(?)
-            GROUP BY j.jurusan_id, j.jurusan_nm
-            ORDER BY total_kuota DESC, j.jurusan_nm ASC
-            LIMIT ?
-            """,
-            (like, limit),
-        ).fetchall()
+        try:
+            rows = conn.execute(
+                """
+                SELECT jurusan_nm, formasi_count, total_kuota
+                FROM jurusan
+                WHERE UPPER(jurusan_nm) LIKE UPPER(?)
+                ORDER BY total_kuota DESC, formasi_count DESC, jurusan_nm ASC
+                LIMIT ?
+                """,
+                (like, limit),
+            ).fetchall()
+        except sqlite3.OperationalError:
+            rows = conn.execute(
+                """
+                SELECT j.jurusan_nm, COUNT(*) AS formasi_count, COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
+                FROM jurusan j
+                CROSS JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id
+                JOIN formasi f ON f.formasi_id = fj.formasi_id
+                WHERE UPPER(j.jurusan_nm) LIKE UPPER(?)
+                GROUP BY j.jurusan_id, j.jurusan_nm
+                ORDER BY total_kuota DESC, j.jurusan_nm ASC
+                LIMIT ?
+                """,
+                (like, limit),
+            ).fetchall()
         payload = [dict(r) for r in rows]
-        _lru_set(_list_cache_2026, cache_key, payload, _MAX_LIST_CACHE_2026)
+        _lru_set(_jurusan_cache_2026, cache_key, payload, _MAX_JURUSAN_CACHE_2026)
         return payload
     finally:
         conn.close()
@@ -684,12 +742,20 @@ def search_jurusan_2026(
 
 @router.get("/filters/instansi")
 def search_instansi_2026(
+    response: Response,
     q: str = Query(default=""),
     limit: int = Query(default=30, ge=1, le=100),
 ) -> list[dict[str, Any]]:
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
+    q_clean = (q or "").strip()
+    cache_key = (q_clean.upper(), limit)
+    cached = _lru_get(_instansi_cache_2026, cache_key)
+    if cached is not None:
+        return cached
     conn = _get_conn()
     try:
-        q_clean = (q or "").strip()
         like = f"%{q_clean}%"
         rows = conn.execute(
             """
@@ -703,7 +769,9 @@ def search_instansi_2026(
             """,
             (like, limit),
         ).fetchall()
-        return [dict(r) for r in rows]
+        payload = [dict(r) for r in rows]
+        _lru_set(_instansi_cache_2026, cache_key, payload, _MAX_INSTANSI_CACHE_2026)
+        return payload
     finally:
         conn.close()
 
@@ -784,12 +852,14 @@ def list_formasi_2026(
 
     conn = _get_conn()
     try:
+        needs_b_join = bool((keketatan_2024 or "").strip())
+        agg_b_join = "LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id" if needs_b_join else ""
         agg = conn.execute(
             f"""
             SELECT COUNT(*) AS cnt, COALESCE(SUM(f.jumlah_formasi), 0) AS kuota_sum
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
-            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
+            {agg_b_join}
             WHERE {where_sql}
             """,
             params,
@@ -802,7 +872,7 @@ def list_formasi_2026(
         rows = conn.execute(
             f"""
             SELECT
-                f.*,
+                {_FORMASI_LIST_COLS},
                 i.instansi_nm,
                 i.kategori_instansi,
                 i.tukin_min,
@@ -834,17 +904,24 @@ def list_formasi_2026(
 
 
 @router.get("/formasi-batch")
-def get_formasi_batch_2026(ids: str = Query(default="")) -> list[dict[str, Any]]:
+def get_formasi_batch_2026(response: Response, ids: str = Query(default="")) -> list[dict[str, Any]]:
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
     id_list = [x.strip() for x in ids.split(",") if x.strip()][:8]
     if not id_list:
         return []
+    cache_key = tuple(id_list)
+    cached = _lru_get(_batch_cache_2026, cache_key)
+    if cached is not None:
+        return cached
     placeholders = ",".join("?" for _ in id_list)
     conn = _get_conn()
     try:
         rows = conn.execute(
             f"""
             SELECT
-                f.*,
+                {_FORMASI_LIST_COLS},
                 i.instansi_nm,
                 i.kategori_instansi,
                 i.tukin_min,
@@ -859,7 +936,9 @@ def get_formasi_batch_2026(ids: str = Query(default="")) -> list[dict[str, Any]]
             id_list,
         ).fetchall()
         by_id = {r["formasi_id"]: _row_to_dict(r) for r in rows}
-        return [by_id[fid] for fid in id_list if fid in by_id]
+        payload = [by_id[fid] for fid in id_list if fid in by_id]
+        _lru_set(_batch_cache_2026, cache_key, payload, _MAX_BATCH_CACHE_2026)
+        return payload
     finally:
         conn.close()
 
@@ -940,6 +1019,11 @@ def get_top_analytics_2026(
     conn = _get_conn()
     try:
         cur = conn.cursor()
+        b_join_opt = (
+            "LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id"
+            if (keketatan_2024 or "").strip()
+            else ""
+        )
         agg = cur.execute(
             f"""
             SELECT
@@ -948,7 +1032,7 @@ def get_top_analytics_2026(
                 COUNT(f.jumlah_pelamar) AS has_p
             FROM formasi f
             JOIN instansi i ON i.instansi_id = f.instansi_id
-            LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
+            {b_join_opt}
             WHERE {where_sql}
             """,
             params,
@@ -959,18 +1043,22 @@ def get_top_analytics_2026(
             dict(r)
             for r in cur.execute(
                 f"""
+                WITH filtered_f AS MATERIALIZED (
+                    SELECT f.formasi_id, f.jumlah_formasi, f.jumlah_pelamar
+                    FROM formasi f
+                    JOIN instansi i ON i.instansi_id = f.instansi_id
+                    {b_join_opt}
+                    WHERE {where_sql}
+                )
                 SELECT
                     j.jurusan_nm,
-                    COUNT(DISTINCT f.formasi_id) AS formasi_count,
-                    COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota,
-                    CASE WHEN COUNT(f.jumlah_pelamar) > 0 THEN SUM(f.jumlah_pelamar) ELSE NULL END AS total_pelamar
-                FROM formasi f
-                JOIN instansi i ON i.instansi_id = f.instansi_id
-                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
-                JOIN formasi_jurusan fj ON fj.formasi_id = f.formasi_id
+                    COUNT(*) AS formasi_count,
+                    COALESCE(SUM(ff.jumlah_formasi), 0) AS total_kuota,
+                    CASE WHEN COUNT(ff.jumlah_pelamar) > 0 THEN SUM(ff.jumlah_pelamar) ELSE NULL END AS total_pelamar
+                FROM filtered_f ff
+                CROSS JOIN formasi_jurusan fj ON fj.formasi_id = ff.formasi_id
                 JOIN jurusan j ON j.jurusan_id = fj.jurusan_id
-                WHERE {where_sql}
-                GROUP BY j.jurusan_id, j.jurusan_nm
+                GROUP BY fj.jurusan_id, j.jurusan_nm
                 ORDER BY total_kuota DESC, formasi_count DESC, j.jurusan_nm ASC
                 LIMIT 10
                 """,
@@ -988,7 +1076,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
-                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
+                {b_join_opt}
                 WHERE {where_sql}
                 GROUP BY f.jabatan_nm
                 ORDER BY total_kuota DESC, formasi_count DESC
@@ -1008,7 +1096,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
-                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
+                {b_join_opt}
                 WHERE {where_sql}
                 GROUP BY f.unit_eselon1
                 ORDER BY total_kuota DESC, formasi_count DESC
@@ -1028,7 +1116,7 @@ def get_top_analytics_2026(
                     COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
                 FROM formasi f
                 JOIN instansi i ON i.instansi_id = f.instansi_id
-                LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
+                {b_join_opt}
                 WHERE {where_sql}
                 GROUP BY f.jenjang
                 ORDER BY total_kuota DESC

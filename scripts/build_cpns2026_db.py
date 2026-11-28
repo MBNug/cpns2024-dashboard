@@ -129,7 +129,7 @@ UNIT_TOKEN_REPAIRS: dict[str, str] = {
     "DIREKIORAT": "DIREKTORAT", "DIREKTORNV": "DIREKTORAT", "DIREKTORXI": "DIREKTORAT",
     "DIREKFORAT": "DIREKTORAT", "DREKTORAT": "DIREKTORAT", "DIREKIORPCI": "DIREKTORAT",
     "DIRER": "DIREKTORAT", "TORAY": "DIREKTORAT",
-    "ADVOKAS1": "ADVOKASI", "ADVOkAS1": "ADVOKASI", "ILPE": "TIPE", "LLPE": "TIPE", "IIPE": "TIPE",
+    "ADVOKAS1": "ADVOKASI", "ADVOkAS1": "ADVOKASI", "ILPE": "TIPE", "LLPE": "TIPE", "IIPE": "TIPE", "TWE": "TIPE",
     "JENDEWXL": "JENDERAL", "JENDFRAL": "JENDERAL", "JENDERAI": "JENDERAL", "IENDERAL": "JENDERAL",
     "JENDERIL": "JENDERAL", "JENDERA": "JENDERAL", "JENDEIUL": "JENDERAL", "JENIERAL": "JENDERAL",
     "DERAL": "JENDERAL", "JEN": "JENDERAL",
@@ -462,7 +462,14 @@ def extract_jenjang_tier(pend: str) -> str:
     has_s2 = bool(re.search(r"\bS-?2\b|\bMAGISTER\b", up))
     has_s1 = bool(re.search(r"\bS-?1\b|\bD-?IV\b|\bDIPLOMA\s+IV\b|\bSARJANA\s+TERAPAN\b", up)) or "KEUANGAN DAN PERBANKAN" in up
     has_d3 = bool(re.search(r"\bD-?III\b|\bDIPLOMA\s+III\b|\bDIPLOMA\s+KEPERAWATAN\b|\bAKADEMI\b", up))
-    has_sma = "SMA/" in up or "SMA " in up or "SLTA" in up or "MADRASAH ALIYAH" in up or "SMK" in up
+    has_sma = (
+        "SMA/" in up
+        or "SMA " in up
+        or "SLTA" in up
+        or "MADRASAH ALIYAH" in up
+        or "SMK" in up
+        or bool(re.search(r"\bSMU\b|\bSUPM\b", up))
+    )
     tiers = []
     if has_sma:
         tiers.append("SMA/SMK")
@@ -646,7 +653,9 @@ def main():
         CREATE TABLE jurusan (
             jurusan_id INTEGER PRIMARY KEY AUTOINCREMENT,
             jurusan_nm TEXT NOT NULL UNIQUE COLLATE NOCASE,
-            jenjang TEXT NOT NULL
+            jenjang TEXT NOT NULL,
+            formasi_count INTEGER NOT NULL DEFAULT 0,
+            total_kuota INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE formasi (
@@ -723,6 +732,7 @@ def main():
         CREATE INDEX idx_2026_formasi_jabatan ON formasi(jabatan_nm);
         CREATE INDEX idx_2026_formasi_jenjang ON formasi(jenjang);
         CREATE INDEX idx_2026_fj_jurusan ON formasi_jurusan(jurusan_id);
+        CREATE INDEX idx_2026_banding_status ON banding_2024(status_keketatan_2024);
         """
     )
 
@@ -778,13 +788,25 @@ def main():
                 ),
             )
 
-    # Collapse case-insensitive major variants (e.g. "S-1 INFORMATIKA" + "S-1 Informatika")
+    def _normalize_major_prefix(tok: str) -> str:
+        s = " ".join(tok.split())
+        s = re.sub(r"^(S)([123])(\s+)", r"\1-\2\3", s, flags=re.IGNORECASE)
+        s = re.sub(r"^(D)(III|IV)(\s+)", r"\1-\2\3", s, flags=re.IGNORECASE)
+        return s
+
+    # Collapse case-insensitive & hyphenation major variants (e.g. "S1 Kimia" + "S-1 KIMIA")
     variants_by_key: dict[str, Counter[str]] = {}
     for row in rows:
+        norm_parts: list[str] = []
+        seen_norm: set[str] = set()
         for tok in row["pendidikan_nm"].split(" | "):
-            clean = " ".join(tok.split())
+            clean = _normalize_major_prefix(tok)
             if clean:
                 variants_by_key.setdefault(clean.upper(), Counter())[clean] += 1
+                if clean.upper() not in seen_norm:
+                    seen_norm.add(clean.upper())
+                    norm_parts.append(clean)
+        row["pendidikan_nm"] = " | ".join(norm_parts)
 
     def _jurusan_rank(item: tuple[str, int]) -> tuple[int, int, int, int, str]:
         text, freq = item
@@ -866,6 +888,25 @@ def main():
                 r.get("sumber_nilai_2024"),
             ),
         )
+
+    # Precompute jurusan aggregates so /api/2026/filters/jurusan runs in <1ms instead of 750ms
+    cur.execute(
+        """
+        UPDATE jurusan
+        SET
+            formasi_count = COALESCE((
+                SELECT COUNT(*)
+                FROM formasi_jurusan fj
+                WHERE fj.jurusan_id = jurusan.jurusan_id
+            ), 0),
+            total_kuota = COALESCE((
+                SELECT SUM(COALESCE(f.jumlah_formasi, 0))
+                FROM formasi_jurusan fj
+                JOIN formasi f ON f.formasi_id = fj.formasi_id
+                WHERE fj.jurusan_id = jurusan.jurusan_id
+            ), 0)
+        """
+    )
 
     conn.commit()
     conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")

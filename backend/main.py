@@ -522,34 +522,37 @@ def get_db_connection() -> sqlite3.Connection:
 
 
 def get_median_salary(cur: sqlite3.Cursor, column: str) -> int:
-    """Calculate exact median for a salary column in formasi table."""
-    cur.execute(f"SELECT {column} FROM formasi WHERE {column} > 0 ORDER BY {column}")
-    rows = cur.fetchall()
-    if not rows:
+    """Calculate exact median for a salary column via SQL LIMIT/OFFSET without loading 111k rows into RAM."""
+    if column not in ("gaji_min", "gaji_max"):
+        raise ValueError(f"Unsupported salary column: {column}")
+    n = cur.execute(f"SELECT COUNT(*) FROM formasi WHERE {column} > 0").fetchone()[0]
+    if not n:
         return 0
-    n = len(rows)
-    mid = n // 2
     if n % 2 == 1:
-        return int(rows[mid][0])
-    return int((rows[mid - 1][0] + rows[mid][0]) / 2)
+        row = cur.execute(
+            f"SELECT {column} FROM formasi WHERE {column} > 0 ORDER BY {column} LIMIT 1 OFFSET ?",
+            (n // 2,),
+        ).fetchone()
+        return int(row[0]) if row else 0
+    rows = cur.execute(
+        f"SELECT {column} FROM formasi WHERE {column} > 0 ORDER BY {column} LIMIT 2 OFFSET ?",
+        (n // 2 - 1,),
+    ).fetchall()
+    if len(rows) == 2:
+        return int((rows[0][0] + rows[1][0]) / 2)
+    return int(rows[0][0]) if rows else 0
 
 
 @app.get("/health")
 def health_check():
-    """Lightweight health check endpoint (never blocks boot unpacking 255 MB cpns2024.db)."""
-    conn = None
+    """Lightweight health check endpoint (never blocks on _db_lock or scans 255 MB cpns2024.db)."""
     try:
-        if DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000:
-            conn = get_db_connection()
-            count = conn.execute("SELECT COUNT(*) FROM formasi").fetchone()[0]
-            return {"status": "ok", "database": "connected", "total_formasi": count}
         ensure_2026_database_ready()
+        if _stats_cache is not None:
+            return {"status": "ok", "database": "connected", "total_formasi": _stats_cache.get("total_formasi")}
         return {"status": "ok", "database": "cpns2026_ready"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
-    finally:
-        if conn is not None:
-            conn.close()
 
 
 def _get_stats_data() -> Dict[str, Any]:
@@ -1908,36 +1911,43 @@ def get_top_analytics(
                     j_extra_params.append(f"%{tok}%")
             j_where = ("WHERE " + " AND ".join(j_extra_conds)) if j_extra_conds else ""
 
-            cur.execute("CREATE TEMP TABLE IF NOT EXISTS _tmp_flt_rid (rid INT PRIMARY KEY, kuota INT, pelamar INT, gmax INT)")
-            cur.execute("DELETE FROM _tmp_flt_rid")
-            cur.executemany(
-                "INSERT INTO _tmp_flt_rid VALUES (?, ?, ?, ?)",
-                [(r[0], r[3], r[4], r[5]) for r in f_rows],
-            )
-            cur.execute(
-                f"""
-                SELECT
-                    j.jurusan_id,
-                    j.nama_jurusan,
-                    j.jenjang,
-                    COUNT(t.rid) AS total_formasi,
-                    COALESCE(SUM(t.kuota), 0) AS total_kuota,
-                    COALESCE(SUM(t.pelamar), 0) AS total_pelamar,
-                    CAST(ROUND(COALESCE(AVG(t.gmax), 0)) AS INTEGER) AS avg_gaji_max
-                FROM _tmp_flt_rid t
-                INNER JOIN fj_fast fj ON fj.rid = t.rid
-                INNER JOIN jurusan j ON j.jurusan_id = fj.jid
-                {j_where}
-                GROUP BY j.jurusan_id
-                ORDER BY
-                    CASE WHEN ? IS NOT NULL AND j.jurusan_id = ? THEN 0 ELSE 1 END ASC,
-                    total_kuota DESC,
-                    total_formasi DESC
-                LIMIT ?
-                """,
-                j_extra_params + [jurusan_id_i, jurusan_id_i, limit],
-            )
-            top_jurusan_rows = cur.fetchall()
+            try:
+                cur.execute("CREATE TEMP TABLE IF NOT EXISTS _tmp_flt_rid (rid INT PRIMARY KEY, kuota INT, pelamar INT, gmax INT)")
+                cur.execute("DELETE FROM _tmp_flt_rid")
+                cur.executemany(
+                    "INSERT INTO _tmp_flt_rid VALUES (?, ?, ?, ?)",
+                    [(r[0], r[3], r[4], r[5]) for r in f_rows],
+                )
+                cur.execute(
+                    f"""
+                    SELECT
+                        j.jurusan_id,
+                        j.nama_jurusan,
+                        j.jenjang,
+                        COUNT(t.rid) AS total_formasi,
+                        COALESCE(SUM(t.kuota), 0) AS total_kuota,
+                        COALESCE(SUM(t.pelamar), 0) AS total_pelamar,
+                        CAST(ROUND(COALESCE(AVG(t.gmax), 0)) AS INTEGER) AS avg_gaji_max
+                    FROM _tmp_flt_rid t
+                    INNER JOIN fj_fast fj ON fj.rid = t.rid
+                    INNER JOIN jurusan j ON j.jurusan_id = fj.jid
+                    {j_where}
+                    GROUP BY j.jurusan_id
+                    ORDER BY
+                        CASE WHEN ? IS NOT NULL AND j.jurusan_id = ? THEN 0 ELSE 1 END ASC,
+                        total_kuota DESC,
+                        total_formasi DESC
+                    LIMIT ?
+                    """,
+                    j_extra_params + [jurusan_id_i, jurusan_id_i, limit],
+                )
+                top_jurusan_rows = cur.fetchall()
+            finally:
+                try:
+                    cur.execute("DELETE FROM _tmp_flt_rid")
+                    conn.commit()
+                except sqlite3.Error:
+                    pass
     else:
         full_where, full_params, _ = build_filter_clause(
             q=q_s,
@@ -2400,6 +2410,7 @@ def download_raw_csv():
 
 @app.get("/api/download/sqlite-db")
 def download_sqlite_db():
+    ensure_database_ready()
     db_path = DATA_DIR / "cpns2024.db"
     if db_path.exists():
         return FileResponse(

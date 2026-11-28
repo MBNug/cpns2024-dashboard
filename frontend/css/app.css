@@ -375,6 +375,27 @@ button:disabled {
   border: 0;
 }
 
+.skip-link:focus-visible {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 999;
+  width: auto;
+  height: auto;
+  padding: 8px 14px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--color-accent-solid);
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
 .icon-xs {
   width: 14px;
   height: 14px;

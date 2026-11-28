@@ -131,7 +131,8 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(rf.status_code, 200)
         fd = rf.json()
         self.assertEqual(len(fd["instansi"]), 13)
-        self.assertEqual(len(fd["unit_eselon1"]), 146)
+        self.assertEqual(len(fd["unit_eselon1"]), 139)
+        self.assertEqual(len({x["unit_eselon1"] for x in fd["unit_eselon1"]}), len(fd["unit_eselon1"]))
         self.assertEqual(len(fd["jabatan"]), 154)
         self.assertEqual(
             sorted(fd["jenis_formasi"]),
@@ -690,6 +691,23 @@ class Cpns2026DashboardTests(unittest.TestCase):
                 self.assertEqual(tmp_db.read_bytes(), b"v2-payload-updated")
             finally:
                 mod26.DATA_DIR, mod26.DB_PATH, mod26.DB_GZ_PATH = orig_dir, orig_db, orig_gz
+
+        # 6. Argon & Carbon Round 2 regressions: Cache-Control, clean OCR/majors, warm_2026_caches, SMU/SUPM jenjang
+        mod26.warm_2026_caches()
+        r_st = self.client.get("/api/2026/stats")
+        self.assertIn("s-maxage=3600", r_st.headers.get("cache-control", ""))
+        self.assertIsNone(self.client.get("/api/2026/export", params={"ids": "2026-KEMENKEU-001"}).headers.get("cache-control"))
+        self.assertIn("s-maxage=3600", self.client.get("/api/2026/formasi-batch", params={"ids": "2026-KEMENKEU-001"}).headers.get("cache-control", ""))
+        self.assertIn("s-maxage=3600", self.client.get("/api/2026/filters/instansi").headers.get("cache-control", ""))
+
+        conn2 = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+        try:
+            self.assertEqual(conn2.execute("SELECT COUNT(*) FROM formasi WHERE lokasi_nm LIKE '%TWE MADYA%'").fetchone()[0], 0)
+            self.assertEqual(conn2.execute("SELECT COUNT(*) FROM jurusan WHERE UPPER(jurusan_nm) GLOB 'S[12] *'").fetchone()[0], 0)
+            self.assertEqual(conn2.execute("SELECT COUNT(*) FROM jurusan WHERE jenjang = 'Lainnya' AND (UPPER(jurusan_nm) LIKE '%SMU%' OR UPPER(jurusan_nm) LIKE '%SUPM%')").fetchone()[0], 0)
+            self.assertEqual(conn2.execute("SELECT COUNT(*) FROM formasi WHERE instansi_id = 'KKP' AND unit_eselon1 = UPPER(unit_eselon1)").fetchone()[0], 0)
+        finally:
+            conn2.close()
 
 
 if __name__ == "__main__":

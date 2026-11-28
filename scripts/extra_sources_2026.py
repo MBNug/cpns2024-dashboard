@@ -125,13 +125,13 @@ DRIVE_AUDIT_SUMMARY = [
         "catatan": "Data resmi SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis). File BPK.pdf di Drive memuat total alokasi identik 952 kursi sehingga tidak digandakan.",
     },
     {
-        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf (Kementerian Kelautan dan Perikanan)",
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + KKP.pdf",
         "status": "ingested_sscasn_live",
         "instansi": "Kementerian Kelautan dan Perikanan",
-        "referensi": "SSCASN BKN Live — Seleksi CASN Nasional 2026 (28 Nov 2026)",
+        "referensi": "SSCASN BKN Live + Pengumuman Sekjen KKP No. B.1389/SJ/KP.310/XI/2026 (27 Nov 2026)",
         "rows_ingested": 606,
         "kuota_ingested": 2132,
-        "catatan": "Data resmi SSCASN BKN Live lengkap 606 baris penempatan unit KKP seluruh Indonesia (2.091 Umum, 35 Putra/Putri Papua, 6 Penyandang Disabilitas) beserta Gaji Resmi BKN Rp 5,0–8,8 jt, usia 18–35 th, uraian tugas, dan dokumen/sertifikasi khusus per formasi (ANKAPIN II, ATKAPIN II, BST/BST-F, TOEFL/IELTS).",
+        "catatan": "Data resmi SSCASN BKN Live lengkap 606 baris penempatan unit KKP seluruh Indonesia (2.091 Umum, 35 Putra/Putri Papua, 6 Penyandang Disabilitas) beserta Gaji Resmi BKN Rp 5,0–8,8 jt, usia 18–35 th, uraian tugas, dokumen/sertifikasi khusus per formasi, serta aturan lengkap Pengumuman B.1389/SJ/KP.310/XI/2026 (tanpa ambang IPK minimal, bobot SKB 50% CAT + 50% Tambahan, ikatan dinas 5 tahun).",
     },
     {
         "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenkop.pdf",
@@ -279,8 +279,42 @@ _BSSN_PENDIDIKAN = (
 )
 
 
+_UPPER_ACRONYMS = {
+    "Ri": "RI",
+    "Bpk": "BPK",
+    "Bpkp": "BPKP",
+    "Bssn": "BSSN",
+    "Kkp": "KKP",
+    "Diy": "DIY",
+    "Dki": "DKI",
+    "Ntb": "NTB",
+    "Ntt": "NTT",
+    "Sdm": "SDM",
+    "Sdmk": "SDMK",
+    "Tik": "TIK",
+    "Bpsdm": "BPSDM",
+    "Bappenas": "Bappenas",
+    "Ii": "II",
+    "Iii": "III",
+    "Iv": "IV",
+    "Vi": "VI",
+    "Vii": "VII",
+    "Viii": "VIII",
+}
+
+
 def _format_unit_eselon1(raw_seg: str) -> str:
-    return re.sub(r"\bDan\b", "dan", raw_seg.strip().title())
+    s = re.sub(r"\s+", " ", (raw_seg or "").strip()).title()
+    s = re.sub(r"\bDan\b", "dan", s)
+    s = re.sub(r"\bDi\b", "di", s)
+    for src, dst in _UPPER_ACRONYMS.items():
+        s = re.sub(rf"\b{src}\b", dst, s)
+    s = re.sub(
+        r"Regional Sulawesi, Maluku, Papua, Bali,\s*Nusa Tenggara$",
+        "Regional Sulawesi, Maluku, Papua, Bali, dan Nusa Tenggara",
+        s,
+    )
+    return s
 
 
 def get_bssn_rows(extract_jenjang_fn) -> list[dict]:
@@ -600,13 +634,21 @@ def get_sscasn_live_rows(extract_jenjang_fn, csv_path) -> list[dict]:
             lokasi_nm = re.sub(r"\s+", " ", (r.get("lokasi_formasi") or "").strip())
             segs = [s.strip() for s in lokasi_nm.split("|") if s.strip()]
             if len(segs) >= 2:
-                eselon1 = _format_unit_eselon1(segs[1]).replace("Bpk Ri", "BPK RI")
+                eselon1 = _format_unit_eselon1(segs[1])
             else:
-                eselon1 = lokasi_nm or instansi_nm
+                raw_es1 = lokasi_nm or instansi_nm
+                eselon1 = _format_unit_eselon1(raw_es1) if raw_es1.isupper() else raw_es1
 
             raw_pend = (r.get("nama_pendidikan") or r.get("group_pendidikan") or "").strip()
             pend_nm = re.sub(r"\s+/\s+", " | ", raw_pend)
-            pend_nm = " | ".join(p.strip() for p in pend_nm.split("|") if p.strip())
+            pend_parts: list[str] = []
+            seen_pend: set[str] = set()
+            for p in pend_nm.split("|"):
+                clean_p = re.sub(r"\s+", " ", p).strip()
+                if clean_p and clean_p.upper() not in seen_pend:
+                    seen_pend.add(clean_p.upper())
+                    pend_parts.append(clean_p)
+            pend_nm = " | ".join(pend_parts)
 
             jabatan_nm = re.sub(r"\s+", " ", (r.get("nama_jabatan") or "").strip()).upper()
             jenis_formasi = (r.get("jenis_formasi") or "").strip() or None
