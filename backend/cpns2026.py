@@ -268,17 +268,17 @@ def _build_filter_clause(
         j_list = [x.strip() for x in jurusan.split(",") if x.strip()]
         if len(j_list) == 1:
             clauses.append(
-                "EXISTS (SELECT 1 FROM formasi_jurusan fj "
-                "JOIN jurusan j ON j.jurusan_id = fj.jurusan_id "
-                "WHERE fj.formasi_id = f.formasi_id AND UPPER(j.jurusan_nm) LIKE ?)"
+                "f.formasi_id IN (SELECT fj.formasi_id FROM jurusan j "
+                "JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id "
+                "WHERE UPPER(j.jurusan_nm) LIKE ?)"
             )
             params.append(f"%{j_list[0].upper()}%")
         elif j_list:
             sub_conds = " OR ".join(["UPPER(j.jurusan_nm) LIKE ?" for _ in j_list])
             clauses.append(
-                f"EXISTS (SELECT 1 FROM formasi_jurusan fj "
-                f"JOIN jurusan j ON j.jurusan_id = fj.jurusan_id "
-                f"WHERE fj.formasi_id = f.formasi_id AND ({sub_conds}))"
+                f"f.formasi_id IN (SELECT fj.formasi_id FROM jurusan j "
+                f"JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id "
+                f"WHERE {sub_conds})"
             )
             params.extend([f"%{item.upper()}%" for item in j_list])
 
@@ -647,12 +647,20 @@ def get_filters_2026(response: Response) -> dict[str, Any]:
 
 @router.get("/filters/jurusan")
 def search_jurusan_2026(
+    response: Response,
     q: str = Query(default=""),
     limit: int = Query(default=30, ge=1, le=100),
 ) -> list[dict[str, Any]]:
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
+    q_clean = (q or "").strip()
+    cache_key = ("jur", q_clean.upper(), limit)
+    cached = _lru_get(_list_cache_2026, cache_key)
+    if cached is not None:
+        return cached
     conn = _get_conn()
     try:
-        q_clean = (q or "").strip()
         like = f"%{q_clean}%"
         rows = conn.execute(
             """
@@ -667,7 +675,9 @@ def search_jurusan_2026(
             """,
             (like, limit),
         ).fetchall()
-        return [dict(r) for r in rows]
+        payload = [dict(r) for r in rows]
+        _lru_set(_list_cache_2026, cache_key, payload, _MAX_LIST_CACHE_2026)
+        return payload
     finally:
         conn.close()
 
@@ -894,6 +904,7 @@ def get_formasi_detail_2026(formasi_id: str, response: Response) -> dict[str, An
 
 @router.get("/analytics/top")
 def get_top_analytics_2026(
+    response: Response,
     q: str = Query(default=""),
     instansi: str = Query(default=""),
     eselon1: str = Query(default=""),
@@ -908,6 +919,18 @@ def get_top_analytics_2026(
     min_kuota: Optional[int] = Query(default=None),
     only_zero_pelamar: bool = Query(default=False),
 ) -> dict[str, Any]:
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
+    cache_key = (
+        q.strip(), instansi.strip(), eselon1.strip(), kategori.strip(),
+        jenjang.strip(), jurusan.strip(), jabatan.strip(), lokasi.strip(),
+        jenis_formasi.strip(), keketatan.strip(), keketatan_2024.strip(),
+        min_kuota, bool(only_zero_pelamar),
+    )
+    cached = _lru_get(_analytics_cache_2026, cache_key)
+    if cached is not None:
+        return cached
     where_sql, params = _build_filter_clause(
         q=q, instansi=instansi, eselon1=eselon1, kategori=kategori, jenjang=jenjang,
         jurusan=jurusan, jabatan=jabatan, lokasi=lokasi, jenis_formasi=jenis_formasi,
@@ -1104,7 +1127,7 @@ def get_top_analytics_2026(
             ).fetchall()
         ]
 
-        return {
+        payload = {
             "total_rows": agg["total_rows"] or 0,
             "total_kuota": agg["total_kuota"] or 0,
             "has_applicant_data": has_applicants,
@@ -1117,6 +1140,8 @@ def get_top_analytics_2026(
             "kategori_dist": kategori_dist,
             "instansi_dist": instansi_dist,
         }
+        _lru_set(_analytics_cache_2026, cache_key, payload, _MAX_ANALYTICS_CACHE_2026)
+        return payload
     finally:
         conn.close()
 

@@ -40,6 +40,8 @@
     activeDetail: null,
     detailCache: new Map(),
     detailAbortController: null,
+    tableAbortController: null,
+    analyticsAbortController: null,
     toastTimer: null,
   };
 
@@ -488,6 +490,12 @@
   }
 
   async function loadFormasiTable() {
+    if (state.tableAbortController) {
+      state.tableAbortController.abort();
+    }
+    const controller = new AbortController();
+    state.tableAbortController = controller;
+
     const loader = $('table-loading-indicator');
     if (loader) loader.classList.remove('hidden');
     updateClearButtons();
@@ -502,18 +510,24 @@
           state.totalKuotaFiltered = 0;
           state.totalPages = 1;
         } else {
-          const items = await apiGet('/formasi-batch', { ids: state.bookmarks.join(',') });
+          const items = await apiGet('/formasi-batch', { ids: state.bookmarks.join(',') }, { signal: controller.signal });
+          if (state.tableAbortController !== controller) return;
           state.currentItems = items;
           state.total = items.length;
           state.totalKuotaFiltered = items.reduce((acc, it) => acc + (it.jumlah_formasi || 0), 0);
           state.totalPages = 1;
         }
       } else {
-        const res = await apiGet('/formasi', {
-          ...buildActiveQueryParams(),
-          page: state.page,
-          limit: state.limit,
-        });
+        const res = await apiGet(
+          '/formasi',
+          {
+            ...buildActiveQueryParams(),
+            page: state.page,
+            limit: state.limit,
+          },
+          { signal: controller.signal }
+        );
+        if (state.tableAbortController !== controller) return;
         state.currentItems = res.items || [];
         state.total = res.total || 0;
         state.totalKuotaFiltered = res.total_kuota_filtered || 0;
@@ -528,9 +542,10 @@
         loadAnalytics();
       }
     } catch (err) {
+      if (err && err.name === 'AbortError') return;
       showToast('Gagal memuat daftar formasi CPNS 2026.', 'warn');
     } finally {
-      if (loader) loader.classList.add('hidden');
+      if (loader && state.tableAbortController === controller) loader.classList.add('hidden');
     }
   }
 
@@ -825,8 +840,14 @@
   }
 
   async function loadAnalytics() {
+    if (state.analyticsAbortController) {
+      state.analyticsAbortController.abort();
+    }
+    const controller = new AbortController();
+    state.analyticsAbortController = controller;
     try {
-      const d = await apiGet('/analytics/top', buildActiveQueryParams());
+      const d = await apiGet('/analytics/top', buildActiveQueryParams(), { signal: controller.signal });
+      if (state.analyticsAbortController !== controller) return;
       const topJur = d.top_jurusan || [];
       const topEs1 = d.top_eselon1 || [];
       const topJab = d.top_jabatan || [];
@@ -1037,6 +1058,7 @@
         }
       }
     } catch (e) {
+      if (e && e.name === 'AbortError') return;
       showToast('Gagal memuat analitik CPNS 2026.', 'warn');
     }
   }
@@ -1790,12 +1812,14 @@
     });
 
     const jurInput = $('filter-jurusan');
+    let jurTableTimer = null;
     jurInput.addEventListener('input', (e) => {
       state.jurusan = e.target.value;
       state.only_saved = false;
       state.page = 1;
       handleJurusanInput(e.target.value);
-      loadFormasiTable();
+      clearTimeout(jurTableTimer);
+      jurTableTimer = setTimeout(loadFormasiTable, 300);
     });
     jurInput.addEventListener('focus', () => handleJurusanInput(jurInput.value));
     $('btn-clear-jurusan').addEventListener('click', () => {
