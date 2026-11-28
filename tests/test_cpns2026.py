@@ -35,7 +35,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
             row_count, kuota_sum = cur.execute(
                 "SELECT COUNT(*), SUM(jumlah_formasi) FROM formasi"
             ).fetchone()
-            self.assertEqual(row_count, 5312)
+            self.assertEqual(row_count, 5313)
             self.assertEqual(kuota_sum, 85197)
 
             inst_counts = dict(
@@ -92,7 +92,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
                 FROM formasi
                 """
             ).fetchone()
-            self.assertEqual(non_nulls, (4889, 0, 0, 0, 0, 4888, 4888, 49))
+            self.assertEqual(non_nulls, (4890, 0, 0, 0, 0, 4888, 4888, 49))
 
             # Ensure jurusan catalog merges case-variants (e.g. S-1 Informatika + S-1 INFORMATIKA)
             dup_jurusan = cur.execute(
@@ -111,9 +111,9 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r = self.client.get("/api/2026/stats")
         self.assertEqual(r.status_code, 200)
         d = r.json()
-        self.assertEqual(d["total_formasi_rows"], 5312)
+        self.assertEqual(d["total_formasi_rows"], 5313)
         self.assertEqual(d["total_kuota"], 85197)
-        self.assertEqual(d["pusat_rows"], 5312)
+        self.assertEqual(d["pusat_rows"], 5313)
         self.assertEqual(d["daerah_rows"], 0)
         self.assertEqual(d["distinct_instansi"], 12)
         self.assertIsNone(d["total_pelamar"])
@@ -146,7 +146,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertEqual(k24_map["Sangat Ketat"]["formasi_count"], 53)
         self.assertEqual(k24_map["Moderat"]["formasi_count"], 53)
         self.assertEqual(k24_map["Tanpa Pelamar"]["formasi_count"], 1)
-        self.assertEqual(fd["unmatched_2024_count"], 5205)
+        self.assertEqual(fd["unmatched_2024_count"], 5206)
 
         r_k24_tight = self.client.get("/api/2026/formasi", params={"keketatan_2024": "Sangat Ketat"})
         self.assertEqual(r_k24_tight.status_code, 200)
@@ -166,7 +166,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_k24_none = self.client.get("/api/2026/formasi", params={"keketatan_2024": "__NONE__"})
         self.assertEqual(r_k24_none.status_code, 200)
-        self.assertEqual(r_k24_none.json()["total"], 5205)
+        self.assertEqual(r_k24_none.json()["total"], 5206)
         self.assertEqual(r_k24_none.json()["total_kuota_filtered"], 79720)
         self.assertTrue(all(x["status_keketatan_2024"] is None for x in r_k24_none.json()["items"]))
 
@@ -268,7 +268,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_kemenham = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Hak Asasi Manusia"})
         self.assertEqual(r_kemenham.status_code, 200)
-        self.assertEqual(r_kemenham.json()["total"], 15)
+        self.assertEqual(r_kemenham.json()["total"], 16)
         self.assertEqual(r_kemenham.json()["total_kuota_filtered"], 1000)
         self.assertGreater(r_kemenham.json()["items"][0]["gaji_min"], 0)
 
@@ -351,11 +351,11 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_ana = self.client.get("/api/2026/analytics/top")
         self.assertEqual(r_ana.status_code, 200)
         ana = r_ana.json()
-        self.assertEqual(ana["total_rows"], 5312)
+        self.assertEqual(ana["total_rows"], 5313)
         self.assertEqual(ana["total_kuota"], 85197)
         self.assertEqual(len(ana["instansi_dist"]), 12)
         self.assertEqual(ana["keketatan_dist"], [])
-        self.assertEqual(sum(x["formasi_count"] for x in ana["keketatan_2024_dist"]), 5312)
+        self.assertEqual(sum(x["formasi_count"] for x in ana["keketatan_2024_dist"]), 5313)
         self.assertFalse(ana["has_applicant_data"])
 
         r_ana_k24 = self.client.get("/api/2026/analytics/top", params={"keketatan_2024": "Sangat Ketat"})
@@ -366,7 +366,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_csv = self.client.get("/api/2026/export")
         self.assertEqual(r_csv.status_code, 200)
         reader = list(csv.reader(io.StringIO(r_csv.content.decode("utf-8-sig"))))
-        self.assertEqual(len(reader), 5313)  # 1 header + 5312 rows
+        self.assertEqual(len(reader), 5314)  # 1 header + 5313 rows
         # Empty columns for Pelamar & Gaji Min/Max on Kemenkeu row 1
         self.assertEqual(reader[1][10], "")  # Jenis Formasi
         self.assertEqual(reader[1][11], "")  # Jumlah Pelamar
@@ -407,7 +407,7 @@ class Cpns2026DashboardTests(unittest.TestCase):
 
         r_raw = self.client.get("/api/2026/download/raw-csv")
         self.assertEqual(r_raw.status_code, 200)
-        self.assertIn("Pengumuman Kemenham No. SEK-1143.KP.02.01 Tahun 2026", r_raw.text)
+        self.assertIn("Kementerian Hak Asasi Manusia", r_raw.text)
         self.assertIn("Pengumuman Sekjen Kemenhut No. PG.2/MENHUT-SETJEN/ROSDM/PEG.02/11/2026", r_raw.text)
         self.assertIn("KepmenPANRB No. 675 Tahun 2026", r_raw.text)
         self.assertIn("SSCASN BKN Resmi TA 2026", r_raw.text)

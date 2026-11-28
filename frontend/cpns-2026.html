@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (12 Instansi Terverifikasi)</title>
-  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, Polri, BSSN) serta pengumuman resmi Kemenhut (70.000 kursi), Kemenkeu, Kemenham, dan acuan STR Kemenkes (5.312 baris, 85.197 kursi teralokasi)." />
+  <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) serta pengumuman resmi Kemenhut (70.000 kursi), Kemenkeu, dan acuan STR Kemenkes (5.313 baris, 85.197 kursi teralokasi)." />
   <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
   <link rel="stylesheet" href="/static/css/app.css?v=20261128b" />
   <script>
@@ -114,7 +114,7 @@
         <span class="ticker-label">Rasio</span>
         <span id="kpi-avg-rasio" class="ticker-value">—</span>
       </div>
-      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut, Kemenkeu, Kemenham) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
+      <a href="#section-sumber-data" class="badge badge-accent" title="SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut, Kemenkeu) • SE Kemenkes HK.02.02 — Klik untuk rincian sumber">
         <span id="kpi-source-badge">12 Instansi Resmi • 2026</span>
       </a>
     </section>
@@ -462,7 +462,7 @@
 
       <div class="reference-split">
         <div class="reference-col">
-          <h3>Sumber Data Masuk ke Database (5.312 Baris / 85.197 Kursi)</h3>
+          <h3>Sumber Data Masuk ke Database (5.313 Baris / 85.197 Kursi)</h3>
           <p class="prose-measure">
             Seluruh entri diambil langsung dari API resmi SSCASN BKN dan dokumen pengumuman/penetapan resmi instansi tanpa duplikasi maupun angka estimasi fiktif.
           </p>
@@ -473,7 +473,7 @@
             <li><span>Kementerian Keuangan (KepmenPANRB 675/2026)</span><strong>374 baris / 1.915 kursi (19 Nov 2026 • lengkap 35 hal. lampiran)</strong></li>
             <li><span>Kejaksaan Agung (SSCASN Live • Kejaksaan RI)</span><strong>30 baris / 1.660 kursi lengkap nasional (4 jalur • Gaji BKN Rp 7,0–11,2 jt)</strong></li>
             <li><span>Kementerian Hukum (SSCASN Live + Pengumuman SEK.2-KP.02.01-326)</span><strong>53 baris / 1.297 kursi (4 jalur • Gaji BKN Rp 5,3–9,8 jt)</strong></li>
-            <li><span>Kementerian Hak Asasi Manusia (Pengumuman SEK-1143/2026)</span><strong>15 baris / 1.000 kursi (KepmenPANRB 672/2026 • Gaji Rp 5,3–9,4 jt)</strong></li>
+            <li><span>Kementerian Hak Asasi Manusia (SSCASN Live + Pengumuman SEK-1143/2026)</span><strong>16 baris / 1.000 kursi (4 jalur • Gaji BKN Rp 5,3–9,4 jt • lengkap berkas SSCASN)</strong></li>
             <li><span>Kementerian Koperasi (SSCASN Live)</span><strong>274 baris / 986 kursi (4 jalur • Gaji BKN Rp 5,0–8,3 jt)</strong></li>
             <li><span>Badan Pemeriksa Keuangan (SSCASN Live + Pengumuman 01/2026)</span><strong>51 baris / 952 kursi (Umum, Disabilitas, Papua • Gaji BKN Rp 13–19 jt)</strong></li>
             <li><span>Kepolisian Negara RI / Polri (SSCASN Live + Peng/33/XI/KEP./2026)</span><strong>633 baris / 750 kursi (4 jalur • 605 satker Polda &amp; Mabes • Gaji BKN Rp 5,5–7,5 jt)</strong></li>
@@ -489,10 +489,10 @@
             Setiap sumber diaudit silang SHA-256 dan kunci natural; field yang belum ada pada sumber tetap dibiarkan <span class="inline-code">NULL</span> (<span class="inline-code">—</span>).
           </p>
           <ul class="spec-list">
-            <li><span><span class="inline-code">MA</span>, <span class="inline-code">BPKP</span>, <span class="inline-code">Kemenkum</span>, <span class="inline-code">BPK</span>, <span class="inline-code">Polri</span>, <span class="inline-code">BSSN</span>, <span class="inline-code">Kejagung</span> (PDF pra-rilis)</span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
+            <li><span><span class="inline-code">MA</span>, <span class="inline-code">BPKP</span>, <span class="inline-code">Kemenkum</span>, <span class="inline-code">Kemenham</span>, <span class="inline-code">BPK</span>, <span class="inline-code">Polri</span>, <span class="inline-code">BSSN</span>, <span class="inline-code">Kejagung</span> (PDF pra-rilis)</span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
             <li><span><span class="inline-code">Mekanisme CPNS &amp; Passing Grade.pdf</span> (KepmenPANRB 674/2026)</span><strong>Acuan Ambang Batas SKD 2026 (Umum 65/80/166; Cum Laude 311; Disabilitas 286)</strong></li>
             <li><span>Kuota Kementerian Kesehatan (<span class="inline-code">SE HK.02.02</span>)</span><strong>Dikosongkan (<span class="inline-code">—</span>) sesuai sumber karena hanya mengatur syarat prodi &amp; STR</strong></li>
-            <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada 8 instansi SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, Polri, BSSN), Kemenhut &amp; Kemenham; <span class="inline-code">—</span> di Kemenkeu &amp; Kemenkes</strong></li>
+            <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada 9 instansi SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) &amp; Kemenhut; <span class="inline-code">—</span> di Kemenkeu &amp; Kemenkes</strong></li>
             <li><span>Pelamar, Rasio &amp; Data Nilai Minimal/Median 2024</span><strong>Pelamar 2026 <span class="inline-code">NULL</span> (<span class="inline-code">—</span>); data nilai SKD–SKB 2024 bersumber dari pengumuman resmi instansi</strong></li>
           </ul>
         </div>

@@ -576,7 +576,7 @@ def main():
     assert len(kemenham_rows) == 15 and sum(r["jumlah_formasi"] for r in kemenham_rows) == 1000
     assert len(polri_rows) == 633 and sum(r["jumlah_formasi"] for r in polri_rows) == 750
     assert len(kemenhut_rows) == 3782 and sum(r["jumlah_formasi"] for r in kemenhut_rows) == 70000
-    assert len(rows) == 5312, f"Expected 5312 combined verified rows, got {len(rows)}"
+    assert len(rows) == 5313, f"Expected 5313 combined verified rows, got {len(rows)}"
     assert sum(r["jumlah_formasi"] or 0 for r in rows) == 85197, "Total combined alokasi must be 85197!"
 
     # Enrich each 2026 row with verified CPNS 2024 historical benchmark & exam scores
