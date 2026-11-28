@@ -1426,6 +1426,52 @@
         "mean": 398.293
       }
     },
+    "INS-0041": {
+      "instansi_kode": "INS-0041",
+      "instansi_kode_canonical": "INS-0041",
+      "instansi_id_2024": 41,
+      "instansi_nm": "Pemerintah Kab. Sorong Selatan",
+      "pdf_file": "sorsel_integrasi_2024.pdf",
+      "pdf_kind": "rincian",
+      "pages": 1490,
+      "sections": 629,
+      "parsed_rows": 984,
+      "expected_rows": 984,
+      "parsed_pl": 597,
+      "expected_pl": 597,
+      "math_failures": 0,
+      "elapsed_s": 3.01,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Sorong Selatan TA 2024 (sorsel_integrasi_2024.pdf)",
+      "db_matched_sections": 629,
+      "db_total_rows": 629,
+      "overall_nilai_akhir_lulus": {
+        "n": 597,
+        "min": 19.2,
+        "p25": 36.4,
+        "median": 42.418,
+        "p75": 47.436,
+        "max": 70.509,
+        "mean": 42.422
+      },
+      "overall_skd_lulus": {
+        "n": 597,
+        "min": 165.0,
+        "p25": 239.0,
+        "median": 265.0,
+        "p75": 293.0,
+        "max": 414.0,
+        "mean": 270.749
+      },
+      "overall_skd_skb": {
+        "n": 984,
+        "min": 165.0,
+        "p25": 242.75,
+        "median": 264.0,
+        "p75": 287.0,
+        "max": 414.0,
+        "mean": 268.119
+      }
+    },
     "INS-0042": {
       "instansi_kode": "INS-0042",
       "instansi_kode_canonical": "INS-0042",
@@ -2116,6 +2162,52 @@
         "mean": 404.896
       }
     },
+    "INS-0065": {
+      "instansi_kode": "INS-0065",
+      "instansi_kode_canonical": "INS-0065",
+      "instansi_id_2024": 65,
+      "instansi_nm": "Pemerintah Kab. Konawe Kepulauan",
+      "pdf_file": "konkep_1_1YyH4DSz.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 150,
+      "sections": 68,
+      "parsed_rows": 257,
+      "expected_rows": 257,
+      "parsed_pl": 156,
+      "expected_pl": 156,
+      "math_failures": 0,
+      "elapsed_s": 0.82,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Konawe Kepulauan TA 2024 (konkep_1_1YyH4DSz.pdf)",
+      "db_matched_sections": 68,
+      "db_total_rows": 68,
+      "overall_nilai_akhir_lulus": {
+        "n": 156,
+        "min": 40.236,
+        "p25": 52.154,
+        "median": 60.481,
+        "p75": 66.623,
+        "max": 80.746,
+        "mean": 59.469
+      },
+      "overall_skd_lulus": {
+        "n": 156,
+        "min": 309.0,
+        "p25": 351.0,
+        "median": 365.5,
+        "p75": 391.25,
+        "max": 448.0,
+        "mean": 370.34
+      },
+      "overall_skd_skb": {
+        "n": 257,
+        "min": 309.0,
+        "p25": 345.0,
+        "median": 363.0,
+        "p75": 389.0,
+        "max": 448.0,
+        "mean": 367.518
+      }
+    },
     "INS-0066": {
       "instansi_kode": "INS-0066",
       "instansi_kode_canonical": "INS-0066",
@@ -2298,6 +2390,52 @@
         "p75": 330.0,
         "max": 445.0,
         "mean": 298.908
+      }
+    },
+    "INS-0070": {
+      "instansi_kode": "INS-0070",
+      "instansi_kode_canonical": "INS-0070",
+      "instansi_id_2024": 70,
+      "instansi_nm": "Pemerintah Kab. Boven Digoel",
+      "pdf_file": "bovendigoel_cpns_2024.pdf",
+      "pdf_kind": "mixed",
+      "pages": 731,
+      "sections": 144,
+      "parsed_rows": 468,
+      "expected_rows": 468,
+      "parsed_pl": 221,
+      "expected_pl": 221,
+      "math_failures": 0,
+      "elapsed_s": 1.99,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Boven Digoel TA 2024 (bovendigoel_cpns_2024.pdf)",
+      "db_matched_sections": 144,
+      "db_total_rows": 144,
+      "overall_nilai_akhir_lulus": {
+        "n": 221,
+        "min": 27.273,
+        "p25": 39.018,
+        "median": 45.036,
+        "p75": 49.091,
+        "max": 69.564,
+        "mean": 45.145
+      },
+      "overall_skd_lulus": {
+        "n": 221,
+        "min": 173.0,
+        "p25": 254.0,
+        "median": 273.0,
+        "p75": 294.0,
+        "max": 426.0,
+        "mean": 277.118
+      },
+      "overall_skd_skb": {
+        "n": 468,
+        "min": 116.0,
+        "p25": 250.0,
+        "median": 264.0,
+        "p75": 280.25,
+        "max": 426.0,
+        "mean": 267.536
       }
     },
     "INS-0072": {
@@ -3356,6 +3494,52 @@
         "p75": 453.0,
         "max": 483.0,
         "mean": 438.538
+      }
+    },
+    "INS-0103": {
+      "instansi_kode": "INS-0103",
+      "instansi_kode_canonical": "INS-0103",
+      "instansi_id_2024": 103,
+      "instansi_nm": "Pemerintah Kab. Nagekeo",
+      "pdf_file": "nagekeo_pra_sanggah_2024.pdf",
+      "pdf_kind": "mixed",
+      "pages": 864,
+      "sections": 184,
+      "parsed_rows": 422,
+      "expected_rows": 422,
+      "parsed_pl": 267,
+      "expected_pl": 267,
+      "math_failures": 0,
+      "elapsed_s": 1.99,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Nagekeo TA 2024 (nagekeo_pra_sanggah_2024.pdf)",
+      "db_matched_sections": 184,
+      "db_total_rows": 185,
+      "overall_nilai_akhir_lulus": {
+        "n": 267,
+        "min": 42.327,
+        "p25": 56.3,
+        "median": 60.454,
+        "p75": 64.946,
+        "max": 86.564,
+        "mean": 61.093
+      },
+      "overall_skd_lulus": {
+        "n": 267,
+        "min": 311.0,
+        "p25": 351.0,
+        "median": 367.0,
+        "p75": 386.0,
+        "max": 446.0,
+        "mean": 369.7
+      },
+      "overall_skd_skb": {
+        "n": 422,
+        "min": 311.0,
+        "p25": 351.0,
+        "median": 364.0,
+        "p75": 382.0,
+        "max": 446.0,
+        "mean": 367.495
       }
     },
     "INS-0104": {
@@ -5474,6 +5658,52 @@
         "mean": 296.929
       }
     },
+    "INS-0180": {
+      "instansi_kode": "INS-0180",
+      "instansi_kode_canonical": "INS-0180",
+      "instansi_id_2024": 180,
+      "instansi_nm": "Pemerintah Kab. Ngada",
+      "pdf_file": "ngada_hasil_integrasi_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 887,
+      "sections": 436,
+      "parsed_rows": 401,
+      "expected_rows": 401,
+      "parsed_pl": 294,
+      "expected_pl": 294,
+      "math_failures": 0,
+      "elapsed_s": 2.55,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Ngada TA 2024 (ngada_hasil_integrasi_2024.pdf)",
+      "db_matched_sections": 436,
+      "db_total_rows": 436,
+      "overall_nilai_akhir_lulus": {
+        "n": 294,
+        "min": 40.073,
+        "p25": 55.769,
+        "median": 60.663,
+        "p75": 66.591,
+        "max": 80.364,
+        "mean": 60.961
+      },
+      "overall_skd_lulus": {
+        "n": 294,
+        "min": 304.0,
+        "p25": 351.0,
+        "median": 367.5,
+        "p75": 388.0,
+        "max": 437.0,
+        "mean": 369.864
+      },
+      "overall_skd_skb": {
+        "n": 401,
+        "min": 304.0,
+        "p25": 350.0,
+        "median": 366.0,
+        "p75": 385.0,
+        "max": 437.0,
+        "mean": 368.469
+      }
+    },
     "INS-0181": {
       "instansi_kode": "INS-0181",
       "instansi_kode_canonical": "INS-0181",
@@ -5842,6 +6072,52 @@
         "mean": 386.518
       }
     },
+    "INS-0197": {
+      "instansi_kode": "INS-0197",
+      "instansi_kode_canonical": "INS-0197",
+      "instansi_id_2024": 197,
+      "instansi_nm": "Pemerintah Kab. Wakatobi",
+      "pdf_file": "wakatobi_integrasi_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 523,
+      "sections": 252,
+      "parsed_rows": 348,
+      "expected_rows": 348,
+      "parsed_pl": 231,
+      "expected_pl": 231,
+      "math_failures": 0,
+      "elapsed_s": 1.73,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Wakatobi TA 2024 (wakatobi_integrasi_2024.pdf)",
+      "db_matched_sections": 252,
+      "db_total_rows": 252,
+      "overall_nilai_akhir_lulus": {
+        "n": 231,
+        "min": 44.054,
+        "p25": 54.418,
+        "median": 59.673,
+        "p75": 64.946,
+        "max": 79.727,
+        "mean": 60.034
+      },
+      "overall_skd_lulus": {
+        "n": 231,
+        "min": 315.0,
+        "p25": 351.5,
+        "median": 365.0,
+        "p75": 386.0,
+        "max": 433.0,
+        "mean": 369.095
+      },
+      "overall_skd_skb": {
+        "n": 348,
+        "min": 315.0,
+        "p25": 351.0,
+        "median": 363.5,
+        "p75": 384.0,
+        "max": 440.0,
+        "mean": 367.957
+      }
+    },
     "INS-0198": {
       "instansi_kode": "INS-0198",
       "instansi_kode_canonical": "INS-0198",
@@ -6070,6 +6346,98 @@
         "p75": 405.0,
         "max": 458.0,
         "mean": 386.401
+      }
+    },
+    "INS-0212": {
+      "instansi_kode": "INS-0212",
+      "instansi_kode_canonical": "INS-0212",
+      "instansi_id_2024": 212,
+      "instansi_nm": "Pemerintah Kab. Minahasa Tenggara",
+      "pdf_file": "mitra_pra_2_1OVk-nw9.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 877,
+      "sections": 432,
+      "parsed_rows": 510,
+      "expected_rows": 510,
+      "parsed_pl": 353,
+      "expected_pl": 353,
+      "math_failures": 0,
+      "elapsed_s": 2.18,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Minahasa Tenggara TA 2024 (mitra_pra_2_1OVk-nw9.pdf)",
+      "db_matched_sections": 432,
+      "db_total_rows": 432,
+      "overall_nilai_akhir_lulus": {
+        "n": 353,
+        "min": 41.527,
+        "p25": 54.2,
+        "median": 58.546,
+        "p75": 64.382,
+        "max": 85.182,
+        "mean": 59.351
+      },
+      "overall_skd_lulus": {
+        "n": 353,
+        "min": 295.0,
+        "p25": 348.0,
+        "median": 365.0,
+        "p75": 384.0,
+        "max": 437.0,
+        "mean": 367.38
+      },
+      "overall_skd_skb": {
+        "n": 510,
+        "min": 295.0,
+        "p25": 347.0,
+        "median": 363.5,
+        "p75": 382.0,
+        "max": 437.0,
+        "mean": 365.463
+      }
+    },
+    "INS-0213": {
+      "instansi_kode": "INS-0213",
+      "instansi_kode_canonical": "INS-0213",
+      "instansi_id_2024": 213,
+      "instansi_nm": "Pemerintah Kab. Timor Tengah Utara",
+      "pdf_file": "ttu_hasil_akhir_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 223,
+      "sections": 102,
+      "parsed_rows": 160,
+      "expected_rows": 160,
+      "parsed_pl": 82,
+      "expected_pl": 82,
+      "math_failures": 0,
+      "elapsed_s": 1.11,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Timor Tengah Utara TA 2024 (ttu_hasil_akhir_2024.pdf)",
+      "db_matched_sections": 102,
+      "db_total_rows": 102,
+      "overall_nilai_akhir_lulus": {
+        "n": 82,
+        "min": 41.759,
+        "p25": 58.005,
+        "median": 65.373,
+        "p75": 69.082,
+        "max": 80.773,
+        "mean": 63.488
+      },
+      "overall_skd_lulus": {
+        "n": 82,
+        "min": 315.0,
+        "p25": 350.25,
+        "median": 366.0,
+        "p75": 385.75,
+        "max": 432.0,
+        "mean": 368.585
+      },
+      "overall_skd_skb": {
+        "n": 160,
+        "min": 313.0,
+        "p25": 345.0,
+        "median": 361.0,
+        "p75": 382.0,
+        "max": 432.0,
+        "mean": 364.038
       }
     },
     "INS-0214": {
@@ -6346,6 +6714,52 @@
         "p75": 423.5,
         "max": 492.0,
         "mean": 399.055
+      }
+    },
+    "INS-0228": {
+      "instansi_kode": "INS-0228",
+      "instansi_kode_canonical": "INS-0228",
+      "instansi_id_2024": 228,
+      "instansi_nm": "Pemerintah Kab. Bungo",
+      "pdf_file": "bungo_hasil_cat_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 302,
+      "sections": 146,
+      "parsed_rows": 305,
+      "expected_rows": 305,
+      "parsed_pl": 141,
+      "expected_pl": 141,
+      "math_failures": 0,
+      "elapsed_s": 1.6,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Bungo TA 2024 (bungo_hasil_cat_2024.pdf)",
+      "db_matched_sections": 146,
+      "db_total_rows": 147,
+      "overall_nilai_akhir_lulus": {
+        "n": 141,
+        "min": 41.091,
+        "p25": 60.273,
+        "median": 69.854,
+        "p75": 75.146,
+        "max": 88.0,
+        "mean": 67.655
+      },
+      "overall_skd_lulus": {
+        "n": 141,
+        "min": 318.0,
+        "p25": 359.0,
+        "median": 388.0,
+        "p75": 415.0,
+        "max": 455.0,
+        "mean": 386.113
+      },
+      "overall_skd_skb": {
+        "n": 305,
+        "min": 318.0,
+        "p25": 359.0,
+        "median": 380.0,
+        "p75": 408.0,
+        "max": 464.0,
+        "mean": 383.259
       }
     },
     "INS-0230": {
@@ -7728,6 +8142,52 @@
         "mean": 407.307
       }
     },
+    "INS-0288": {
+      "instansi_kode": "INS-0288",
+      "instansi_kode_canonical": "INS-0288",
+      "instansi_id_2024": 288,
+      "instansi_nm": "Pemerintah Kab. Kepulauan Anambas",
+      "pdf_file": "anambas_pra_sanggah_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 237,
+      "sections": 115,
+      "parsed_rows": 226,
+      "expected_rows": 226,
+      "parsed_pl": 121,
+      "expected_pl": 121,
+      "math_failures": 0,
+      "elapsed_s": 0.94,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Kepulauan Anambas TA 2024 (anambas_pra_sanggah_2024.pdf)",
+      "db_matched_sections": 115,
+      "db_total_rows": 115,
+      "overall_nilai_akhir_lulus": {
+        "n": 121,
+        "min": 46.564,
+        "p25": 57.564,
+        "median": 62.818,
+        "p75": 68.309,
+        "max": 85.218,
+        "mean": 63.238
+      },
+      "overall_skd_lulus": {
+        "n": 121,
+        "min": 315.0,
+        "p25": 360.0,
+        "median": 375.0,
+        "p75": 396.0,
+        "max": 460.0,
+        "mean": 378.364
+      },
+      "overall_skd_skb": {
+        "n": 226,
+        "min": 315.0,
+        "p25": 359.0,
+        "median": 371.5,
+        "p75": 388.0,
+        "max": 460.0,
+        "mean": 374.429
+      }
+    },
     "INS-0289": {
       "instansi_kode": "INS-0289",
       "instansi_kode_canonical": "INS-0289",
@@ -8002,6 +8462,52 @@
         "p75": 437.0,
         "max": 493.0,
         "mean": 413.445
+      }
+    },
+    "INS-0303": {
+      "instansi_kode": "INS-0303",
+      "instansi_kode_canonical": "INS-0303",
+      "instansi_id_2024": 303,
+      "instansi_nm": "Pemerintah Kab. Nias Barat",
+      "pdf_file": "niasbarat_integrasi_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 448,
+      "sections": 218,
+      "parsed_rows": 398,
+      "expected_rows": 398,
+      "parsed_pl": 231,
+      "expected_pl": 231,
+      "math_failures": 0,
+      "elapsed_s": 2.03,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Nias Barat TA 2024 (niasbarat_integrasi_2024.pdf)",
+      "db_matched_sections": 218,
+      "db_total_rows": 218,
+      "overall_nilai_akhir_lulus": {
+        "n": 231,
+        "min": 38.382,
+        "p25": 55.555,
+        "median": 61.309,
+        "p75": 67.473,
+        "max": 83.036,
+        "mean": 61.698
+      },
+      "overall_skd_lulus": {
+        "n": 231,
+        "min": 326.0,
+        "p25": 355.5,
+        "median": 379.0,
+        "p75": 399.0,
+        "max": 466.0,
+        "mean": 378.792
+      },
+      "overall_skd_skb": {
+        "n": 398,
+        "min": 318.0,
+        "p25": 354.0,
+        "median": 375.0,
+        "p75": 396.0,
+        "max": 466.0,
+        "mean": 375.894
       }
     },
     "INS-0308": {
@@ -8832,6 +9338,98 @@
         "mean": 402.677
       }
     },
+    "INS-0346": {
+      "instansi_kode": "INS-0346",
+      "instansi_kode_canonical": "INS-0346",
+      "instansi_id_2024": 346,
+      "instansi_nm": "Pemerintah Kab. Toraja Utara",
+      "pdf_file": "torajautara_pra_sanggah_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 332,
+      "sections": 163,
+      "parsed_rows": 305,
+      "expected_rows": 305,
+      "parsed_pl": 180,
+      "expected_pl": 180,
+      "math_failures": 0,
+      "elapsed_s": 1.68,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Toraja Utara TA 2024 (torajautara_pra_sanggah_2024.pdf)",
+      "db_matched_sections": 163,
+      "db_total_rows": 163,
+      "overall_nilai_akhir_lulus": {
+        "n": 180,
+        "min": 45.559,
+        "p25": 60.864,
+        "median": 66.2,
+        "p75": 72.109,
+        "max": 81.818,
+        "mean": 66.041
+      },
+      "overall_skd_lulus": {
+        "n": 180,
+        "min": 321.0,
+        "p25": 351.0,
+        "median": 372.0,
+        "p75": 394.0,
+        "max": 441.0,
+        "mean": 372.544
+      },
+      "overall_skd_skb": {
+        "n": 305,
+        "min": 320.0,
+        "p25": 350.0,
+        "median": 370.0,
+        "p75": 388.0,
+        "max": 441.0,
+        "mean": 370.413
+      }
+    },
+    "INS-0347": {
+      "instansi_kode": "INS-0347",
+      "instansi_kode_canonical": "INS-0347",
+      "instansi_id_2024": 347,
+      "instansi_nm": "Pemerintah Kab. Nias Selatan",
+      "pdf_file": "niasselatan_pasca_sanggah_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 97,
+      "sections": 42,
+      "parsed_rows": 77,
+      "expected_rows": 77,
+      "parsed_pl": 37,
+      "expected_pl": 37,
+      "math_failures": 0,
+      "elapsed_s": 0.76,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Nias Selatan TA 2024 (niasselatan_pasca_sanggah_2024.pdf)",
+      "db_matched_sections": 42,
+      "db_total_rows": 42,
+      "overall_nilai_akhir_lulus": {
+        "n": 37,
+        "min": 43.673,
+        "p25": 61.109,
+        "median": 64.927,
+        "p75": 70.164,
+        "max": 75.946,
+        "mean": 64.707
+      },
+      "overall_skd_lulus": {
+        "n": 37,
+        "min": 342.0,
+        "p25": 364.0,
+        "median": 372.0,
+        "p75": 391.0,
+        "max": 427.0,
+        "mean": 376.216
+      },
+      "overall_skd_skb": {
+        "n": 77,
+        "min": 331.0,
+        "p25": 351.0,
+        "median": 371.0,
+        "p75": 385.0,
+        "max": 427.0,
+        "mean": 369.714
+      }
+    },
     "INS-0348": {
       "instansi_kode": "INS-0348",
       "instansi_kode_canonical": "INS-0348",
@@ -8922,6 +9520,52 @@
         "p75": 423.0,
         "max": 451.0,
         "mean": 406.907
+      }
+    },
+    "INS-0352": {
+      "instansi_kode": "INS-0352",
+      "instansi_kode_canonical": "INS-0352",
+      "instansi_id_2024": 352,
+      "instansi_nm": "Pemerintah Kab. Langkat",
+      "pdf_file": "langkat_hasil_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 161,
+      "sections": 78,
+      "parsed_rows": 153,
+      "expected_rows": 153,
+      "parsed_pl": 72,
+      "expected_pl": 72,
+      "math_failures": 0,
+      "elapsed_s": 1.51,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Langkat TA 2024 (langkat_hasil_2024.pdf)",
+      "db_matched_sections": 78,
+      "db_total_rows": 78,
+      "overall_nilai_akhir_lulus": {
+        "n": 72,
+        "min": 41.618,
+        "p25": 58.359,
+        "median": 62.891,
+        "p75": 68.432,
+        "max": 79.854,
+        "mean": 63.457
+      },
+      "overall_skd_lulus": {
+        "n": 72,
+        "min": 328.0,
+        "p25": 363.0,
+        "median": 381.5,
+        "p75": 405.75,
+        "max": 460.0,
+        "mean": 383.639
+      },
+      "overall_skd_skb": {
+        "n": 153,
+        "min": 320.0,
+        "p25": 357.0,
+        "median": 376.0,
+        "p75": 401.0,
+        "max": 460.0,
+        "mean": 379.477
       }
     },
     "INS-0353": {
@@ -9428,6 +10072,52 @@
         "p75": 426.75,
         "max": 466.0,
         "mean": 407.819
+      }
+    },
+    "INS-0374": {
+      "instansi_kode": "INS-0374",
+      "instansi_kode_canonical": "INS-0374",
+      "instansi_id_2024": 374,
+      "instansi_nm": "Pemerintah Kab. Halmahera Tengah",
+      "pdf_file": "halteng_hasil_akhir_2024.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 319,
+      "sections": 155,
+      "parsed_rows": 142,
+      "expected_rows": 142,
+      "parsed_pl": 101,
+      "expected_pl": 101,
+      "math_failures": 0,
+      "elapsed_s": 1.89,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Halmahera Tengah TA 2024 (halteng_hasil_akhir_2024.pdf)",
+      "db_matched_sections": 153,
+      "db_total_rows": 153,
+      "overall_nilai_akhir_lulus": {
+        "n": 101,
+        "min": 37.346,
+        "p25": 53.927,
+        "median": 58.054,
+        "p75": 62.164,
+        "max": 77.273,
+        "mean": 58.143
+      },
+      "overall_skd_lulus": {
+        "n": 101,
+        "min": 317.0,
+        "p25": 343.0,
+        "median": 361.0,
+        "p75": 384.0,
+        "max": 429.0,
+        "mean": 364.673
+      },
+      "overall_skd_skb": {
+        "n": 142,
+        "min": 317.0,
+        "p25": 343.0,
+        "median": 358.5,
+        "p75": 378.5,
+        "max": 429.0,
+        "mean": 362.408
       }
     },
     "INS-0380": {
@@ -10256,6 +10946,52 @@
         "p75": 400.0,
         "max": 450.0,
         "mean": 381.202
+      }
+    },
+    "INS-0415": {
+      "instansi_kode": "INS-0415",
+      "instansi_kode_canonical": "INS-0415",
+      "instansi_id_2024": 415,
+      "instansi_nm": "Pemerintah Kab. Tabalong",
+      "pdf_file": "tabalong_berkas_4.pdf",
+      "pdf_kind": "ringkas",
+      "pages": 164,
+      "sections": 77,
+      "parsed_rows": 218,
+      "expected_rows": 218,
+      "parsed_pl": 88,
+      "expected_pl": 88,
+      "math_failures": 0,
+      "elapsed_s": 1.97,
+      "sumber": "Lampiran Resmi Hasil Integrasi SKD-SKB Pemerintah Kab. Tabalong TA 2024 (tabalong_berkas_4.pdf)",
+      "db_matched_sections": 76,
+      "db_total_rows": 76,
+      "overall_nilai_akhir_lulus": {
+        "n": 88,
+        "min": 51.546,
+        "p25": 60.977,
+        "median": 64.691,
+        "p75": 69.364,
+        "max": 84.436,
+        "mean": 65.334
+      },
+      "overall_skd_lulus": {
+        "n": 88,
+        "min": 336.0,
+        "p25": 380.0,
+        "median": 396.5,
+        "p75": 412.25,
+        "max": 453.0,
+        "mean": 395.261
+      },
+      "overall_skd_skb": {
+        "n": 218,
+        "min": 314.0,
+        "p25": 369.0,
+        "median": 386.0,
+        "p75": 405.0,
+        "max": 453.0,
+        "mean": 386.633
       }
     },
     "INS-0419": {
