@@ -13,6 +13,7 @@ SSCASN 2026 data is available.
 
 from __future__ import annotations
 
+from collections import OrderedDict
 import csv
 import gzip
 import io
@@ -25,7 +26,7 @@ import threading
 from pathlib import Path
 from typing import Any, Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Response
 from fastapi.responses import FileResponse, StreamingResponse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +52,54 @@ GOLONGAN_STATUTORY: list[tuple[str, str, int, str]] = [
 
 router = APIRouter(prefix="/api/2026", tags=["cpns2026"])
 _db_2026_lock = threading.Lock()
+_cache_2026_lock = threading.Lock()
+_cache_2026_sig: Optional[tuple[int, int]] = None
+_stats_cache_2026: Optional[dict[str, Any]] = None
+_filters_cache_2026: Optional[dict[str, Any]] = None
+_list_cache_2026: "OrderedDict[tuple[Any, ...], dict[str, Any]]" = OrderedDict()
+_detail_cache_2026: "OrderedDict[str, dict[str, Any]]" = OrderedDict()
+_analytics_cache_2026: "OrderedDict[tuple[Any, ...], dict[str, Any]]" = OrderedDict()
+_MAX_LIST_CACHE_2026 = 128
+_MAX_DETAIL_CACHE_2026 = 256
+_MAX_ANALYTICS_CACHE_2026 = 64
+_CDN_CACHE_HEADER = "public, max-age=120, s-maxage=300, stale-while-revalidate=600"
+
+
+def _sync_2026_cache_version() -> None:
+    """Clear read-only 2026 caches automatically whenever cpns2026.db changes on disk."""
+    global _cache_2026_sig, _stats_cache_2026, _filters_cache_2026
+    try:
+        st = DB_PATH.stat()
+        sig = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        sig = None
+    if sig == _cache_2026_sig:
+        return
+    with _cache_2026_lock:
+        if sig == _cache_2026_sig:
+            return
+        _cache_2026_sig = sig
+        _stats_cache_2026 = None
+        _filters_cache_2026 = None
+        _list_cache_2026.clear()
+        _detail_cache_2026.clear()
+        _analytics_cache_2026.clear()
+
+
+def _lru_get(cache: OrderedDict, key: Any) -> Any:
+    with _cache_2026_lock:
+        val = cache.get(key)
+        if val is not None:
+            cache.move_to_end(key)
+        return val
+
+
+def _lru_set(cache: OrderedDict, key: Any, value: Any, max_size: int) -> None:
+    with _cache_2026_lock:
+        cache[key] = value
+        cache.move_to_end(key)
+        while len(cache) > max_size:
+            cache.popitem(last=False)
 
 
 def _needs_2026_extract() -> bool:
@@ -89,6 +138,7 @@ def ensure_2026_database_ready() -> None:
                     tmp_path.unlink()
                 except OSError:
                     pass
+    _sync_2026_cache_version()
 
 
 def _get_conn() -> sqlite3.Connection:
@@ -100,7 +150,17 @@ def _get_conn() -> sqlite3.Connection:
         )
     conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, check_same_thread=False)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA temp_store = MEMORY;")
+    conn.execute("PRAGMA cache_size = -4000;")
     return conn
+
+
+def warm_2026_caches() -> None:
+    """Pre-warm lightweight CPNS 2026 stats & filters caches in <50ms at startup."""
+    ensure_2026_database_ready()
+    if DB_PATH.exists():
+        get_stats_2026(Response())
+        get_filters_2026(Response())
 
 
 def _sanitize_csv_cell(val: Any) -> str:
@@ -340,7 +400,13 @@ def _row_to_dict(row: sqlite3.Row, *, include_detail: bool = False) -> dict[str,
 
 
 @router.get("/stats")
-def get_stats_2026() -> dict[str, Any]:
+def get_stats_2026(response: Response) -> dict[str, Any]:
+    global _stats_cache_2026
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
+    if _stats_cache_2026 is not None:
+        return _stats_cache_2026
     conn = _get_conn()
     try:
         cur = conn.cursor()
@@ -404,7 +470,7 @@ def get_stats_2026() -> dict[str, Any]:
             else []
         )
 
-        return {
+        payload = {
             "total_formasi_rows": row["total_formasi_rows"],
             "total_kuota": row["total_kuota"],
             "total_pelamar": row["sum_pelamar"] if has_applicants else None,
@@ -424,12 +490,21 @@ def get_stats_2026() -> dict[str, Any]:
             "drive_audit": drive_audit,
             "sumber_dokumen": "SSCASN Live (MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut PG.2/2026) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
         }
+        with _cache_2026_lock:
+            _stats_cache_2026 = payload
+        return payload
     finally:
         conn.close()
 
 
 @router.get("/filters")
-def get_filters_2026() -> dict[str, Any]:
+def get_filters_2026(response: Response) -> dict[str, Any]:
+    global _filters_cache_2026
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
+    if _filters_cache_2026 is not None:
+        return _filters_cache_2026
     conn = _get_conn()
     try:
         cur = conn.cursor()
@@ -547,7 +622,7 @@ def get_filters_2026() -> dict[str, Any]:
             """
         ).fetchone()
 
-        return {
+        payload = {
             "kategori": kategori,
             "instansi": instansi,
             "instansi_summary": instansi_summary,
@@ -563,6 +638,9 @@ def get_filters_2026() -> dict[str, Any]:
             "has_salary_data": (flags["has_g"] or 0) > 0,
             "has_jenis_formasi": (flags["has_j"] or 0) > 0,
         }
+        with _cache_2026_lock:
+            _filters_cache_2026 = payload
+        return payload
     finally:
         conn.close()
 
@@ -654,6 +732,7 @@ _SORT_MAP_2026 = {
 
 @router.get("/formasi")
 def list_formasi_2026(
+    response: Response,
     q: str = Query(default=""),
     instansi: str = Query(default=""),
     eselon1: str = Query(default=""),
@@ -671,6 +750,19 @@ def list_formasi_2026(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=20, ge=1, le=100),
 ) -> dict[str, Any]:
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
+    cache_key = (
+        q.strip(), instansi.strip(), eselon1.strip(), kategori.strip(),
+        jenjang.strip(), jurusan.strip(), jabatan.strip(), lokasi.strip(),
+        jenis_formasi.strip(), keketatan.strip(), keketatan_2024.strip(),
+        min_kuota, bool(only_zero_pelamar), sort_by, page, limit,
+    )
+    cached = _lru_get(_list_cache_2026, cache_key)
+    if cached is not None:
+        return cached
+
     order_sql = _SORT_MAP_2026.get(sort_by, _SORT_MAP_2026["no_urut"])
 
     where_sql, params = _build_filter_clause(
@@ -717,7 +809,7 @@ def list_formasi_2026(
             [*params, limit, offset],
         ).fetchall()
 
-        return {
+        payload = {
             "total": total,
             "total_kuota_filtered": total_kuota_filtered,
             "page": page,
@@ -725,6 +817,8 @@ def list_formasi_2026(
             "total_pages": total_pages,
             "items": [_row_to_dict(r) for r in rows],
         }
+        _lru_set(_list_cache_2026, cache_key, payload, _MAX_LIST_CACHE_2026)
+        return payload
     finally:
         conn.close()
 
@@ -761,7 +855,13 @@ def get_formasi_batch_2026(ids: str = Query(default="")) -> list[dict[str, Any]]
 
 
 @router.get("/formasi/{formasi_id}")
-def get_formasi_detail_2026(formasi_id: str) -> dict[str, Any]:
+def get_formasi_detail_2026(formasi_id: str, response: Response) -> dict[str, Any]:
+    ensure_2026_database_ready()
+    _sync_2026_cache_version()
+    response.headers["Cache-Control"] = _CDN_CACHE_HEADER
+    cached = _lru_get(_detail_cache_2026, formasi_id)
+    if cached is not None:
+        return cached
     conn = _get_conn()
     try:
         row = conn.execute(
@@ -785,7 +885,9 @@ def get_formasi_detail_2026(formasi_id: str) -> dict[str, Any]:
         ).fetchone()
         if not row:
             raise HTTPException(status_code=404, detail=f"Formasi {formasi_id} tidak ditemukan.")
-        return _row_to_dict(row, include_detail=True)
+        payload = _row_to_dict(row, include_detail=True)
+        _lru_set(_detail_cache_2026, formasi_id, payload, _MAX_DETAIL_CACHE_2026)
+        return payload
     finally:
         conn.close()
 

@@ -22,9 +22,17 @@ from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 try:
-    from .cpns2026 import router as cpns2026_router, ensure_2026_database_ready
+    from .cpns2026 import (
+        router as cpns2026_router,
+        ensure_2026_database_ready,
+        warm_2026_caches,
+    )
 except ImportError:
-    from cpns2026 import router as cpns2026_router, ensure_2026_database_ready
+    from cpns2026 import (
+        router as cpns2026_router,
+        ensure_2026_database_ready,
+        warm_2026_caches,
+    )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = (
@@ -424,16 +432,22 @@ def _prewarm_common_queries() -> None:
 
 @app.on_event("startup")
 def startup_event():
-    """Unpack databases and pre-warm in-memory caches immediately on startup before requests arrive."""
-    ensure_database_ready()
+    """Keep boot fast & Render 512MB-safe: unpack & warm CPNS 2026 immediately; unpack CPNS 2024 lazily."""
     ensure_2026_database_ready()
     try:
-        _get_stats_data()
-        _get_filters_data()
-        get_formasi(page=1, limit=10, sort_by="kuota_desc")
-        threading.Thread(target=_prewarm_common_queries, daemon=True).start()
+        warm_2026_caches()
     except Exception as exc:
-        print(f"[STARTUP] Cache warm warning: {exc}")
+        print(f"[STARTUP] CPNS 2026 cache warm warning: {exc}")
+
+    if os.getenv("ENABLE_2024_PREWARM") == "1":
+        ensure_database_ready()
+        try:
+            _get_stats_data()
+            _get_filters_data()
+            get_formasi(page=1, limit=10, sort_by="kuota_desc")
+            threading.Thread(target=_prewarm_common_queries, daemon=True).start()
+        except Exception as exc:
+            print(f"[STARTUP] Cache warm warning: {exc}")
 
 
 def _open_configured_connection() -> sqlite3.Connection:
@@ -443,8 +457,9 @@ def _open_configured_connection() -> sqlite3.Connection:
         conn = sqlite3.connect(str(DB_PATH), timeout=15.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA temp_store = MEMORY;")
-        conn.execute("PRAGMA cache_size = -48000;")
-        conn.execute("PRAGMA mmap_size = 268435456;")
+        # Keep per-thread SQLite memory modest (8 MB, no 256 MB mmap) so Render 512 MB Free Tier never OOMs
+        conn.execute("PRAGMA cache_size = -8000;")
+        conn.execute("PRAGMA mmap_size = 0;")
         return conn
     except sqlite3.OperationalError:
         if conn is not None:
@@ -453,8 +468,8 @@ def _open_configured_connection() -> sqlite3.Connection:
         conn = sqlite3.connect(f"file:{db_uri}?immutable=1", uri=True, timeout=15.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA temp_store = MEMORY;")
-        conn.execute("PRAGMA cache_size = -48000;")
-        conn.execute("PRAGMA mmap_size = 268435456;")
+        conn.execute("PRAGMA cache_size = -8000;")
+        conn.execute("PRAGMA mmap_size = 0;")
         return conn
 
 
@@ -521,12 +536,15 @@ def get_median_salary(cur: sqlite3.Cursor, column: str) -> int:
 
 @app.get("/health")
 def health_check():
-    """Health check endpoint verifying database connectivity."""
+    """Lightweight health check endpoint (never blocks boot unpacking 255 MB cpns2024.db)."""
     conn = None
     try:
-        conn = get_db_connection()
-        count = conn.execute("SELECT COUNT(*) FROM formasi").fetchone()[0]
-        return {"status": "ok", "database": "connected", "total_formasi": count}
+        if DB_PATH.exists() and DB_PATH.stat().st_size > 10_000_000:
+            conn = get_db_connection()
+            count = conn.execute("SELECT COUNT(*) FROM formasi").fetchone()[0]
+            return {"status": "ok", "database": "connected", "total_formasi": count}
+        ensure_2026_database_ready()
+        return {"status": "ok", "database": "cpns2026_ready"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
     finally:

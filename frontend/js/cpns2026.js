@@ -38,6 +38,8 @@
     bookmarks: [],
     currentItems: [],
     activeDetail: null,
+    detailCache: new Map(),
+    detailAbortController: null,
     toastTimer: null,
   };
 
@@ -189,7 +191,7 @@
     btn.textContent = saved ? 'Hapus dari Bandingkan' : 'Simpan ke Bandingkan';
   }
 
-  async function apiGet(path, params) {
+  async function apiGet(path, params, options) {
     const url = new URL(API_BASE + path, window.location.origin);
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
@@ -198,7 +200,11 @@
         }
       });
     }
-    const res = await fetch(url.toString());
+    const fetchOpts = {};
+    if (options && options.signal) {
+      fetchOpts.signal = options.signal;
+    }
+    const res = await fetch(url.toString(), fetchOpts);
     if (!res.ok) {
       throw new Error('HTTP ' + res.status);
     }
@@ -1409,12 +1415,45 @@
   async function openDetailModal(formasiId) {
     const backdrop = $('modal-detail');
     const loading = $('modal-detail-loading');
+    const loadingLabel = loading ? loading.querySelector('span') : null;
     backdrop.classList.remove('hidden');
-    loading.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
 
+    if (state.detailAbortController) {
+      state.detailAbortController.abort();
+    }
+    const controller = new AbortController();
+    state.detailAbortController = controller;
+
+    let slowTimer = null;
+    let timeoutTimer = null;
+    const cached = state.detailCache.get(formasiId);
+    if (!cached) {
+      if (loadingLabel) loadingLabel.textContent = 'Memuat detail formasi...';
+      loading.classList.remove('hidden');
+      slowTimer = setTimeout(() => {
+        if (loadingLabel && state.detailAbortController === controller) {
+          loadingLabel.textContent = 'Menghubungi server (mungkin sedang bangun / sibuk)...';
+        }
+      }, 3500);
+      timeoutTimer = setTimeout(() => {
+        controller.abort('timeout');
+      }, 25000);
+    } else {
+      loading.classList.add('hidden');
+    }
+
     try {
-      const item = await apiGet('/formasi/' + encodeURIComponent(formasiId));
+      const item =
+        cached || (await apiGet('/formasi/' + encodeURIComponent(formasiId), null, { signal: controller.signal }));
+      if (!cached) {
+        if (state.detailCache.size >= 100) {
+          const oldestKey = state.detailCache.keys().next().value;
+          state.detailCache.delete(oldestKey);
+        }
+        state.detailCache.set(formasiId, item);
+      }
+      if (state.detailAbortController !== controller) return;
       state.activeDetail = item;
       $('modal-detail-badge').textContent = item.status_keketatan
         ? item.status_keketatan
@@ -1538,10 +1577,22 @@
       updateDetailBookmarkBtn();
       recalculateSimulation();
     } catch (e) {
-      showToast('Gagal memuat detail formasi.', 'warn');
+      if (e && e.name === 'AbortError' && controller.signal.reason !== 'timeout') {
+        return;
+      }
+      showToast(
+        controller.signal.reason === 'timeout'
+          ? 'Server terlalu lama merespons (timeout). Silakan coba klik ulang.'
+          : 'Gagal memuat detail formasi.',
+        'warn'
+      );
       closeModal('modal-detail');
     } finally {
-      loading.classList.add('hidden');
+      if (slowTimer) clearTimeout(slowTimer);
+      if (timeoutTimer) clearTimeout(timeoutTimer);
+      if (state.detailAbortController === controller) {
+        loading.classList.add('hidden');
+      }
     }
   }
 
@@ -1614,9 +1665,16 @@
   }
 
   function closeModal(id) {
+    if (id === 'modal-detail' && state.detailAbortController) {
+      state.detailAbortController.abort();
+      state.detailAbortController = null;
+    }
     const el = $(id);
     if (!el) return;
     el.classList.add('hidden');
+    if (id === 'modal-detail' && $('modal-detail-loading')) {
+      $('modal-detail-loading').classList.add('hidden');
+    }
     if ($('modal-detail').classList.contains('hidden') && $('modal-compare').classList.contains('hidden')) {
       document.body.classList.remove('overflow-hidden');
     }
