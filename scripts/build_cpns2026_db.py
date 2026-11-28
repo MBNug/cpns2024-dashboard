@@ -49,6 +49,7 @@ from extra_sources_2026 import (  # noqa: E402
     get_bssn_rows,
     get_kejagung_rows,
     get_kemenham_rows,
+    get_kemenhut_rows,
     get_kemenkes_str_rows,
     get_kemenkum_rows,
     get_ma_rows,
@@ -530,6 +531,7 @@ def main():
     ma_rows = get_ma_rows(extract_jenjang_tier, DATA_DIR / "ma_2026_verified.json")
     kemenham_rows = get_kemenham_rows(extract_jenjang_tier, DATA_DIR / "kemenham_2026_verified.json")
     polri_rows = get_polri_rows(extract_jenjang_tier, DATA_DIR / "polri_2026_verified.json")
+    kemenhut_rows = get_kemenhut_rows(extract_jenjang_tier, DATA_DIR / "kemenhut_2026_verified.json")
     live_agencies = {r["instansi_nm"].strip().lower() for r in sscasn_rows}
     live_agency_ids = {r["instansi_id"] for r in sscasn_rows}
 
@@ -538,7 +540,7 @@ def main():
     decree_rows = [
         r for r in (
             rows + bssn_rows + kejagung_rows + kemenkes_rows + bpkp_rows
-            + kemenkum_rows + ma_rows + kemenham_rows + polri_rows
+            + kemenkum_rows + ma_rows + kemenham_rows + polri_rows + kemenhut_rows
         )
         if r["instansi_id"] not in live_agency_ids and r["instansi_nm"].strip().lower() not in live_agencies
     ]
@@ -572,8 +574,9 @@ def main():
     assert len(ma_rows) == 22 and sum(r["jumlah_formasi"] for r in ma_rows) == 4430
     assert len(kemenham_rows) == 15 and sum(r["jumlah_formasi"] for r in kemenham_rows) == 1000
     assert len(polri_rows) == 633 and sum(r["jumlah_formasi"] for r in polri_rows) == 750
-    assert len(rows) == 1530, f"Expected 1530 combined verified rows, got {len(rows)}"
-    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 15197, "Total combined alokasi must be 15197!"
+    assert len(kemenhut_rows) == 3782 and sum(r["jumlah_formasi"] for r in kemenhut_rows) == 70000
+    assert len(rows) == 5312, f"Expected 5312 combined verified rows, got {len(rows)}"
+    assert sum(r["jumlah_formasi"] or 0 for r in rows) == 85197, "Total combined alokasi must be 85197!"
 
     # Enrich each 2026 row with verified CPNS 2024 historical benchmark & exam scores
     cmp_2024 = compute_2024_comparison_map(rows, DATA_DIR / "cpns2024.db")

@@ -63,6 +63,15 @@
     "catatan": "Lampiran A resmi lengkap 131 halaman (605 nomor penempatan Polda & Mabes Polri / 633 baris jalur: 722 Umum, 15 Disabilitas, 9 Cum Laude, 4 Putra/Putri Papua). Menggantikan dek Canva 73 MB sebelumnya; gaji resmi & pelamar dibiarkan NULL."
   },
   {
+    "file_name": "Kemenhut Pengumuman.pdf + LAMPIRAN RINCIAN KEBUTUHAN CPNS KEMENHUT 2026.pdf",
+    "status": "ingested",
+    "instansi": "Kementerian Kehutanan",
+    "referensi": "Pengumuman Sekjen Kemenhut No. PG.2/MENHUT-SETJEN/ROSDM/PEG.02/11/2026 (KepmenPANRB No. 639/2026, 27 Nov 2026)",
+    "rows_ingested": 3782,
+    "kuota_ingested": 70000,
+    "catatan": "Lampiran lengkap 630 halaman (3.281 nomor unit penempatan / 3.782 baris jalur: 69.274 Umum, 26 Penyandang Disabilitas, 700 Putra/Putri Papua) untuk 32 jabatan (termasuk 60.000 Polisi Kehutanan & 5.465 Manggala Agni) beserta rentang penghasilan resmi Rp 2,18–8,50 jt dari Pengumuman Bagian III."
+  },
+  {
     "file_name": "Mekanisme_CPNS_dan_Passing_Grade.pdf",
     "status": "reference_policy",
     "instansi": "Kementerian PANRB (Nasional)",
