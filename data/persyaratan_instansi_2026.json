@@ -432,24 +432,27 @@
   },
   "BGN": {
     "status_pengumuman": "lengkap",
-    "nomor_pengumuman": "SSCASN BKN Resmi TA 2026 — Badan Gizi Nasional (28 Nov 2026; menunggu PDF Pengumuman BGN untuk rincian IPK & bobot SKB tambahan)",
-    "portal_resmi": "https://www.bgn.go.id/",
+    "nomor_pengumuman": "Pengumuman Seleksi CPNS Badan Gizi Nasional TA 2026 No. 001/PANSELNAS.BGN/XI/2026 (28 Nov 2026)",
+    "portal_resmi": "https://www.bgn.go.id/news/pengumuman/pengumuman-seleksi-cpns-badan-gizi-nasional-tahun-anggaran-2026",
     "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
     "jadwal_ringkas": [
       {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Hasil Administrasi", "tanggal": "5 – 8 Jan 2027"},
       {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
-      {"tahap": "Pelaksanaan SKB", "tanggal": "30 Mar – 12 Apr 2027"}
+      {"tahap": "Pengumuman Hasil SKD", "tanggal": "1 – 7 Mar 2027"},
+      {"tahap": "Pelaksanaan SKB CAT", "tanggal": "30 Mar – 6 Apr 2027"},
+      {"tahap": "Pengumuman Akhir", "tanggal": "15 – 20 Apr 2027"}
     ],
-    "usia_ringkas": "18 – 35 tahun pada saat mendaftar di SSCASN",
-    "ipk_minimal": null,
-    "akreditasi": "Perguruan tinggi dan/atau program studi terakreditasi BAN-PT/LAM pada saat kelulusan (khusus jalur Lulusan Terbaik wajib bukti predikat Cum Laude + akreditasi PT & Prodi A/Unggul).",
+    "usia_ringkas": "18 – 35 tahun saat menyelesaikan pendaftaran di SSCASN",
+    "ipk_minimal": "Umum min. 3,00; Penyandang Disabilitas & Putra/Putri Papua min. 2,75 (sesuai Pengumuman No. 001/PANSELNAS.BGN/XI/2026)",
+    "akreditasi": "Ijazah S-1/D-IV sesuai formasi; perguruan tinggi dan program studi minimal terakreditasi B/Baik Sekali (SKL atau ijazah sementara tidak berlaku; jalur Lulusan Terbaik wajib bukti predikat Cum Laude + akreditasi PT & Prodi A/Unggul).",
     "syarat_bahasa": null,
     "syarat_fisik_khusus": null,
-    "ikatan_dinas": null,
+    "ikatan_dinas": "Bersedia ditempatkan sesuai formasi dan tidak mengajukan pindah minimal 5 tahun.",
     "berkas_wajib": [
       "Scan berwarna Surat Lamaran dan Pernyataan yang dihasilkan & diunduh dari SSCASN (ditandatangani & bermeterai/e-meterai Rp10.000)",
-      "Scan berwarna Transkrip Nilai Asli (bukan hasil legalisir) memuat IPK + bukti akreditasi PT/Prodi (lulusan LN sertakan penyetaraan ijazah & konversi IPK)",
-      "Surat Pernyataan Kesediaan Penempatan di seluruh unit kerja KPPG / Pusat Badan Gizi Nasional"
+      "Scan berwarna Ijazah asli S-1/D-IV (SKL atau ijazah sementara tidak berlaku) dan Transkrip Nilai asli memuat IPK + bukti akreditasi PT/Prodi minimal B/Baik Sekali (lulusan LN sertakan penyetaraan ijazah & konversi IPK)",
+      "Surat Pernyataan Kesediaan Penempatan di seluruh unit kerja KPPG / Pusat Badan Gizi Nasional dan tidak pindah minimal 5 tahun"
     ],
     "berkas_khusus_jalur": {
       "LULUSAN TERBAIK": [
@@ -464,8 +467,8 @@
         "Scan berwarna Surat Keterangan dari Kepala Desa/Kepala Suku yang menyatakan Pelamar asli Papua"
       ]
     },
-    "tahapan_skb": null,
-    "catatan_penting": "Persyaratan usia, uraian tugas, dan daftar berkas unggah per formasi (552 baris / 1.618 kursi pada 4 jalur: Umum, Disabilitas, Lulusan Terbaik, Putra/Putri Papua) diambil langsung dari portal live SSCASN BKN 2026. Rincian ambang IPK dan bobot SKB tambahan akan dilengkapi segera setelah PDF Pengumuman resmi Badan Gizi Nasional terbit."
+    "tahapan_skb": "Seleksi Administrasi → SKD → SKB menggunakan CAT BKN (sesuai Pengumuman No. 001/PANSELNAS.BGN/XI/2026).",
+    "catatan_penting": "Data 552 baris / 1.618 kursi (15 jabatan pada 4 jalur: Umum, Disabilitas, Lulusan Terbaik, Putra/Putri Papua) diambil langsung dari SSCASN Live BKN 2026 dan dilengkapi persyaratan resmi Pengumuman Biro SDMO BGN No. 001/PANSELNAS.BGN/XI/2026 (28 Nov 2026). Layanan informasi resmi: halo@bgn.go.id / 127 / WA 0811-1000-8008."
   },
   "KEMENKEU": {
     "status_pengumuman": "menunggu_pengumuman",

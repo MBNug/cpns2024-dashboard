@@ -597,14 +597,18 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertGreaterEqual(len(pkkp["berkas_formasi_sscasn"]), 2)
         self.assertIn("sdmao.kkp.go.id", pkkp["portal_resmi"])
 
-        # SSCASN Live agency (BGN): complete SSCASN docs/age/jobdesc, null IPK until PDF drops
+        # SSCASN Live agency (BGN): complete SSCASN docs/age/jobdesc + Pengumuman 001/PANSELNAS.BGN/XI/2026
         r_bgn_list = self.client.get("/api/2026/formasi", params={"instansi": "Badan Gizi Nasional", "limit": 1}).json()
         bgn_fid = r_bgn_list["items"][0]["formasi_id"]
         pbgn = self.client.get(f"/api/2026/formasi/{bgn_fid}").json().get("persyaratan_daftar")
         self.assertEqual(pbgn["status_pengumuman"], "lengkap")
+        self.assertIn("001/PANSELNAS.BGN/XI/2026", pbgn["nomor_pengumuman"])
         self.assertEqual(pbgn["usia_min"], 18)
         self.assertEqual(pbgn["usia_max"], 35)
-        self.assertIsNone(pbgn["ipk_minimal"])
+        self.assertIn("3,00", pbgn["ipk_minimal"])
+        self.assertIn("2,75", pbgn["ipk_minimal"])
+        self.assertIn("5 tahun", pbgn["ikatan_dinas"])
+        self.assertIn("CAT BKN", pbgn["tahapan_skb"])
         self.assertTrue(pbgn["jobdesc"])
         self.assertGreaterEqual(len(pbgn["berkas_formasi_sscasn"]), 3)
         self.assertIn("bgn.go.id", pbgn["portal_resmi"])

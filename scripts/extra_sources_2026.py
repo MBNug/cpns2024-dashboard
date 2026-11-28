@@ -142,13 +142,13 @@ DRIVE_AUDIT_SUMMARY = [
         "catatan": "Data resmi SSCASN BKN Live lengkap 606 baris penempatan unit KKP seluruh Indonesia (2.091 Umum, 35 Putra/Putri Papua, 6 Penyandang Disabilitas) beserta Gaji Resmi BKN Rp 5,0–8,8 jt, usia 18–35 th, uraian tugas, dokumen/sertifikasi khusus per formasi, serta aturan lengkap Pengumuman B.1389/SJ/KP.310/XI/2026 (tanpa ambang IPK minimal, bobot SKB 50% CAT + 50% Tambahan, ikatan dinas 5 tahun).",
     },
     {
-        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf (Badan Gizi Nasional)",
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Pengumuman BGN 001/PANSELNAS.BGN/XI/2026",
         "status": "ingested_sscasn_live",
         "instansi": "Badan Gizi Nasional",
-        "referensi": "SSCASN BKN Live — Seleksi CASN Nasional 2026 (28 Nov 2026)",
+        "referensi": "SSCASN BKN Live + Pengumuman BGN No. 001/PANSELNAS.BGN/XI/2026 (28 Nov 2026)",
         "rows_ingested": 552,
         "kuota_ingested": 1618,
-        "catatan": "Data resmi SSCASN BKN Live lengkap 552 baris penempatan KPPG Kelas II & Pusat Badan Gizi Nasional (1.563 Umum, 33 Disabilitas, 16 Lulusan Terbaik, 6 Putra/Putri Papua) beserta Gaji Resmi BKN Rp 6,36–8,73 jt, usia 18–35 th, uraian tugas, dan berkas SSCASN.",
+        "catatan": "Data resmi SSCASN BKN Live lengkap 552 baris penempatan KPPG Kelas II & Pusat Badan Gizi Nasional (1.563 Umum, 33 Disabilitas, 16 Lulusan Terbaik, 6 Putra/Putri Papua) beserta Gaji Resmi BKN Rp 6,36–8,73 jt, usia 18–35 th, uraian tugas, berkas SSCASN, serta aturan Pengumuman 001/PANSELNAS.BGN/XI/2026 (IPK min. 3,00 Umum / 2,75 Disabilitas & Papua, akreditasi PT & prodi min. B/Baik Sekali, SKB CAT BKN, tidak pindah min. 5 tahun).",
     },
     {
         "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenkop.pdf",
