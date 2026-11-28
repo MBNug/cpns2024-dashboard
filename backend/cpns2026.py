@@ -269,7 +269,7 @@ def _build_filter_clause(
         if len(j_list) == 1:
             clauses.append(
                 "f.formasi_id IN (SELECT fj.formasi_id FROM jurusan j "
-                "JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id "
+                "CROSS JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id "
                 "WHERE UPPER(j.jurusan_nm) LIKE ?)"
             )
             params.append(f"%{j_list[0].upper()}%")
@@ -277,7 +277,7 @@ def _build_filter_clause(
             sub_conds = " OR ".join(["UPPER(j.jurusan_nm) LIKE ?" for _ in j_list])
             clauses.append(
                 f"f.formasi_id IN (SELECT fj.formasi_id FROM jurusan j "
-                f"JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id "
+                f"CROSS JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id "
                 f"WHERE {sub_conds})"
             )
             params.extend([f"%{item.upper()}%" for item in j_list])
@@ -666,7 +666,7 @@ def search_jurusan_2026(
             """
             SELECT j.jurusan_nm, COUNT(DISTINCT fj.formasi_id) AS formasi_count, COALESCE(SUM(f.jumlah_formasi), 0) AS total_kuota
             FROM jurusan j
-            JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id
+            CROSS JOIN formasi_jurusan fj ON fj.jurusan_id = j.jurusan_id
             JOIN formasi f ON f.formasi_id = fj.formasi_id
             WHERE UPPER(j.jurusan_nm) LIKE UPPER(?)
             GROUP BY j.jurusan_id, j.jurusan_nm
