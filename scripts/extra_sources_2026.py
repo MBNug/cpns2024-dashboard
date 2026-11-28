@@ -117,13 +117,13 @@ DRIVE_AUDIT_SUMMARY = [
         "catatan": "Data resmi SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis). File BPK.pdf di Drive memuat total alokasi identik 952 kursi sehingga tidak digandakan.",
     },
     {
-        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf (Kementerian Koperasi)",
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenkop.pdf",
         "status": "ingested_sscasn_live",
         "instansi": "Kementerian Koperasi",
-        "referensi": "SSCASN BKN Live — Seleksi CASN Nasional 2026 (27 Nov 2026)",
+        "referensi": "SSCASN BKN Live + Pengumuman Kemenkop No. 12/Pum/SM.KOP/2026 (KepmenPANRB No. 642/2026)",
         "rows_ingested": 274,
         "kuota_ingested": 986,
-        "catatan": "Data resmi SSCASN BKN Live lengkap 274 baris penempatan unit Deputi/Inspektorat/Setmen (936 Umum, 10 Lulusan Terbaik, 20 Disabilitas, 20 Putra/Putri Papua; Gaji Resmi BKN Rp 5,0–8,3 jt; pelamar belum dirilis).",
+        "catatan": "Data resmi SSCASN BKN Live lengkap 274 baris penempatan unit Deputi/Inspektorat/Setmen (936 Umum, 10 Lulusan Terbaik, 20 Disabilitas, 20 Putra/Putri Papua; Gaji Resmi BKN Rp 5,0–8,3 jt; pelamar belum dirilis). Berkas Kemenkop.pdf di Drive memuat total identik 986 kursi sehingga tidak digandakan.",
     },
     {
         "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + BPKP_PENGUMUMAN/RINCIAN/ALOKASI.pdf",
@@ -223,6 +223,15 @@ DRIVE_AUDIT_SUMMARY = [
         "rows_ingested": 0,
         "kuota_ingested": 0,
         "catatan": "Duplikat 100% (39/39 hash JPEG identik) dengan dokumen Kemenkeu yang sudah masuk (374 baris / 1.915 kursi). Dilewati agar tidak ganda.",
+    },
+    {
+        "file_name": "KEMENKEU/Rincian Komposisi Penempatan Unit Eselon I.pdf & Format Surat 2024.docx",
+        "status": "skipped_2024_archive",
+        "instansi": "Kementerian Keuangan",
+        "referensi": "Arsip Pengadaan CPNS Kemenkeu TA 2024 (1.230 kursi / jalur IKN)",
+        "rows_ingested": 0,
+        "kuota_ingested": 0,
+        "catatan": "Berkas di subfolder KEMENKEU Drive terverifikasi merupakan arsip CPNS 2024 (1.230 kursi), bukan pengumuman CPNS 2026. Dilewati agar tidak mencemari data 2026.",
     },
 ]
 
@@ -542,6 +551,7 @@ def _parse_sscasn_persyaratan(raw_json: str) -> str | None:
             continue
         seen.add(key)
         cleaned.append({"nama": nama, "wajib": wajib, "jenis_formasi": jf})
+    cleaned.sort(key=lambda x: (not x["wajib"], (x["jenis_formasi"] or "").lower(), x["nama"].lower()))
     return json.dumps(cleaned, ensure_ascii=False) if cleaned else None
 
 
@@ -636,9 +646,17 @@ def _parse_kemenkes_pend_and_note(raw_pend: str) -> tuple[str, str]:
         s = s.strip()
         note = "Catatan: " + note_part.strip()
     s = re.sub(r"^(?:S-1 Sarjana Bidang Kesehatan/[^:]+:|Diploma III Bidang Kesehatan:)\s*", "", s)
-    s = re.sub(r"^1\.\s*", "", s)
+    s = re.sub(r"^\d+\.\s*", "", s)
     parts = re.split(r"\s+\d+\.\s+", s)
-    cleaned = [p.strip(" ;,") for p in parts if p.strip(" ;,")]
+    cleaned: list[str] = []
+    seen_p: set[str] = set()
+    for p in parts:
+        tok = re.sub(r"^\d+\.\s*", "", p).strip(" ;,")
+        tok = re.sub(r"\bImu\b", "Ilmu", tok)
+        tok = re.sub(r"\s+", " ", tok).strip()
+        if tok and tok.upper() not in seen_p:
+            seen_p.add(tok.upper())
+            cleaned.append(tok)
     return " | ".join(cleaned), note
 
 
@@ -682,7 +700,7 @@ def get_kemenkes_str_rows(extract_jenjang_fn, json_path) -> list[dict]:
     rows = []
     for idx, g in enumerate(grouped, 1):
         pend_nm, note = _parse_kemenkes_pend_and_note(" ".join(g["pend_parts"]))
-        jab_clean = re.sub(r"\s+", " ", g["jab"]).strip().upper()
+        jab_clean = re.sub(r"\s*(?:\(\*\)|\*)+$", "", re.sub(r"\s+", " ", g["jab"]).strip()).upper()
         kat = g["kat"].strip()
         str_label = "YA (Wajib STR)" if g["str"] == "YA" else "TIDAK (Tanpa STR)"
         lok = f"Ketentuan Nasional JF Kesehatan ({kat}) | Syarat STR: {str_label}"

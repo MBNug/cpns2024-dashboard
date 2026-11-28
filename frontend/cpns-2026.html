@@ -6,7 +6,7 @@
   <title>CPNS 2026 Explorer — Data Awal &amp; Live SSCASN (12 Instansi Terverifikasi)</title>
   <meta name="description" content="Eksplorasi formasi CPNS 2026 terverifikasi dari portal live SSCASN BKN (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) serta pengumuman resmi Kemenhut (70.000 kursi), Kemenkeu, dan acuan STR Kemenkes (5.313 baris, 85.197 kursi teralokasi)." />
   <link rel="icon" type="image/png" href="/static/favicon.png?v=20261127" />
-  <link rel="stylesheet" href="/static/css/app.css?v=20261128b" />
+  <link rel="stylesheet" href="/static/css/app.css?v=20261128c" />
   <script>
     (function () {
       try {
@@ -105,7 +105,7 @@
         <span id="kpi-total-pelamar" class="ticker-value">—</span>
       </div>
       <div class="ticker-divider" aria-hidden="true"></div>
-      <div class="ticker-metric ticker-metric-desktop" title="Median kisaran gaji resmi yang sudah dipublikasikan (BPK SSCASN &amp; BPKP)">
+      <div class="ticker-metric ticker-metric-desktop" title="Median kisaran gaji resmi yang sudah dipublikasikan (9 instansi SSCASN Live &amp; Kemenhut)">
         <span class="ticker-label">Gaji Resmi</span>
         <span id="kpi-median-gaji" class="ticker-value">—</span>
       </div>
@@ -211,7 +211,7 @@
         <div class="field-group col-span-3">
           <div class="field-label-row">
             <label for="filter-eselon1" class="field-label">Unit Eselon I / Satuan</label>
-            <span id="badge-eselon1-count" class="field-hint">57 unit</span>
+            <span id="badge-eselon1-count" class="field-hint">132 unit</span>
           </div>
           <select id="filter-eselon1" class="control-select">
             <option value="">Semua Unit Eselon I</option>
@@ -221,7 +221,7 @@
         <div class="field-group col-span-2 field-secondary">
           <div class="field-label-row">
             <label for="filter-jabatan" class="field-label">Nama Jabatan</label>
-            <span id="badge-jabatan-count" class="field-hint">58 jabatan</span>
+            <span id="badge-jabatan-count" class="field-hint">122 jabatan</span>
           </div>
           <select id="filter-jabatan" class="control-select">
             <option value="">Semua Jabatan</option>
@@ -283,7 +283,7 @@
       <!-- Quick Presets + Bookmarks -->
       <div class="workbench-footer">
         <div class="quick-presets-cluster">
-          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (2.049)</button>
+          <button type="button" id="btn-preset-all" class="preset-chip is-active" data-preset="all">Semua (5.313)</button>
           <button type="button" class="preset-chip" data-preset="sma">Lulusan SMA/SMK</button>
           <button type="button" class="preset-chip" data-preset="s1">Lulusan S-1 / D-IV</button>
           <button type="button" class="preset-chip mobile-secondary-presets" data-preset="d3">Lulusan D-III</button>
@@ -489,7 +489,7 @@
             Setiap sumber diaudit silang SHA-256 dan kunci natural; field yang belum ada pada sumber tetap dibiarkan <span class="inline-code">NULL</span> (<span class="inline-code">—</span>).
           </p>
           <ul class="spec-list">
-            <li><span><span class="inline-code">MA</span>, <span class="inline-code">BPKP</span>, <span class="inline-code">Kemenkum</span>, <span class="inline-code">Kemenham</span>, <span class="inline-code">BPK</span>, <span class="inline-code">Polri</span>, <span class="inline-code">BSSN</span>, <span class="inline-code">Kejagung</span> (PDF pra-rilis)</span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
+            <li><span><span class="inline-code">MA</span>, <span class="inline-code">BPKP</span>, <span class="inline-code">Kemenkum</span>, <span class="inline-code">Kemenham</span>, <span class="inline-code">Kemenkop</span>, <span class="inline-code">BPK</span>, <span class="inline-code">Polri</span>, <span class="inline-code">BSSN</span>, <span class="inline-code">Kejagung</span> (PDF pra-rilis)</span><strong>Digantikan otomatis oleh data SSCASN BKN Live — 0 baris ganda masuk ke database</strong></li>
             <li><span><span class="inline-code">Mekanisme CPNS &amp; Passing Grade.pdf</span> (KepmenPANRB 674/2026)</span><strong>Acuan Ambang Batas SKD 2026 (Umum 65/80/166; Cum Laude 311; Disabilitas 286)</strong></li>
             <li><span>Kuota Kementerian Kesehatan (<span class="inline-code">SE HK.02.02</span>)</span><strong>Dikosongkan (<span class="inline-code">—</span>) sesuai sumber karena hanya mengatur syarat prodi &amp; STR</strong></li>
             <li><span>Gaji Resmi (<span class="inline-code">gaji_min/max</span>)</span><strong>Terisi pada 9 instansi SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) &amp; Kemenhut; <span class="inline-code">—</span> di Kemenkeu &amp; Kemenkes</strong></li>
@@ -507,7 +507,7 @@
         </div>
         <ul class="disclaimer-list">
           <li>Jika instansi yang sama nantinya merilis rincian resmi di portal live <strong>SSCASN BKN</strong> (<span class="inline-code">api-rekrutmen.bkn.go.id/portal/api/spf</span>), data SSCASN otomatis menggantikan catatan pra-rilis tanpa menduplikasi baris.</li>
-          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 34/2023 BPKP, No. 130/2017 Kemenkum, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, dan No. 109/2016 Kemenkes), terpisah dari kolom <strong>Gaji Resmi</strong> pengumuman/SSCASN.</li>
+          <li><strong>Simulasi Estimasi THP</strong> di Detail Formasi memakai acuan regulasi statutori per instansi (Gaji Pokok PP No. 5/2024 + Perpres Tukin resmi: No. 156/2014 Kemenkeu, No. 34/2023 BPKP, No. 8/2020 MA RI, No. 121/2017 Kemenhut, No. 130/2017 Kemenkum &amp; Kemenham, No. 188/2014 BPK, No. 88/2020 BSSN, No. 29/2020 Kejaksaan Agung, No. 109/2016 Kemenkes, serta acuan standar Kemenkop &amp; Polri), terpisah dari kolom <strong>Gaji Resmi</strong> pengumuman/SSCASN.</li>
         </ul>
       </div>
     </section>
@@ -587,7 +587,7 @@
           <div class="modal-kpi-cell">
             <span class="modal-kpi-lbl">Alokasi CPNS</span>
             <span id="detail-kpi-kuota" class="modal-kpi-val">—</span>
-            <span class="modal-kpi-sub">Sesuai KepmenPANRB</span>
+            <span class="modal-kpi-sub">Sesuai Pengumuman / SSCASN</span>
           </div>
           <div class="modal-kpi-cell">
             <span class="modal-kpi-lbl">Pelamar &amp; Rasio</span>
@@ -785,6 +785,6 @@
     <span id="toast-message"></span>
   </div>
 
-  <script src="/static/js/cpns2026.js?v=20261128a"></script>
+  <script src="/static/js/cpns2026.js?v=20261128c"></script>
 </body>
 </html>

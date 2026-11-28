@@ -34,6 +34,7 @@
     viewMode: window.innerWidth < 768 ? 'cards' : 'table',
     hasApplicantData: false,
     hasSalaryData: false,
+    distinctInstansi: 12,
     bookmarks: [],
     currentItems: [],
     activeDetail: null,
@@ -225,6 +226,7 @@
       const d = await apiGet('/stats');
       state.hasApplicantData = !!d.has_applicant_data;
       state.hasSalaryData = !!d.has_salary_data;
+      state.distinctInstansi = Number(d.distinct_instansi) || 12;
       $('kpi-total-rows').textContent = formatInt(d.total_formasi_rows);
       $('kpi-total-kuota').textContent = formatInt(d.total_kuota) + ' kursi';
       $('kpi-total-instansi').textContent = formatInt(d.distinct_instansi) + ' instansi';
@@ -457,7 +459,7 @@
       });
     }
     if ($('telemetry-active-instansi')) {
-      $('telemetry-active-instansi').textContent = state.instansi || 'Semua Instansi Terverifikasi';
+      $('telemetry-active-instansi').textContent = state.instansi || 'Semua Instansi (' + formatInt(state.distinctInstansi) + ' K/L)';
     }
 
     if (!chips.length) {
@@ -689,6 +691,9 @@
     wrap.innerHTML = state.currentItems
       .map((item) => {
         const saved = state.bookmarks.includes(item.formasi_id);
+        const jalurBadge = item.jenis_formasi
+          ? ' <span class="badge badge-neutral">' + escapeHtml(item.jenis_formasi) + '</span>'
+          : '';
         return (
           '<article class="formation-card">' +
           '<div>' +
@@ -700,6 +705,7 @@
           '<span class="badge badge-accent">' +
           escapeHtml(item.jenjang) +
           '</span>' +
+          jalurBadge +
           '<h3 class="jabatan-title" style="margin-top:6px;">' +
           escapeHtml(item.jabatan_nm) +
           '</h3>' +
@@ -708,9 +714,14 @@
           (saved ? 'is-saved' : '') +
           '" data-toggle-bookmark="' +
           escapeHtml(item.formasi_id) +
-          '" aria-label="Simpan formasi">★</button>' +
+          '" aria-label="Simpan formasi" aria-pressed="' +
+          String(saved) +
+          '">★</button>' +
           '</div>' +
-          '<div class="agency-name" style="margin-top:4px;">' +
+          '<div class="agency-name" style="margin-top:4px;font-weight:600;color:var(--color-text-primary);">' +
+          escapeHtml(item.instansi_nm) +
+          '</div>' +
+          '<div class="agency-name" style="margin-top:2px;">' +
           escapeHtml(item.unit_eselon1) +
           '</div>' +
           '<div class="location-line">' +
@@ -1024,11 +1035,29 @@
     }
   }
 
+  function isPlainObject(val) {
+    return !!val && typeof val === 'object' && !Array.isArray(val);
+  }
+
+  function hashChecklistText(prefix, text) {
+    const norm = String(text || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    let h = 2166136261;
+    for (let i = 0; i < norm.length; i++) {
+      h ^= norm.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return prefix + '_' + (h >>> 0).toString(36);
+  }
+
+  function isSafeHttpUrl(url) {
+    return typeof url === 'string' && /^https?:\/\//i.test(url.trim());
+  }
+
   function loadChecklistMap() {
     try {
       const raw = localStorage.getItem(CHECKLIST_STORAGE_KEY);
       const obj = raw ? JSON.parse(raw) : {};
-      return obj && typeof obj === 'object' ? obj : {};
+      return isPlainObject(obj) ? obj : {};
     } catch (e) {
       return {};
     }
@@ -1043,18 +1072,21 @@
   function getFormasiChecklist(formasiId) {
     const all = loadChecklistMap();
     const cur = all[formasiId];
-    return cur && typeof cur === 'object' ? cur : {};
+    return isPlainObject(cur) ? cur : {};
   }
 
   function setFormasiChecklistItem(formasiId, key, checked) {
     const all = loadChecklistMap();
-    if (!all[formasiId] || typeof all[formasiId] !== 'object') {
+    if (!isPlainObject(all[formasiId])) {
       all[formasiId] = {};
     }
     if (checked) {
       all[formasiId][key] = true;
     } else {
       delete all[formasiId][key];
+      if (!Object.keys(all[formasiId]).length) {
+        delete all[formasiId];
+      }
     }
     saveChecklistMap(all);
   }
@@ -1099,17 +1131,17 @@
     const linksEl = $('detail-req-links');
     if (linksEl) {
       const links = [];
-      if (p.portal_resmi) {
+      if (isSafeHttpUrl(p.portal_resmi)) {
         links.push(
           '<a href="' +
-            escapeHtml(p.portal_resmi) +
+            escapeHtml(p.portal_resmi.trim()) +
             '" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Portal Instansi ↗</a>'
         );
       }
-      if (p.portal_sscasn) {
+      if (isSafeHttpUrl(p.portal_sscasn)) {
         links.push(
           '<a href="' +
-            escapeHtml(p.portal_sscasn) +
+            escapeHtml(p.portal_sscasn.trim()) +
             '" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Daftar SSCASN ↗</a>'
         );
       }
@@ -1237,8 +1269,8 @@
         groups.push({
           title: 'Dokumen Unggah Resmi di Portal SSCASN (Khusus Formasi Ini)',
           special: false,
-          items: sscasnDocs.map((d, idx) => ({
-            key: 'sscasn_' + idx,
+          items: sscasnDocs.map((d) => ({
+            key: hashChecklistText('sscasn', d.nama),
             text: d.nama,
             tag: d.wajib ? 'Wajib' : 'Opsional',
             isWajib: !!d.wajib,
@@ -1250,8 +1282,8 @@
         groups.push({
           title: 'Berkas Tambahan Jalur ' + (p.jalur_aktif || 'Khusus'),
           special: true,
-          items: jalurDocs.map((txt, idx) => ({
-            key: 'jalur_' + idx,
+          items: jalurDocs.map((txt) => ({
+            key: hashChecklistText('jalur', txt),
             text: txt,
             tag: 'Jalur Khusus',
             isWajib: true,
@@ -1265,8 +1297,8 @@
             ? 'Ringkasan Kelengkapan Pengumuman Instansi (Panduan PDF)'
             : 'Berkas Persyaratan Resmi Pengumuman Instansi',
           special: false,
-          items: instDocs.map((txt, idx) => ({
-            key: 'inst_' + idx,
+          items: instDocs.map((txt) => ({
+            key: hashChecklistText('inst', txt),
             text: txt,
             tag: '',
             isWajib: true,
@@ -1535,7 +1567,9 @@
       const cols = items
         .map(
           (it) =>
-            '<th><div style="font-weight:700;">#' +
+            '<th><div style="font-size:0.75rem;color:var(--color-accent-ink);font-weight:600;">' +
+            escapeHtml(it.instansi_nm) +
+            '</div><div style="font-weight:700;margin-top:2px;">#' +
             escapeHtml(it.no_urut) +
             ' ' +
             escapeHtml(it.jabatan_nm) +
@@ -1655,11 +1689,15 @@
 
     $('btn-export-csv').addEventListener('click', () => {
       const url = new URL(API_BASE + '/export', window.location.origin);
-      Object.entries(buildActiveQueryParams()).forEach(([k, v]) => {
-        if (v !== undefined && v !== null && String(v).trim() !== '') {
-          url.searchParams.set(k, String(v));
-        }
-      });
+      if (state.only_saved && state.bookmarks.length) {
+        url.searchParams.set('ids', state.bookmarks.join(','));
+      } else {
+        Object.entries(buildActiveQueryParams()).forEach(([k, v]) => {
+          if (v !== undefined && v !== null && String(v).trim() !== '') {
+            url.searchParams.set(k, String(v));
+          }
+        });
+      }
       window.location.href = url.toString();
     });
 

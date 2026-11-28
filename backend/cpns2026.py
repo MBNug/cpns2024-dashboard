@@ -1,9 +1,9 @@
-"""FastAPI router and read-only SQLite layer for CPNS 2026 verified decrees.
+"""FastAPI router and read-only SQLite layer for CPNS 2026 verified decrees & live SSCASN data.
 
-Sources currently ingested:
-- Kementerian Keuangan (KepmenPANRB No. 675/2026)
-- Badan Siber dan Sandi Negara (Pengumuman No. PENG.102/2026 / KepmenPANRB No. 676/2026)
-- Kejaksaan Agung (KepmenPANRB No. 638/2026 — verified partial attachment pages)
+Sources currently ingested (12 agencies):
+- SSCASN BKN Live (9 agencies): MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN
+- Official PDFs (2 agencies): Kementerian Kehutanan (PG.2/2026), Kementerian Keuangan (KepmenPANRB 675/2026)
+- Official SE STR (1 agency): Kementerian Kesehatan (SE HK.02.02/F/4023/2026, quota NULL)
 
 Strictly enforces the no-hallucination rule: fields absent from published 2026 decrees
 (jumlah_pelamar, rasio_kompetisi, peluang_lolos_pct, status_keketatan, gaji_min, gaji_max,
@@ -18,8 +18,10 @@ import gzip
 import io
 import json
 import math
+import os
 import shutil
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Any, Optional
 
@@ -48,18 +50,45 @@ GOLONGAN_STATUTORY: list[tuple[str, str, int, str]] = [
 ]
 
 router = APIRouter(prefix="/api/2026", tags=["cpns2026"])
+_db_2026_lock = threading.Lock()
+
+
+def _needs_2026_extract() -> bool:
+    if not DB_GZ_PATH.exists():
+        return False
+    if not DB_PATH.exists():
+        return True
+    try:
+        db_st = DB_PATH.stat()
+        gz_st = DB_GZ_PATH.stat()
+        if db_st.st_size == 0:
+            return True
+        if gz_st.st_mtime > db_st.st_mtime + 1.0:
+            return True
+    except OSError:
+        return True
+    return False
 
 
 def ensure_2026_database_ready() -> None:
-    """Decompress data/cpns2026.db.gz if cpns2026.db is not yet extracted (e.g. Render deploy)."""
-    if DB_PATH.exists():
+    """Thread-safe decompression of data/cpns2026.db.gz when missing, empty, or newer than cpns2026.db."""
+    if not _needs_2026_extract():
         return
-    if DB_GZ_PATH.exists():
+    with _db_2026_lock:
+        if not _needs_2026_extract():
+            return
         DATA_DIR.mkdir(parents=True, exist_ok=True)
-        tmp_path = DB_PATH.with_suffix(".db.tmp")
-        with gzip.open(DB_GZ_PATH, "rb") as f_in, open(tmp_path, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        tmp_path.replace(DB_PATH)
+        tmp_path = DATA_DIR / f"{DB_PATH.name}.{os.getpid()}.{threading.get_ident()}.tmp"
+        try:
+            with gzip.open(DB_GZ_PATH, "rb") as f_in, open(tmp_path, "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            tmp_path.replace(DB_PATH)
+        finally:
+            if tmp_path.exists():
+                try:
+                    tmp_path.unlink()
+                except OSError:
+                    pass
 
 
 def _get_conn() -> sqlite3.Connection:
@@ -141,8 +170,8 @@ def _build_filter_clause(
         params.append(kategori.strip())
 
     if (jenjang or "").strip():
-        clauses.append("f.jenjang = ?")
-        params.append(jenjang.strip())
+        clauses.append("(' / ' || f.jenjang || ' / ') LIKE ?")
+        params.append(f"% / {jenjang.strip()} / %")
 
     if (jabatan or "").strip():
         clauses.append("f.jabatan_nm = ?")
@@ -262,6 +291,15 @@ def _build_persyaratan_daftar(row_dict: dict[str, Any]) -> dict[str, Any]:
     usia_max = row_dict.get("usia_max")
     usia_formasi = f"{usia_min} – {usia_max} tahun" if (usia_min and usia_max) else None
 
+    berkas_wajib_instansi = list(inst_data.get("berkas_wajib") or [])
+    if (
+        row_dict.get("instansi_id") == "KEMENKES"
+        and str(row_dict.get("formasi_id") or "").endswith("-TIDAK")
+    ):
+        berkas_wajib_instansi = [
+            b for b in berkas_wajib_instansi if "STR" not in b.upper()
+        ]
+
     return {
         "status_pengumuman": inst_data.get("status_pengumuman") or "menunggu_pengumuman",
         "nomor_pengumuman": inst_data.get("nomor_pengumuman"),
@@ -282,7 +320,7 @@ def _build_persyaratan_daftar(row_dict: dict[str, Any]) -> dict[str, Any]:
         "catatan_penting": inst_data.get("catatan_penting"),
         "jobdesc": row_dict.get("jobdesc"),
         "berkas_formasi_sscasn": berkas_sscasn,
-        "berkas_wajib_instansi": list(inst_data.get("berkas_wajib") or []),
+        "berkas_wajib_instansi": berkas_wajib_instansi,
         "berkas_khusus_jalur": berkas_jalur,
         "jalur_aktif": row_dict.get("jenis_formasi"),
     }
@@ -384,7 +422,7 @@ def get_stats_2026() -> dict[str, Any]:
             "has_jenis_formasi": has_jenis,
             "instansi_summary": instansi_summary,
             "drive_audit": drive_audit,
-            "sumber_dokumen": "SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut PG.2/2026, Kemenham 1143/2026) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
+            "sumber_dokumen": "SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut PG.2/2026) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
         }
     finally:
         conn.close()
@@ -582,6 +620,37 @@ def search_instansi_2026(
         conn.close()
 
 
+_DEFAULT_ORDER_SQL = (
+    "CASE f.instansi_id "
+    "WHEN 'KEMENKEU' THEN 1 "
+    "WHEN 'BPK' THEN 2 "
+    "WHEN 'BSSN' THEN 3 "
+    "WHEN 'KEJAGUNG' THEN 4 "
+    "WHEN 'KEMENKES' THEN 5 "
+    "WHEN 'BPKP' THEN 6 "
+    "WHEN 'KEMENKUM' THEN 7 "
+    "WHEN 'KEMENKOP' THEN 8 "
+    "WHEN 'MA' THEN 9 "
+    "WHEN 'KEMENHAM' THEN 10 "
+    "WHEN 'POLRI' THEN 11 "
+    "WHEN 'KEMENHUT' THEN 12 "
+    "ELSE 99 END ASC, f.instansi_id ASC, f.no_urut ASC, f.formasi_id ASC"
+)
+
+_SORT_MAP_2026 = {
+    "no_urut": _DEFAULT_ORDER_SQL,
+    "kuota_desc": "CASE WHEN f.jumlah_formasi IS NULL THEN 1 ELSE 0 END ASC, f.jumlah_formasi DESC, " + _DEFAULT_ORDER_SQL,
+    "kuota_asc": "CASE WHEN f.jumlah_formasi IS NULL THEN 1 ELSE 0 END ASC, f.jumlah_formasi ASC, " + _DEFAULT_ORDER_SQL,
+    "jabatan_asc": "f.jabatan_nm ASC, f.jumlah_formasi DESC, " + _DEFAULT_ORDER_SQL,
+    "eselon1_asc": "f.unit_eselon1 ASC, f.jumlah_formasi DESC, " + _DEFAULT_ORDER_SQL,
+    "rasio_2024_asc": "CASE WHEN b.rasio_2024 IS NULL THEN 1 ELSE 0 END ASC, b.rasio_2024 ASC, f.jumlah_formasi DESC, " + _DEFAULT_ORDER_SQL,
+    "rasio_2024_desc": "CASE WHEN b.rasio_2024 IS NULL THEN 1 ELSE 0 END ASC, b.rasio_2024 DESC, f.jumlah_formasi DESC, " + _DEFAULT_ORDER_SQL,
+    "rasio_asc": "CASE WHEN f.rasio_kompetisi IS NULL THEN 1 ELSE 0 END ASC, f.rasio_kompetisi ASC, f.jumlah_formasi DESC",
+    "peluang_desc": "CASE WHEN f.peluang_lolos_pct IS NULL THEN 1 ELSE 0 END ASC, f.peluang_lolos_pct DESC, f.jumlah_formasi DESC",
+    "gaji_desc": "CASE WHEN f.gaji_max IS NULL THEN 1 ELSE 0 END ASC, f.gaji_max DESC, f.jumlah_formasi DESC",
+}
+
+
 @router.get("/formasi")
 def list_formasi_2026(
     q: str = Query(default=""),
@@ -601,20 +670,7 @@ def list_formasi_2026(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=20, ge=1, le=100),
 ) -> dict[str, Any]:
-    default_order = "CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC"
-    sort_map = {
-        "no_urut": default_order,
-        "kuota_desc": "f.jumlah_formasi DESC, " + default_order,
-        "kuota_asc": "f.jumlah_formasi ASC, " + default_order,
-        "jabatan_asc": "f.jabatan_nm ASC, f.jumlah_formasi DESC, " + default_order,
-        "eselon1_asc": "f.unit_eselon1 ASC, f.jumlah_formasi DESC, " + default_order,
-        "rasio_2024_asc": "CASE WHEN b.rasio_2024 IS NULL THEN 1 ELSE 0 END ASC, b.rasio_2024 ASC, f.jumlah_formasi DESC, " + default_order,
-        "rasio_2024_desc": "CASE WHEN b.rasio_2024 IS NULL THEN 1 ELSE 0 END ASC, b.rasio_2024 DESC, f.jumlah_formasi DESC, " + default_order,
-        "rasio_asc": "CASE WHEN f.rasio_kompetisi IS NULL THEN 1 ELSE 0 END ASC, f.rasio_kompetisi ASC, f.jumlah_formasi DESC",
-        "peluang_desc": "CASE WHEN f.peluang_lolos_pct IS NULL THEN 1 ELSE 0 END ASC, f.peluang_lolos_pct DESC, f.jumlah_formasi DESC",
-        "gaji_desc": "CASE WHEN f.gaji_max IS NULL THEN 1 ELSE 0 END ASC, f.gaji_max DESC, f.jumlah_formasi DESC",
-    }
-    order_sql = sort_map.get(sort_by, sort_map["no_urut"])
+    order_sql = _SORT_MAP_2026.get(sort_by, _SORT_MAP_2026["no_urut"])
 
     where_sql, params = _build_filter_clause(
         q=q, instansi=instansi, eselon1=eselon1, kategori=kategori, jenjang=jenjang,
@@ -694,11 +750,11 @@ def get_formasi_batch_2026(ids: str = Query(default="")) -> list[dict[str, Any]]
             JOIN instansi i ON i.instansi_id = f.instansi_id
             LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE f.formasi_id IN ({placeholders})
-            ORDER BY CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC
             """,
             id_list,
         ).fetchall()
-        return [_row_to_dict(r) for r in rows]
+        by_id = {r["formasi_id"]: _row_to_dict(r) for r in rows}
+        return [by_id[fid] for fid in id_list if fid in by_id]
     finally:
         conn.close()
 
@@ -977,13 +1033,22 @@ def export_csv_2026(
     keketatan_2024: str = Query(default=""),
     min_kuota: Optional[int] = Query(default=None),
     only_zero_pelamar: bool = Query(default=False),
+    sort_by: str = Query(default="no_urut"),
+    ids: str = Query(default=""),
 ):
-    where_sql, params = _build_filter_clause(
-        q=q, instansi=instansi, eselon1=eselon1, kategori=kategori, jenjang=jenjang,
-        jurusan=jurusan, jabatan=jabatan, lokasi=lokasi, jenis_formasi=jenis_formasi,
-        keketatan=keketatan, keketatan_2024=keketatan_2024, min_kuota=min_kuota,
-        only_zero_pelamar=only_zero_pelamar,
-    )
+    id_list = [x.strip() for x in ids.split(",") if x.strip()][:50]
+    order_sql = _SORT_MAP_2026.get(sort_by, _SORT_MAP_2026["no_urut"])
+    if id_list:
+        placeholders = ",".join("?" for _ in id_list)
+        where_sql = f"f.formasi_id IN ({placeholders})"
+        params: list[Any] = list(id_list)
+    else:
+        where_sql, params = _build_filter_clause(
+            q=q, instansi=instansi, eselon1=eselon1, kategori=kategori, jenjang=jenjang,
+            jurusan=jurusan, jabatan=jabatan, lokasi=lokasi, jenis_formasi=jenis_formasi,
+            keketatan=keketatan, keketatan_2024=keketatan_2024, min_kuota=min_kuota,
+            only_zero_pelamar=only_zero_pelamar,
+        )
     conn = _get_conn()
     try:
         rows = conn.execute(
@@ -1015,10 +1080,13 @@ def export_csv_2026(
             JOIN instansi i ON i.instansi_id = f.instansi_id
             LEFT JOIN banding_2024 b ON b.formasi_id = f.formasi_id
             WHERE {where_sql}
-            ORDER BY CASE f.instansi_id WHEN 'KEMENKEU' THEN 1 WHEN 'BPK' THEN 2 WHEN 'BSSN' THEN 3 WHEN 'KEJAGUNG' THEN 4 WHEN 'KEMENKES' THEN 5 ELSE 9 END ASC, f.no_urut ASC, f.formasi_id ASC
+            ORDER BY {order_sql}
             """,
             params,
         ).fetchall()
+        if id_list:
+            by_id = {r["formasi_id"]: r for r in rows}
+            rows = [by_id[fid] for fid in id_list if fid in by_id]
 
         buf = io.StringIO()
         writer = csv.writer(buf)

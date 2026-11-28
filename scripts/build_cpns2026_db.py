@@ -419,6 +419,12 @@ def clean_unit(raw: str, no: int) -> str:
 
 
 def clean_pend(raw: str, no: int) -> str:
+    if no == 50:
+        return (
+            "S-1 MANAJEMEN KEUANGAN | S-1 ILMU ADMINISTRASI KEUANGAN DAN PERBANKAN | "
+            "S-1 KEUANGAN DAN PERBANKAN | S-1 EKONOMI KEUANGAN DAN PERBANKAN | "
+            "S-1 ADMINISTRASI KEUANGAN"
+        )
     if no == 158:
         return "S-1 TEKNIK INFORMATIKA | S-1 TEKNOLOGI INFORMASI | S-1 SISTEM DAN TEKNOLOGI INFORMASI | S-1 ILMU KOMPUTER"
     if no in (1, 2, 3, 4, 5, 6, 7, 8, 165) or (no >= 171 and no not in (251, 279, 289)):
@@ -437,11 +443,15 @@ def clean_pend(raw: str, no: int) -> str:
         out.append(t_clean)
     s = " ".join(out)
     s = re.sub(r"\bMASY\s+ARAKAT\b", "MASYARAKAT", s)
-    s = re.sub(r"\s+[Iil]\s+(?=(?:S-1|D-III|D-IV|SMK|KEUANGAN DAN PERBANKAN)\b)", " | ", s)
+    s = re.sub(r"\s+[Iil]\s+(?=(?:S-1|D-III|D-IV|SMK)\b)", " | ", s)
     s = re.sub(r"(?<!\|)\s+(?=(?:S-1|D-III|D-IV|SMK)\b)", " | ", s)
-    # Fix missing pipe in NO 50 ("KEUANGAN DAN PERBANKAN S-1 ...") & NO 150 ("ILMU STATISTIK | S-1 ...")
-    s = re.sub(r"(?<!\|)\s+(?=KEUANGAN DAN PERBANKAN\b)", " | ", s)
-    segs = [re.sub(r"\s+", " ", p).strip() for p in s.split("|") if p.strip()]
+    segs = []
+    seen_segs: set[str] = set()
+    for p in s.split("|"):
+        clean = re.sub(r"\s+", " ", p).strip()
+        if clean and clean.upper() not in seen_segs:
+            seen_segs.add(clean.upper())
+            segs.append(clean)
     return " | ".join(segs)
 
 

@@ -22,9 +22,9 @@ from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 try:
-    from .cpns2026 import router as cpns2026_router
+    from .cpns2026 import router as cpns2026_router, ensure_2026_database_ready
 except ImportError:
-    from cpns2026 import router as cpns2026_router
+    from cpns2026 import router as cpns2026_router, ensure_2026_database_ready
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = (
@@ -412,12 +412,21 @@ def _prewarm_common_queries() -> None:
             get_formasi(jenjang=j, sort_by="kuota_desc", page=1, limit=10)
     except Exception:
         pass
+    finally:
+        conn = getattr(_db_tls, "conn", None)
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+            _db_tls.conn = None
 
 
 @app.on_event("startup")
 def startup_event():
-    """Unpack database and pre-warm in-memory caches immediately on startup before requests arrive."""
+    """Unpack databases and pre-warm in-memory caches immediately on startup before requests arrive."""
     ensure_database_ready()
+    ensure_2026_database_ready()
     try:
         _get_stats_data()
         _get_filters_data()

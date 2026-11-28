@@ -567,6 +567,107 @@ class Cpns2026DashboardTests(unittest.TestCase):
             self.assertIsNone(pp["jadwal_pendaftaran"])
             self.assertEqual(pp["jadwal_ringkas"], [])
 
+        # Kemenkes non-STR row must NOT show STR checklist item; STR-required row must include STR
+        p_no_str = self.client.get("/api/2026/formasi/2026-KEMENKES-01-KEAH-TIDAK").json()["persyaratan_daftar"]
+        self.assertEqual(p_no_str["berkas_wajib_instansi"], [])
+        kkes_items = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Kesehatan", "limit": 50}).json()["items"]
+        yes_str_id = next(x["formasi_id"] for x in kkes_items if x["formasi_id"].endswith("-YA"))
+        p_yes_str = self.client.get(f"/api/2026/formasi/{yes_str_id}").json()["persyaratan_daftar"]
+        self.assertTrue(any("STR" in b for b in p_yes_str["berkas_wajib_instansi"]))
+
+        # Special jalur matching (Disabilitas, Papua, Lulusan Terbaik) must populate berkas_khusus_jalur
+        for jf in ("PENYANDANG DISABILITAS", "PUTRA/PUTRI PAPUA", "LULUSAN TERBAIK"):
+            sample_id = self.client.get("/api/2026/formasi", params={"jenis_formasi": jf, "limit": 1}).json()["items"][0]["formasi_id"]
+            pj = self.client.get(f"/api/2026/formasi/{sample_id}").json()["persyaratan_daftar"]
+            self.assertGreater(len(pj["berkas_khusus_jalur"]), 0, f"Expected berkas_khusus_jalur for {jf}")
+
+    def test_carbon_audit_regressions(self) -> None:
+        import gzip as _gzip
+        import os as _os
+        import tempfile
+        import threading
+        import backend.cpns2026 as mod26
+
+        # 1. Clean jurusan & jabatan_nm (no Kemenkeu NO 50 split, no Kemenkes numeric prefixes / '*')
+        conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+        try:
+            dirty_jur = conn.execute(
+                """
+                SELECT jurusan_nm FROM jurusan
+                WHERE jurusan_nm GLOB '[0-9].*'
+                   OR UPPER(jurusan_nm) = 'KEUANGAN DAN PERBANKAN'
+                   OR jurusan_nm LIKE '%Imu %'
+                """
+            ).fetchall()
+            self.assertEqual(dirty_jur, [])
+            dirty_jab = conn.execute(
+                "SELECT DISTINCT jabatan_nm FROM formasi WHERE jabatan_nm LIKE '%*%' OR jabatan_nm LIKE '%(*)'"
+            ).fetchall()
+            self.assertEqual(dirty_jab, [])
+            k50 = conn.execute("SELECT pendidikan_nm FROM formasi WHERE formasi_id = '2026-KEMENKEU-050'").fetchone()[0]
+            self.assertIn("S-1 ILMU ADMINISTRASI KEUANGAN DAN PERBANKAN", k50)
+            self.assertIn("S-1 EKONOMI KEUANGAN DAN PERBANKAN", k50)
+        finally:
+            conn.close()
+
+        # 2. Multi-tier jenjang filter includes combined tiers (e.g. D-IV/S-1 / Profesi)
+        r_s1 = self.client.get("/api/2026/formasi", params={"jenjang": "D-IV/S-1", "limit": 1}).json()
+        self.assertGreater(r_s1["total"], 1744)
+
+        # 3. kuota_asc puts NULL Kemenkes rows LAST; /formasi-batch preserves requested ID order
+        r_asc = self.client.get("/api/2026/formasi", params={"sort_by": "kuota_asc", "limit": 5}).json()
+        self.assertTrue(all(it["jumlah_formasi"] is not None and it["jumlah_formasi"] >= 1 for it in r_asc["items"]))
+
+        req_ids = ["c5f2e7f5-47b0-42e0-a175-00e144486667", "2026-KEMENKEU-001"]
+        r_batch = self.client.get("/api/2026/formasi-batch", params={"ids": ",".join(req_ids)}).json()
+        self.assertEqual([x["formasi_id"] for x in r_batch], req_ids)
+
+        # 4. /export respects ids (bookmarked mode) & sort_by
+        r_exp_ids = self.client.get("/api/2026/export", params={"ids": ",".join(req_ids)})
+        self.assertEqual(r_exp_ids.status_code, 200)
+        exp_rows = list(csv.reader(io.StringIO(r_exp_ids.content.decode("utf-8-sig"))))
+        self.assertEqual([r[1] for r in exp_rows[1:]], req_ids)
+
+        r_exp_asc = self.client.get("/api/2026/export", params={"sort_by": "kuota_asc"})
+        exp_asc_rows = list(csv.reader(io.StringIO(r_exp_asc.content.decode("utf-8-sig"))))
+        self.assertEqual(exp_asc_rows[1][9], "1")
+
+        # 5. Thread-safe & mtime-aware ensure_2026_database_ready()
+        with tempfile.TemporaryDirectory() as td:
+            td_path = Path(td)
+            tmp_db = td_path / "cpns2026.db"
+            tmp_gz = td_path / "cpns2026.db.gz"
+            with _gzip.open(tmp_gz, "wb") as f:
+                f.write(b"v1-payload")
+            orig_dir, orig_db, orig_gz = mod26.DATA_DIR, mod26.DB_PATH, mod26.DB_GZ_PATH
+            try:
+                mod26.DATA_DIR, mod26.DB_PATH, mod26.DB_GZ_PATH = td_path, tmp_db, tmp_gz
+                errs: list[Exception] = []
+
+                def worker():
+                    try:
+                        mod26.ensure_2026_database_ready()
+                    except Exception as exc:
+                        errs.append(exc)
+
+                threads = [threading.Thread(target=worker) for _ in range(6)]
+                for t in threads:
+                    t.start()
+                for t in threads:
+                    t.join()
+                self.assertEqual(errs, [])
+                self.assertEqual(tmp_db.read_bytes(), b"v1-payload")
+
+                # Newer .db.gz must trigger re-extraction
+                with _gzip.open(tmp_gz, "wb") as f:
+                    f.write(b"v2-payload-updated")
+                newer = tmp_db.stat().st_mtime + 10
+                _os.utime(tmp_gz, (newer, newer))
+                mod26.ensure_2026_database_ready()
+                self.assertEqual(tmp_db.read_bytes(), b"v2-payload-updated")
+            finally:
+                mod26.DATA_DIR, mod26.DB_PATH, mod26.DB_GZ_PATH = orig_dir, orig_db, orig_gz
+
 
 if __name__ == "__main__":
     unittest.main()
