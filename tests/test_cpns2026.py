@@ -23,6 +23,10 @@ class Cpns2026DashboardTests(unittest.TestCase):
         ensure_2026_database_ready()
         cls.client = TestClient(app)
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.client.close()
+
     def test_database_and_artifacts_exist(self) -> None:
         self.assertTrue(DB_PATH.exists(), "cpns2026.db must exist")
         self.assertTrue(DB_GZ_PATH.exists(), "cpns2026.db.gz must exist for Render deploy")
@@ -399,6 +403,9 @@ class Cpns2026DashboardTests(unittest.TestCase):
         r_root = self.client.get("/")
         self.assertEqual(r_root.status_code, 200)
         self.assertIn("CPNS 2026 Explorer", r_root.text)
+        self.assertIn("14 Instansi Resmi", r_root.text)
+        self.assertNotIn("13 Instansi Resmi", r_root.text)
+        self.assertIn("?v=20261128h", r_root.text)
         self.assertIn("/cpns-2024", r_root.text)
         self.assertIn("/static/favicon.png", r_root.text)
         self.assertIn("https://x.com/wiraaaaa27/status/2126201372244914343", r_root.text)

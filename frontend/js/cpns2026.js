@@ -1887,7 +1887,10 @@
       }
       const url = new URL(API_BASE + '/export', window.location.origin);
       if (state.only_saved && state.bookmarks.length) {
-        url.searchParams.set('ids', state.bookmarks.join(','));
+        const exportIds = (state.currentItems && state.currentItems.length)
+          ? state.currentItems.map((x) => x.formasi_id)
+          : state.bookmarks;
+        url.searchParams.set('ids', exportIds.join(','));
       } else {
         Object.entries(buildActiveQueryParams()).forEach(([k, v]) => {
           if (v !== undefined && v !== null && String(v).trim() !== '') {
