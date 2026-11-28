@@ -104,6 +104,14 @@ EXTRA_INSTANSI = [
         33240000,
         "Perpres No. 121/2017 (Tukin Resmi Terverifikasi Kemenhut / eks KLHK — Simulasi Acuan)",
     ),
+    (
+        "KKP",
+        "Kementerian Kelautan dan Perikanan",
+        "Pusat",
+        2531250,
+        33240000,
+        "Perpres No. 136/2017 (Tukin Resmi Terverifikasi KKP — Simulasi Acuan)",
+    ),
 ]
 
 DRIVE_AUDIT_SUMMARY = [
@@ -115,6 +123,15 @@ DRIVE_AUDIT_SUMMARY = [
         "rows_ingested": 51,
         "kuota_ingested": 952,
         "catatan": "Data resmi SSCASN BKN (termasuk Jalur Formasi Umum/Disabilitas/Papua & Gaji Resmi BKN Rp 13–19 jt; pelamar belum dirilis). File BPK.pdf di Drive memuat total alokasi identik 952 kursi sehingga tidak digandakan.",
+    },
+    {
+        "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf (Kementerian Kelautan dan Perikanan)",
+        "status": "ingested_sscasn_live",
+        "instansi": "Kementerian Kelautan dan Perikanan",
+        "referensi": "SSCASN BKN Live — Seleksi CASN Nasional 2026 (28 Nov 2026)",
+        "rows_ingested": 606,
+        "kuota_ingested": 2132,
+        "catatan": "Data resmi SSCASN BKN Live lengkap 606 baris penempatan unit KKP seluruh Indonesia (2.091 Umum, 35 Putra/Putri Papua, 6 Penyandang Disabilitas) beserta Gaji Resmi BKN Rp 5,0–8,8 jt, usia 18–35 th, uraian tugas, dan dokumen/sertifikasi khusus per formasi (ANKAPIN II, ATKAPIN II, BST/BST-F, TOEFL/IELTS).",
     },
     {
         "file_name": "api-rekrutmen.bkn.go.id/portal/api/spf + Kemenkop.pdf",
@@ -477,6 +494,8 @@ _INSTANSI_CODE_MAP = {
     "Polri": "POLRI",
     "Kementerian Kehutanan": "KEMENHUT",
     "Kementerian Kehutanan Republik Indonesia": "KEMENHUT",
+    "Kementerian Kelautan dan Perikanan": "KKP",
+    "Kementerian Kelautan dan Perikanan Republik Indonesia": "KKP",
 }
 
 _CANONICAL_INSTANSI_NM = {
@@ -494,6 +513,7 @@ _CANONICAL_INSTANSI_NM = {
     "Kementerian Hak Asasi Manusia Republik Indonesia": "Kementerian Hak Asasi Manusia",
     "Kepolisian Negara": "Kepolisian Negara Republik Indonesia",
     "Kementerian Kehutanan Republik Indonesia": "Kementerian Kehutanan",
+    "Kementerian Kelautan dan Perikanan Republik Indonesia": "Kementerian Kelautan dan Perikanan",
 }
 
 SUMBER_SSCASN = (

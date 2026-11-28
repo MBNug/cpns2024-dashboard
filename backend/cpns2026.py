@@ -422,7 +422,7 @@ def get_stats_2026() -> dict[str, Any]:
             "has_jenis_formasi": has_jenis,
             "instansi_summary": instansi_summary,
             "drive_audit": drive_audit,
-            "sumber_dokumen": "SSCASN Live (MA RI, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut PG.2/2026) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
+            "sumber_dokumen": "SSCASN Live (MA RI, KKP, BPKP, Kejaksaan Agung, Kemenkum, Kemenham, Kemenkop, BPK, Polri, BSSN) • Pengumuman Resmi (Kemenhut PG.2/2026) • KepmenPANRB 675 (Kemenkeu), 674 (Passing Grade) • SE Kemenkes HK.02.02",
         }
     finally:
         conn.close()
@@ -634,6 +634,7 @@ _DEFAULT_ORDER_SQL = (
     "WHEN 'KEMENHAM' THEN 10 "
     "WHEN 'POLRI' THEN 11 "
     "WHEN 'KEMENHUT' THEN 12 "
+    "WHEN 'KKP' THEN 13 "
     "ELSE 99 END ASC, f.instansi_id ASC, f.no_urut ASC, f.formasi_id ASC"
 )
 

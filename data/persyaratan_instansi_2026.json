@@ -392,6 +392,39 @@
     "tahapan_skb": "SKB (60% nilai akhir): Polhut Ahli Pertama = CAT 60% + Tes Kesehatan (MS/TMS gugur) + Kesamaptaan 30% + Sertifikat 10%; Polhut Terampil/Pemula & Manggala Agni = CAT 50% + Tes Kesehatan (MS/TMS gugur) + Kesamaptaan 40% + Sertifikat 10%; PEH/Penyuluh/Pelatih Satwa = CAT 90% + Sertifikat 10%; Jabatan lain = CAT BKN.",
     "catatan_penting": "Perhatikan syarat fisik ketat Polhut & Manggala Agni (tinggi badan, IMT ideal, tes kesehatan 2 tahap gugur, lari 12 menit + pull up/sit up/push up/shuttle run). Surat sehat tinggi/berat/tidak buta warna wajib dibawa saat tes kesamaptaan Manggala Agni."
   },
+  "KKP": {
+    "status_pengumuman": "lengkap",
+    "nomor_pengumuman": "SSCASN BKN Resmi TA 2026 — Kementerian Kelautan dan Perikanan (28 November 2026)",
+    "portal_resmi": "https://ropeg.kkp.go.id/",
+    "jadwal_pendaftaran": "27 November s.d. 21 Desember 2026",
+    "jadwal_ringkas": [
+      {"tahap": "Pendaftaran SSCASN", "tanggal": "27 Nov – 21 Des 2026"},
+      {"tahap": "Pelaksanaan SKD CAT", "tanggal": "2 – 21 Feb 2027"},
+      {"tahap": "Pelaksanaan SKB", "tanggal": "30 Mar – 12 Apr 2027"}
+    ],
+    "usia_ringkas": "18 – 35 tahun pada saat mendaftar di SSCASN",
+    "ipk_minimal": null,
+    "akreditasi": "Perguruan tinggi dan/atau program studi terakreditasi (sesuai rincian dokumen unggah SSCASN).",
+    "syarat_bahasa": "Jabatan tertentu mempersyaratkan sertifikat TOEFL ITP minimal 500 (IELTS 5,5) atau TOEFL ITP minimal 550 (IELTS 6,0) yang masih berlaku maks. 2 tahun — cek daftar dokumen unggah SSCASN di bawah untuk formasi ini.",
+    "syarat_fisik_khusus": "Jabatan operasional kelautan/perikanan tertentu mensyaratkan sertifikasi ANKAPIN (min. II), ATKAPIN (min. II), atau BST / BST-F — cek daftar dokumen unggah SSCASN di bawah.",
+    "ikatan_dinas": null,
+    "berkas_wajib": [
+      "Scan berwarna Surat Lamaran dan Pernyataan yang dihasilkan & diunduh dari SSCASN (ditandatangani & bermeterai/e-meterai Rp10.000)",
+      "Scan berwarna Transkrip Nilai Asli (bukan hasil legalisir) memuat IPK atau daftar nilai SMA/sederajat + bukti akreditasi PT/Prodi"
+    ],
+    "berkas_khusus_jalur": {
+      "PENYANDANG DISABILITAS": [
+        "Surat keterangan dokter RS Pemerintah/Puskesmas yang menerangkan jenis dan derajat kedisabilitasan",
+        "Tautan video singkat kegiatan sehari-hari dalam menjalankan aktivitas sesuai jabatan yang dilamar"
+      ],
+      "PUTRA/PUTRI PAPUA": [
+        "Scan berwarna Akta Kelahiran atau Surat Keterangan Lahir",
+        "Scan berwarna Surat Keterangan dari Kepala Desa atau Kepala Suku yang menyatakan Pelamar asli Papua"
+      ]
+    },
+    "tahapan_skb": null,
+    "catatan_penting": "Persyaratan usia, uraian tugas, dan dokumen/sertifikasi khusus formasi (ANKAPIN II, ATKAPIN II, BST/BST-F, TOEFL/IELTS) diambil langsung dari portal live SSCASN BKN 2026. Rincian ambang IPK dan bobot SKB tambahan akan dilengkapi segera setelah PDF Pengumuman resmi KKP dipublikasikan di https://ropeg.kkp.go.id/."
+  },
   "KEMENKEU": {
     "status_pengumuman": "menunggu_pengumuman",
     "nomor_pengumuman": "Baru terbit KepmenPANRB No. 675 Tahun 2026 (Penetapan Kebutuhan 1.915 kursi)",
