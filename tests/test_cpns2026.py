@@ -566,17 +566,19 @@ class Cpns2026DashboardTests(unittest.TestCase):
         self.assertGreaterEqual(len(ph["berkas_wajib_instansi"]), 3)
         self.assertIn("kehutanan.go.id", ph["portal_resmi"])
 
-        # SSCASN Live agency (KKP): complete SSCASN rules, official age/jobdesc/docs, null IPK until PDF drops
+        # SSCASN Live + Pengumuman B.1389/SJ/KP.310/XI/2026 (KKP): complete rules, SKB weights & docs
         r_kkp_list = self.client.get("/api/2026/formasi", params={"instansi": "Kementerian Kelautan dan Perikanan", "limit": 1}).json()
         kkp_fid = r_kkp_list["items"][0]["formasi_id"]
         pkkp = self.client.get(f"/api/2026/formasi/{kkp_fid}").json().get("persyaratan_daftar")
         self.assertEqual(pkkp["status_pengumuman"], "lengkap")
         self.assertEqual(pkkp["usia_min"], 18)
         self.assertEqual(pkkp["usia_max"], 35)
-        self.assertIsNone(pkkp["ipk_minimal"])
+        self.assertIn("B.1389/SJ/KP.310/XI/2026", pkkp["nomor_pengumuman"])
+        self.assertIn("SKB CAT BKN (50%)", pkkp["tahapan_skb"])
+        self.assertIn("5 tahun", pkkp["ikatan_dinas"])
         self.assertTrue(pkkp["jobdesc"])
         self.assertGreaterEqual(len(pkkp["berkas_formasi_sscasn"]), 2)
-        self.assertIn("ropeg.kkp.go.id", pkkp["portal_resmi"])
+        self.assertIn("sdmao.kkp.go.id", pkkp["portal_resmi"])
 
         # Zero-hallucination pending agencies (Kemenkeu & Kemenkes): no fabricated IPK/age/dates
         for fid in ("2026-KEMENKEU-001", "2026-KEMENKES-01-KEAH-TIDAK"):
