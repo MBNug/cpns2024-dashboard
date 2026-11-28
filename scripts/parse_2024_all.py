@@ -971,9 +971,11 @@ def _quick_classify_pdf(pdf_path: Path, expected_nama: str) -> dict[str, Any] | 
     if has_pppk and not has_cpns and "cpns" not in pdf_path.name.lower():
         return None
     if rekap == 0 and rincian == 0:
-        # Check Merangin custom format
+        # Check Merangin / Berau custom tabular formats
         if "merangin" in expected_nama.lower() and "lulus-pra-sanggah" in pdf_path.name.lower():
             return {"path": pdf_path, "sha": hashlib.sha256(pdf_path.read_bytes()).hexdigest()[:16], "kind": "custom_merangin", "pages": n, "size": sz, "stage": _file_stage_rank(pdf_path.name)}
+        if "berau" in expected_nama.lower() and "skd skb cpns pemerintah kabupaten berau" in pdf_path.name.lower():
+            return {"path": pdf_path, "sha": hashlib.sha256(pdf_path.read_bytes()).hexdigest()[:16], "kind": "custom_berau", "pages": n, "size": sz, "stage": _file_stage_rank(pdf_path.name)}
         return None
 
     # Verify instansi header actually matches this agency
@@ -1081,6 +1083,90 @@ def parse_merangin_pdf(pdf_path: Path, iid24: int, conn: sqlite3.Connection) -> 
     return list(grouped_by_fid.values())
 
 
+def _norm_berau(s: str) -> str:
+    return re.sub(r"\s+", " ", s.replace("\ufffe", "-").replace(" | ", "|").upper()).strip()
+
+
+def parse_berau_pdf(pdf_path: Path, iid24: int, conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Parse Kab. Berau tabular SKD+SKB announcement and aggregate per matching 2024 formation."""
+    pages = extract_pdf_pages_fast(pdf_path, workers=1)
+    clean_lines: list[str] = []
+    for pg in pages:
+        for line in pg.splitlines():
+            s = " ".join(line.split())
+            if not s or re.match(
+                r"^(?:TWK TIU|Total|\(Skala|1 2 3|Jenis|Formasi No|Nilai|Skor|Tahun|SKD|SKB|100\)|No No\. Peserta)",
+                s,
+            ):
+                continue
+            clean_lines.append(s)
+
+    blocks = re.split(r"(?m)^(?=\d+\s+246904\d{11}\b)", "\n".join(clean_lines))
+    row_re = re.compile(
+        r"^(\d+)\s+(246904\d{11})\s+(.+?)\s+Pemerintah Kab\.\s+Berau\s+"
+        r"(PEMERINTAH KABUPATEN BERAU\s*\|.+)\s+"
+        r"(UMUM|LULUSAN TERBAIK|PENYANDAN\s*G\s*DISABILITAS|PENYANDANG\s*DISABILITAS|PUTRA/PUTRI KALIMANTAN)\s+"
+        r"(.+?)\s+"
+        r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+"
+        r"(P/(?:L(?:-U\d|-E\d)?|TL|TH|TMS(?:-1)?|APS)|L(?:-U\d|-E\d)?|TL|TH|TMS(?:-1)?|APS)\s+(20\d{2})\b"
+    )
+
+    db_rows = conn.execute(
+        "SELECT formasi_id, jabatan_nm, lokasi_nm, jenis_formasi, jumlah_formasi FROM formasi WHERE instansi_id = ?",
+        (iid24,),
+    ).fetchall()
+    db_norm = [(_norm_berau(j), _norm_berau(l), fid, j, l, jf or "UMUM", int(kuota or 1)) for fid, j, l, jf, kuota in db_rows]
+
+    grouped_by_fid: dict[str, dict[str, Any]] = {}
+    for b in blocks:
+        b1 = " ".join(b.split())
+        if not re.match(r"^\d+\s+246904\d{11}\b", b1):
+            continue
+        mt = row_re.match(b1)
+        if not mt:
+            continue
+        pid = mt.group(2)
+        lok = _norm_berau(mt.group(4))
+        rest = _norm_berau(mt.group(6))
+        twk, tiu, tkp, tot = int(mt.group(7)), int(mt.group(8)), int(mt.group(9)), int(mt.group(10))
+        skd40, skb_val, skb60, na = _to_float(mt.group(12)), _to_float(mt.group(13)), _to_float(mt.group(14)), _to_float(mt.group(15))
+        st = mt.group(16)
+        if not _valid_scores(twk, tiu, tkp, tot, skd40, skb_val, skb60, na):
+            continue
+
+        cands = [row for row in db_norm if row[1] == lok and rest.startswith(row[0])]
+        if not cands:
+            tail = lok.split("|")[-1].strip()
+            cands = [row for row in db_norm if rest.startswith(row[0]) and tail in row[1]]
+        if not cands:
+            continue
+        cands.sort(key=lambda r: len(r[0]), reverse=True)
+        _, _, fid, jab_orig, lok_orig, jf_orig, kuota = cands[0]
+
+        sec = grouped_by_fid.setdefault(
+            fid,
+            {
+                "formasi_id_2024": fid,
+                "hdr": {"jab_kode": None, "jabatan_nm": jab_orig, "lok_kode": None, "lokasi_nm": lok_orig, "jenis_formasi": jf_orig, "pendidikan_raw": "", "jumlah_formasi_header": kuota},
+                "counts": {"peserta_skb": 0, "hadir": 0, "jumlah_formasi": kuota, "lulus_akhir": 0},
+                "page_rekap": 5,
+                "mode": "custom_berau",
+                "candidates": [],
+            },
+        )
+        lulus = is_lulus_status(st)
+        sec["candidates"].append(
+            {"no_peserta": pid, "total_skd": tot, "skor_skd": skd40, "nilai_skb": skb_val, "nilai_akhir": na, "status": st, "is_lulus": lulus}
+        )
+        sec["counts"]["peserta_skb"] += 1
+        if not st.endswith("TH"):
+            sec["counts"]["hadir"] += 1
+        if lulus:
+            sec["counts"]["lulus_akhir"] += 1
+
+    return list(grouped_by_fid.values())
+
+
 def select_best_files(cands: list[dict[str, Any]]) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
     """Select full-corpus base file + any clean Panselnas overlay delta files."""
     if not cands:
@@ -1093,7 +1179,7 @@ def select_best_files(cands: list[dict[str, Any]]) -> tuple[dict[str, Any] | Non
             seen_sha.add(c["sha"])
             uniq.append(c)
 
-    mer = [c for c in uniq if c["kind"] == "custom_merangin"]
+    mer = [c for c in uniq if c["kind"] in ("custom_merangin", "custom_berau")]
     if mer:
         return mer[0], []
 
@@ -1167,6 +1253,10 @@ def process_one_agency(
         parsed_secs = parse_merangin_pdf(pdf_path, iid, conn)
         math_failures = 0
         sumber_label = f"Pengumuman Hasil Akhir Pra-Sanggah CPNS {nama} TA 2024 ({pdf_path.name})"
+    elif base["kind"] == "custom_berau":
+        parsed_secs = parse_berau_pdf(pdf_path, iid, conn)
+        math_failures = 0
+        sumber_label = f"Pengumuman Hasil Akhir SKD-SKB CPNS {nama} TA 2024 ({pdf_path.name})"
     elif base["kind"] == "zlib_ringkas":
         pages = extract_zlib_stream_pages(pdf_path)
         res = parse_bkn_pages(pages, allow_mode="ringkas")
@@ -1213,8 +1303,8 @@ def process_one_agency(
     if not parsed_secs:
         return None
 
-    # Match to cpns2024.db (for non-Merangin, which already carries formasi_id_2024)
-    if base["kind"] == "custom_merangin":
+    # Match to cpns2024.db (for non-Merangin/Berau, which already carry formasi_id_2024)
+    if base["kind"] in ("custom_merangin", "custom_berau"):
         db_total = conn.execute("SELECT COUNT(*) FROM formasi WHERE instansi_id = ?", (iid,)).fetchone()[0]
         db_matched = sum(1 for s in parsed_secs if s.get("formasi_id_2024"))
     else:
